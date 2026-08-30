@@ -124,6 +124,43 @@ export default function App() {
     } catch { /* silent */ }
   };
 
+  // ─── 72-HOUR VENDOR SESSION AUTO-LOGOUT ───────────────────────────────────
+  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 Hours (3 Days)
+
+  const handleVendorLogout = () => {
+    localStorage.removeItem('cartcraze_vendor_login_timestamp');
+    localStorage.removeItem('cartcraze_shop_data');
+    setIsLoggedIn(false);
+    setShopData(null);
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const savedTs = localStorage.getItem('cartcraze_vendor_login_timestamp');
+      if (!savedTs) {
+        localStorage.setItem('cartcraze_vendor_login_timestamp', Date.now().toString());
+      } else {
+        const elapsed = Date.now() - Number(savedTs);
+        if (elapsed > SESSION_DURATION_MS) {
+          console.log('[Shop App] 72-hour vendor session limit reached. Auto logging out.');
+          handleVendorLogout();
+        }
+      }
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const interval = setInterval(() => {
+      const savedTs = localStorage.getItem('cartcraze_vendor_login_timestamp');
+      if (savedTs && Date.now() - Number(savedTs) > SESSION_DURATION_MS) {
+        console.log('[Shop App] 72-hour vendor session expired. Auto logging out.');
+        handleVendorLogout();
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
+
   // ─── EFFECTS ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isLoggedIn) {

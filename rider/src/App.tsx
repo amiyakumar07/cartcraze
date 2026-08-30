@@ -93,6 +93,44 @@ const App: React.FC = () => {
     }
   };
 
+  // ─── 72-HOUR RIDER SESSION AUTO-LOGOUT ───────────────────────────────────
+  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 Hours (3 Days)
+
+  const handleRiderLogout = () => {
+    localStorage.removeItem('cartcraze_rider_login_timestamp');
+    localStorage.removeItem('cartcraze_rider_data');
+    setRiderProfile((prev) => ({ ...prev, isLoggedIn: false }));
+    setActiveOrder(null);
+    setDutyStatus('OFF_DUTY');
+  };
+
+  useEffect(() => {
+    if (riderProfile.isLoggedIn) {
+      const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
+      if (!savedTs) {
+        localStorage.setItem('cartcraze_rider_login_timestamp', Date.now().toString());
+      } else {
+        const elapsed = Date.now() - Number(savedTs);
+        if (elapsed > SESSION_DURATION_MS) {
+          console.log('[Rider App] 72-hour rider session limit reached. Auto logging out.');
+          handleRiderLogout();
+        }
+      }
+    }
+  }, [riderProfile.isLoggedIn]);
+
+  useEffect(() => {
+    if (!riderProfile.isLoggedIn) return;
+    const interval = setInterval(() => {
+      const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
+      if (savedTs && Date.now() - Number(savedTs) > SESSION_DURATION_MS) {
+        console.log('[Rider App] 72-hour rider session expired. Auto logging out.');
+        handleRiderLogout();
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [riderProfile.isLoggedIn]);
+
   useEffect(() => {
     if (riderProfile.isLoggedIn) {
       checkRiderStatus();

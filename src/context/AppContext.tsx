@@ -184,9 +184,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  // ─── 72-HOUR USER SESSION AUTO-LOGOUT ─────────────────────────────────────
+  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours (3 days)
+
+  // On mount and login status change, enforce 72-hour session limit
+  useEffect(() => {
+    if (userProfile.isLoggedIn) {
+      const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
+      if (!savedTs) {
+        localStorage.setItem('cartcraze_user_login_timestamp', Date.now().toString());
+      } else {
+        const elapsed = Date.now() - Number(savedTs);
+        if (elapsed > SESSION_DURATION_MS) {
+          console.log('[User App] 72-hour session limit reached. Auto logging out user.');
+          logoutUser();
+        }
+      }
+    }
+  }, [userProfile.isLoggedIn]);
+
+  // Periodic 1-minute background check for 72-hour session expiration
+  useEffect(() => {
+    if (!userProfile.isLoggedIn) return;
+    const interval = setInterval(() => {
+      const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
+      if (savedTs && Date.now() - Number(savedTs) > SESSION_DURATION_MS) {
+        console.log('[User App] 72-hour session expired. Logging out.');
+        logoutUser();
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [userProfile.isLoggedIn]);
+
   const clearCart = () => setCart([]);
 
   const logoutUser = () => {
+    localStorage.removeItem('cartcraze_user_login_timestamp');
+    localStorage.removeItem('cartcraze_user_profile');
     setUserProfile((prev) => ({ ...prev, isLoggedIn: false }));
     clearCart();
     setActiveTab('login');
