@@ -32,3 +32,5 @@ export const searchGeocodeServer = async (query) => {
     return [];
   }
 };
+
+export const searchLocationServer = searchGeocodeServer;
