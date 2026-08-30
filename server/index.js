@@ -9,6 +9,19 @@ const PORT = 4000;
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'CartCraze Real-Time Express API Backend Server',
+    version: '1.0.0',
+    endpoints: ['/api/products', '/api/orders', '/api/darkstores', '/api/locationiq/all-riders']
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // ==========================================
 // SUPABASE CLIENT INITIALIZATION
 // ==========================================
