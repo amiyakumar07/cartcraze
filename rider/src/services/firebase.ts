@@ -2,13 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA32Q0rN71YkZmRIs9Th3TmajNZbzDwvTQ",
-  authDomain: "cartcraze-user.firebaseapp.com",
-  projectId: "cartcraze-user",
-  storageBucket: "cartcraze-user.firebasestorage.app",
-  messagingSenderId: "438473527527",
-  appId: "1:438473527527:android:372b2b194523172444d242",
-  measurementId: "G-P8T10Z4124"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'YOUR_FIREBASE_API_KEY',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'cartcraze-rider.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'cartcraze-rider',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'cartcraze-rider.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '438473527527',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:438473527527:android:3e3c02f5a2f0efef44d242'
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);

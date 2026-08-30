@@ -12,8 +12,8 @@ app.use(express.json());
 // ==========================================
 // SUPABASE CLIENT INITIALIZATION
 // ==========================================
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://kvjeogfcqexhxcuvnmyv.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable_FC1HNKnqJ8PxDbTz6zK0lQ_fzzWsZHq';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://YOUR_SUPABASE_PROJECT.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || 'YOUR_SUPABASE_KEY';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -337,7 +337,7 @@ app.post('/api/razorpay/create-order', (req, res) => {
     return res.status(200).json({
       success: true,
       order: orderPayload,
-      key: process.env.RAZORPAY_KEY_ID || 'rzp_test_CartCraze2026'
+      key: process.env.RAZORPAY_KEY_ID || 'YOUR_RAZORPAY_KEY_ID'
     });
   } catch (error) {
     console.error('Razorpay Create Order Error:', error);

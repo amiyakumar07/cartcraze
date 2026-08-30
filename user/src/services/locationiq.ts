@@ -1,136 +1,115 @@
-export const LOCATIONIQ_API_KEY = 'pk.77659b64212a8f223301cab1faf0a37a';
+export const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'YOUR_LOCATIONIQ_API_KEY';
 
-export interface LocationSearchResult {
-  displayName: string;
-  lat: number;
-  lon: number;
-  placeId: string;
+export interface LocationIQResult {
+  place_id: string;
+  lat: string;
+  lon: string;
+  display_name: string;
+  address?: {
+    road?: string;
+    suburb?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+  };
 }
 
-export interface GeocodeResult {
-  success: boolean;
-  address: string;
-  lat: number;
-  lon: number;
-  postcode?: string;
-  suburb?: string;
-  village?: string;
-  neighbourhood?: string;
-  road?: string;
-  houseNumber?: string;
-  city?: string;
-  displayName?: string;
-}
-
-// Reverse Geocode: Lat/Lon -> Detailed Address
-export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<GeocodeResult> => {
+/**
+ * Reverse Geocoding using LocationIQ REST API
+ * Converts Latitude & Longitude to human-readable address
+ */
+export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
   try {
-    const res = await fetch(`https://us1.locationiq.com/v1/reverse?key=${LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lon}&format=json`);
-    if (!res.ok) throw new Error('LocationIQ reverse failed');
-    const data = await res.json();
-    const addr = data.address || {};
-
-    const postcode = addr.postcode || addr.postal_code || '';
-    const suburb = addr.suburb || addr.subdistrict || addr.district || addr.county || '';
-    const village = addr.village || addr.neighbourhood || addr.residential || addr.suburb || addr.hamlet || '';
-    const road = addr.road || addr.street || addr.pedestrian || addr.footway || addr.path || '';
-    const houseNumber = addr.house_number || addr.building || addr.house || '';
-    const city = addr.city || addr.town || addr.municipality || addr.state_district || '';
-
-    return {
-      success: true,
-      address: data.display_name || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
-      lat,
-      lon,
-      postcode,
-      suburb,
-      village,
-      neighbourhood: addr.neighbourhood || suburb,
-      road,
-      houseNumber,
-      city,
-      displayName: data.display_name
-    };
-  } catch (err: any) {
-    return {
-      success: false,
-      address: `GPS Pin (${lat.toFixed(4)}, ${lon.toFixed(4)})`,
-      lat,
-      lon
-    };
+    const key = LOCATIONIQ_API_KEY;
+    if (!key || key === 'YOUR_LOCATIONIQ_API_KEY') {
+      return `HSR Layout Sector 1, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    }
+    const res = await fetch(`https://us1.locationiq.com/v1/reverse?key=${key}&lat=${lat}&lon=${lon}&format=json`);
+    if (!res.ok) {
+      return `Sector 1, HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    }
+    const data: LocationIQResult = await res.json();
+    if (data.display_name) {
+      return data.display_name;
+    }
+    return `HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+  } catch (err) {
+    console.warn('LocationIQ Reverse Geocoding offline, using fallback:', err);
+    return `Sector 1, HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
   }
 };
 
-// Address Search Autocomplete
-export const searchLocationIQ = async (query: string): Promise<LocationSearchResult[]> => {
+/**
+ * Forward Geocoding / Search Autocomplete using LocationIQ
+ */
+export const searchLocationIQ = async (query: string): Promise<LocationIQResult[]> => {
   if (!query || query.trim().length < 2) return [];
   try {
-    const res = await fetch(`https://us1.locationiq.com/v1/search?key=${LOCATIONIQ_API_KEY}&q=${encodeURIComponent(query)}&format=json&limit=5`);
-    if (!res.ok) throw new Error('LocationIQ search failed');
+    const key = LOCATIONIQ_API_KEY;
+    if (!key || key === 'YOUR_LOCATIONIQ_API_KEY') {
+      return [
+        {
+          place_id: '1',
+          lat: '12.9141',
+          lon: '77.6411',
+          display_name: `${query}, Sector 1, HSR Layout, Bengaluru, Karnataka 560102`
+        },
+        {
+          place_id: '2',
+          lat: '12.9200',
+          lon: '77.6450',
+          display_name: `${query}, 27th Main Rd, HSR Layout, Bengaluru, Karnataka 560102`
+        }
+      ];
+    }
+    const res = await fetch(`https://us1.locationiq.com/v1/search?key=${key}&q=${encodeURIComponent(query)}&format=json&limit=5`);
+    if (!res.ok) return [];
     const data = await res.json();
-    return data.map((item: any) => ({
-      displayName: item.display_name,
-      lat: parseFloat(item.lat),
-      lon: parseFloat(item.lon),
-      placeId: item.place_id
-    }));
-  } catch {
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('LocationIQ Search query failed:', err);
     return [
-      { displayName: `${query}, HSR Layout, Bengaluru`, lat: 12.9141, lon: 77.6411, placeId: 'fallback-1' },
-      { displayName: `${query}, Koramangala 5th Block, Bengaluru`, lat: 12.9344, lon: 77.6101, placeId: 'fallback-2' }
+      {
+        place_id: '1',
+        lat: '12.9141',
+        lon: '77.6411',
+        display_name: `${query}, Sector 1, HSR Layout, Bengaluru, Karnataka 560102`
+      }
     ];
   }
 };
 
-const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const SERVER_URL = `http://${hostname}:4000/api`;
-
-export interface LiveRiderLocation {
-  riderId: string;
-  riderName: string;
-  phone?: string;
-  vehicleNumber?: string;
-  lat: number;
-  lon: number;
-  heading?: number;
-  speed?: number;
-  battery?: number;
-  status: string;
-  orderId?: string;
-  darkstoreLat?: number;
-  darkstoreLon?: number;
-  customerLat?: number;
-  customerLon?: number;
-  distanceRemainingKm?: number;
-  etaMinutes?: number;
-  lastUpdated?: string;
-}
-
-export const fetchLiveRidersApi = async (): Promise<LiveRiderLocation[]> => {
-  try {
-    const res = await fetch(`${SERVER_URL}/locationiq/live-riders`);
-    if (!res.ok) throw new Error('Failed to fetch live riders');
-    const data = await res.json();
-    return data.riders || [];
-  } catch (err) {
-    console.warn('LocationIQ Live Riders Fetch Error:', err);
-    return [];
-  }
+/**
+ * Calculate distance in Kilometers between two Lat/Lon points using Haversine Formula
+ */
+export const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10;
 };
 
-export const fetchOrderLocationApi = async (orderId: string): Promise<LiveRiderLocation | null> => {
-  try {
-    const res = await fetch(`${SERVER_URL}/locationiq/order-location/${orderId}`);
-    if (!res.ok) throw new Error('Failed to fetch order location');
-    const data = await res.json();
-    return data.location || null;
-  } catch (err) {
-    console.warn('LocationIQ Order Location Fetch Error:', err);
-    return null;
-  }
+/**
+ * Estimate Delivery SLA in Minutes based on Distance
+ */
+export const calculateExpressSLA = (distanceKm: number): number => {
+  if (distanceKm <= 1.5) return 9;
+  if (distanceKm <= 3.0) return 12;
+  if (distanceKm <= 5.0) return 15;
+  return 19;
 };
 
-// LocationIQ Tile Layer URL Template
+/**
+ * Generate LocationIQ Tile Layer URL for Leaflet / OpenLayers / Mapbox
+ */
 export const getLocationIQTileUrl = (token: string = LOCATIONIQ_API_KEY) => {
-  return `https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${token}`;
+  return `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${token}`;
 };

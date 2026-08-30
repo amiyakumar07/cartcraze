@@ -1,45 +1,34 @@
-const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY || 'pk.77659b64212a8f223301cab1faf0a37a';
+const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY || 'YOUR_LOCATIONIQ_API_KEY';
 
 export const reverseGeocodeServer = async (lat, lon) => {
   try {
+    if (!LOCATIONIQ_API_KEY || LOCATIONIQ_API_KEY === 'YOUR_LOCATIONIQ_API_KEY') {
+      return `HSR Layout Sector 1, Bengaluru (${lat}, ${lon})`;
+    }
     const url = `https://us1.locationiq.com/v1/reverse?key=${LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lon}&format=json`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('LocationIQ reverse geocode failed');
+    if (!res.ok) {
+      return `Sector 1, HSR Layout, Bengaluru (${lat}, ${lon})`;
+    }
     const data = await res.json();
-    return {
-      success: true,
-      address: data.display_name,
-      details: data.address
-    };
-  } catch (error) {
-    return {
-      success: false,
-      address: `Lat ${lat}, Lon ${lon} (HSR Layout, Bengaluru)`,
-      error: error.message
-    };
+    return data.display_name || `HSR Layout, Bengaluru (${lat}, ${lon})`;
+  } catch (err) {
+    console.warn('LocationIQ server reverse geocode error:', err.message);
+    return `Sector 1, HSR Layout, Bengaluru (${lat}, ${lon})`;
   }
 };
 
-export const searchLocationServer = async (query) => {
+export const searchGeocodeServer = async (query) => {
   try {
+    if (!LOCATIONIQ_API_KEY || LOCATIONIQ_API_KEY === 'YOUR_LOCATIONIQ_API_KEY') {
+      return [{ place_id: '1', lat: '12.9141', lon: '77.6411', display_name: `${query}, HSR Layout, Bengaluru` }];
+    }
     const url = `https://us1.locationiq.com/v1/search?key=${LOCATIONIQ_API_KEY}&q=${encodeURIComponent(query)}&format=json&limit=5`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('LocationIQ search failed');
-    const data = await res.json();
-    return {
-      success: true,
-      results: data.map(item => ({
-        displayName: item.display_name,
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
-        placeId: item.place_id
-      }))
-    };
-  } catch (error) {
-    return {
-      success: false,
-      results: [],
-      error: error.message
-    };
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn('LocationIQ server search geocode error:', err.message);
+    return [];
   }
 };
