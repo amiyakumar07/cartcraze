@@ -264,47 +264,7 @@ export const SecurityGate: React.FC<SecurityGateProps> = ({ onAuthenticated }) =
             <p className="text-xs text-slate-400">Open Google Authenticator App on your phone and enter 6-digit code</p>
           </div>
 
-          {/* Optional One-Time QR Setup Toggle */}
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowQRSetup(!showQRSetup)}
-              className="w-full p-3.5 flex items-center justify-between text-[11px] font-extrabold text-slate-300 hover:bg-slate-900 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-1.5">
-                <QrCode className="w-4 h-4 text-amber-400" />
-                First time setup? Show QR Code
-              </span>
-              {showQRSetup ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
-
-            {showQRSetup && (
-              <div className="p-4 pt-1 border-t border-slate-800 space-y-3">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="bg-white p-2 rounded-xl shadow-md shrink-0">
-                    <img src={qrCodeUrl} alt="Google Authenticator 2FA QR Code" className="w-32 h-32 rounded" />
-                  </div>
-                  <div className="space-y-2 text-center sm:text-left">
-                    <p className="text-[10px] text-slate-400 leading-relaxed">
-                      1. Open <strong>Google Authenticator</strong> app on phone.<br />
-                      2. Tap <strong>+</strong> ➔ <strong>Scan a QR code</strong>.<br />
-                      3. Scan this QR code once to link CartCraze Admin.
-                    </p>
-                    <div className="bg-slate-900 border border-slate-800 p-2 rounded-xl flex items-center justify-between text-[11px]">
-                      <span className="font-mono font-bold text-amber-400 tracking-wider truncate max-w-[140px]">{TOTP_SECRET}</span>
-                      <button
-                        type="button"
-                        onClick={copySecretKey}
-                        className="text-slate-400 hover:text-white p-1 transition-colors cursor-pointer"
-                      >
-                        {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* 6-Digit OTP Verification Form */}
 
           {totpError && (
             <div className="bg-red-950/60 border border-red-800/80 text-red-300 p-3 rounded-2xl text-xs font-semibold flex items-center gap-2">
