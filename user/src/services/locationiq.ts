@@ -15,9 +15,34 @@ export interface LocationIQResult {
   };
 }
 
+export interface LiveRiderLocation {
+  riderId: string;
+  riderName: string;
+  lat: number;
+  lon: number;
+  speed: number;
+  status: string;
+  orderId?: string;
+  updatedAt: string;
+}
+
+const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
+
+export const fetchOrderLocationApi = async (orderId?: string): Promise<LiveRiderLocation | null> => {
+  try {
+    const url = orderId ? `${API_BASE}/locationiq/rider-location?orderId=${orderId}` : `${API_BASE}/locationiq/rider-location`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.location || null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Reverse Geocoding using LocationIQ REST API
- * Converts Latitude & Longitude to human-readable address
  */
 export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
   try {
@@ -80,11 +105,8 @@ export const searchLocationIQ = async (query: string): Promise<LocationIQResult[
   }
 };
 
-/**
- * Calculate distance in Kilometers between two Lat/Lon points using Haversine Formula
- */
 export const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371; // Earth radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -97,9 +119,6 @@ export const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lo
   return Math.round(R * c * 10) / 10;
 };
 
-/**
- * Estimate Delivery SLA in Minutes based on Distance
- */
 export const calculateExpressSLA = (distanceKm: number): number => {
   if (distanceKm <= 1.5) return 9;
   if (distanceKm <= 3.0) return 12;
@@ -107,9 +126,6 @@ export const calculateExpressSLA = (distanceKm: number): number => {
   return 19;
 };
 
-/**
- * Generate LocationIQ Tile Layer URL for Leaflet / OpenLayers / Mapbox
- */
 export const getLocationIQTileUrl = (token: string = LOCATIONIQ_API_KEY) => {
   return `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${token}`;
 };

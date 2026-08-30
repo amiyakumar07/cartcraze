@@ -15,6 +15,32 @@ export interface LocationIQResult {
   };
 }
 
+export interface LiveRiderLocation {
+  riderId: string;
+  riderName: string;
+  lat: number;
+  lon: number;
+  speed: number;
+  status: string;
+  orderId?: string;
+  updatedAt: string;
+}
+
+const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
+
+export const fetchOrderLocationApi = async (orderId?: string): Promise<LiveRiderLocation | null> => {
+  try {
+    const url = orderId ? `${API_BASE}/locationiq/rider-location?orderId=${orderId}` : `${API_BASE}/locationiq/rider-location`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.location || null;
+  } catch {
+    return null;
+  }
+};
+
 export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
   try {
     const key = LOCATIONIQ_API_KEY;
