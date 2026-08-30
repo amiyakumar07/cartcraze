@@ -15,6 +15,8 @@ export interface LocationIQResult {
   };
 }
 
+export type LocationSearchResult = LocationIQResult;
+
 export interface LiveRiderLocation {
   riderId: string;
   riderName: string;
@@ -24,6 +26,9 @@ export interface LiveRiderLocation {
   status: string;
   orderId?: string;
   updatedAt: string;
+  battery?: number;
+  distanceRemainingKm?: number;
+  etaMinutes?: number;
 }
 
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';

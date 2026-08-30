@@ -15,6 +15,8 @@ export interface LocationIQResult {
   };
 }
 
+export type LocationSearchResult = LocationIQResult;
+
 export interface LiveRiderLocation {
   riderId: string;
   riderName: string;
@@ -24,6 +26,9 @@ export interface LiveRiderLocation {
   status: string;
   orderId?: string;
   updatedAt: string;
+  battery?: number;
+  distanceRemainingKm?: number;
+  etaMinutes?: number;
 }
 
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
@@ -41,9 +46,6 @@ export const fetchOrderLocationApi = async (orderId?: string): Promise<LiveRider
   }
 };
 
-/**
- * Reverse Geocoding using LocationIQ REST API
- */
 export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
   try {
     const key = LOCATIONIQ_API_KEY;
@@ -65,9 +67,6 @@ export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promis
   }
 };
 
-/**
- * Forward Geocoding / Search Autocomplete using LocationIQ
- */
 export const searchLocationIQ = async (query: string): Promise<LocationIQResult[]> => {
   if (!query || query.trim().length < 2) return [];
   try {

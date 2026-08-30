@@ -63,10 +63,10 @@ export interface Order {
   otp?: string;
   estimatedDeliveryMinutes: number;
   timeline: OrderTimelineStep[];
-  driverName: string;
-  driverPhone: string;
-  driverRating: number;
-  driverPhoto: string;
+  driverName?: string;
+  driverPhone?: string;
+  driverRating?: number;
+  driverPhoto?: string;
 }
 
 export interface SavedAddress {
@@ -96,4 +96,4 @@ export interface DriverChatMessage {
   time: string;
 }
 
-export type ActiveTab = 'home' | 'categories' | 'cart' | 'account' | 'category_detail' | 'track_order' | 'order_confirmed' | 'login' | 'onboarding';
+export type ActiveTab = 'home' | 'categories' | 'cart' | 'account' | 'category_detail' | 'track' | 'track_order' | 'order_confirmed' | 'login' | 'onboarding';

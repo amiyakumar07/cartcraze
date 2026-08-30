@@ -178,10 +178,10 @@ export const TrackOrderScreen: React.FC = () => {
 
             {order.items && order.items.length > 0 && (
               <div className="space-y-2 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800 truncate">{item.quantity}x {item.name}</span>
-                    <span className="text-emerald-700 font-extrabold text-[11px]">₹{item.price * item.quantity}</span>
+                {order.items.map((item, idx) => (
+                  <div key={item.product?.id || idx} className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-gray-800 truncate">{item.quantity}x {item.product?.name || 'Item'}</span>
+                    <span className="text-emerald-700 font-extrabold text-[11px]">₹{(item.product?.price || 0) * item.quantity}</span>
                   </div>
                 ))}
               </div>

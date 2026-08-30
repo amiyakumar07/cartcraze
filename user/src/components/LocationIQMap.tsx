@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Compass, Zap, MapPin, Activity, Play, ExternalLink } from 'lucide-react';
+import { Compass, Activity, Play, ExternalLink } from 'lucide-react';
 import { 
   LOCATIONIQ_API_KEY, 
   fetchOrderLocationApi, 
@@ -30,7 +30,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
 
   const [liveLocation, setLiveLocation] = useState<LiveRiderLocation | null>(null);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
-  const [riderAddress, setRiderAddress] = useState<string>('HSR Layout 27th Main, Bengaluru');
 
   // Customer Home Coordinates
   const customerLat = customLat ?? userCoords?.lat ?? 12.9250;
@@ -95,148 +94,103 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
   useEffect(() => {
     let isMounted = true;
     reverseGeocodeLocationIQ(riderLat, riderLon).then(res => {
-      if (isMounted && res.address) setRiderAddress(res.address);
+      if (isMounted && res) {
+        // location checked
+      }
     });
     return () => { isMounted = false; };
   }, [riderLat, riderLon]);
 
-  // Initialize Leaflet map and render markers & route
+  // Initialize Leaflet Map
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    if (!mapInstanceRef.current) {
+    try {
       const map = L.map(mapContainerRef.current, {
         center: [riderLat, riderLon],
         zoom: 14,
-        zoomControl: true,
+        zoomControl: false,
         attributionControl: false
       });
 
-      mapInstanceRef.current = map;
-
-      // LocationIQ Tile Layer with OpenStreetMap fallback
+      // LocationIQ Vector/Streets Tile Layer
       const tileUrl = `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${LOCATIONIQ_API_KEY}`;
-      const fallbackTileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
-      const tileLayer = L.tileLayer(tileUrl, {
+      L.tileLayer(tileUrl, {
         maxZoom: 19,
-        subdomains: ['a', 'b', 'c']
-      });
+        subdomains: 'abc'
+      }).addTo(map);
 
-      tileLayer.on('tileerror', () => {
-        tileLayer.setUrl(fallbackTileUrl);
-      });
-
-      tileLayer.addTo(map);
-
-      // Darkstore Marker Pin
-      const storeIcon = L.divIcon({
-        className: 'custom-darkstore-marker',
+      // 1. Darkstore Pickup Marker (Yellow Store Icon)
+      const darkstoreIcon = L.divIcon({
+        className: 'custom-map-icon',
         html: `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
-            <div style="background: #f59e0b; color: #000; border: 3px solid #ffffff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.6); font-size: 18px;">
-              🏪
-            </div>
-            <div style="background: #020617; color: #f59e0b; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 10px; border: 1px solid #f59e0b; white-space: nowrap; margin-top: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-              FreshCart Darkstore
-            </div>
+          <div style="background: #1e293b; color: #fdee24; padding: 6px 10px; border-radius: 12px; font-weight: 900; font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid #fdee24; display: flex; align-items: center; gap: 4px;">
+            🏬 Darkstore
           </div>
         `,
-        iconSize: [38, 55],
-        iconAnchor: [19, 27]
+        iconSize: [80, 30],
+        iconAnchor: [40, 15]
       });
-      L.marker([darkstoreLat, darkstoreLon], { icon: storeIcon })
-        .bindPopup('<b>FreshCart Express Darkstore</b><br/>Sector 1, HSR Layout')
-        .addTo(map);
+      L.marker([darkstoreLat, darkstoreLon], { icon: darkstoreIcon })
+        .addTo(map)
+        .bindPopup('<b>CartCraze Express Darkstore #04</b><br/>Item packed & ready for delivery');
 
-      // Customer Home Marker Pin
-      const homeIcon = L.divIcon({
-        className: 'custom-customer-home-marker',
+      // 2. Customer Delivery Destination Marker (Red Pin)
+      const customerIcon = L.divIcon({
+        className: 'custom-map-icon',
         html: `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
-            <div style="background: #10b981; color: #ffffff; border: 3px solid #ffffff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.6); font-size: 20px;">
-              🏠
-            </div>
-            <div style="background: #020617; color: #10b981; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 10px; border: 1px solid #10b981; white-space: nowrap; margin-top: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-              Your Doorstep
-            </div>
+          <div style="background: #ef4444; color: white; padding: 6px 10px; border-radius: 12px; font-weight: 900; font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid white; display: flex; align-items: center; gap: 4px;">
+            🏠 You
           </div>
         `,
-        iconSize: [40, 57],
-        iconAnchor: [20, 28]
+        iconSize: [60, 30],
+        iconAnchor: [30, 15]
       });
-      L.marker([customerLat, customerLon], { icon: homeIcon })
-        .bindPopup(`<b>Delivery Address</b><br/>${displayAddress}`)
-        .addTo(map);
+      L.marker([customerLat, customerLon], { icon: customerIcon })
+        .addTo(map)
+        .bindPopup(`<b>Delivery Address</b><br/>${displayAddress}`);
 
-      // Moving Rider Marker
+      // 3. Live Rider Delivery Partner Marker (Pulsing Scooter)
       const riderIcon = L.divIcon({
-        className: 'custom-rider-marker',
+        className: 'custom-map-icon rider-pulse-icon',
         html: `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
-            <div style="background: #fdee24; color: #000; border: 3px solid #020617; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(253, 238, 36, 0.9); font-size: 22px; transition: transform 0.5s ease;">
+          <div style="position: relative;">
+            <div style="position: absolute; inset: -6px; background: rgba(251, 191, 36, 0.4); border-radius: 50%; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="background: #000000; color: #fdee24; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 6px 16px rgba(0,0,0,0.4); border: 3px solid #fdee24;">
               🛵
             </div>
-            <div style="background: #020617; color: #ffffff; font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 12px; border: 1.5px solid #fdee24; white-space: nowrap; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); text-align: center;">
-              🛵 ${riderName} • <span style="color: #fdee24;">${speed} km/h</span>
-            </div>
           </div>
         `,
-        iconSize: [44, 65],
-        iconAnchor: [22, 32]
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
       });
 
       const riderMarker = L.marker([riderLat, riderLon], { icon: riderIcon }).addTo(map);
+      riderMarker.bindPopup(`<b>${riderName}</b><br/>Speed: ${speed} km/h • EV Scooter`);
       riderMarkerRef.current = riderMarker;
 
-      // Polyline connecting Darkstore -> Rider -> Customer
+      // 4. Draw Route Line from Darkstore ➔ Rider ➔ Customer
       const routeLine = L.polyline(
-        [[darkstoreLat, darkstoreLon], [riderLat, riderLon], [customerLat, customerLon]],
-        { color: '#f59e0b', weight: 4, opacity: 0.8, dashArray: '8, 8' }
-      ).addTo(map);
-      routeLineRef.current = routeLine;
-
-      // Fit map bounds to encompass store, rider, and customer
-      const bounds = L.latLngBounds([
-        [darkstoreLat, darkstoreLon],
-        [riderLat, riderLon],
-        [customerLat, customerLon]
-      ]);
-      map.fitBounds(bounds, { padding: [50, 50] });
-    } else {
-      // Dynamic update of rider position & route line
-      if (riderMarkerRef.current) {
-        riderMarkerRef.current.setLatLng([riderLat, riderLon]);
-        const updatedRiderIcon = L.divIcon({
-          className: 'custom-rider-marker',
-          html: `
-            <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
-              <div style="background: #fdee24; color: #000; border: 3px solid #020617; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(253, 238, 36, 0.9); font-size: 22px; transition: transform 0.5s ease;">
-                🛵
-              </div>
-              <div style="background: #020617; color: #ffffff; font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 12px; border: 1.5px solid #fdee24; white-space: nowrap; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); text-align: center;">
-                🛵 ${riderName} • <span style="color: #fdee24;">${speed} km/h</span>
-              </div>
-            </div>
-          `,
-          iconSize: [44, 65],
-          iconAnchor: [22, 32]
-        });
-        riderMarkerRef.current.setIcon(updatedRiderIcon);
-      }
-
-      if (routeLineRef.current) {
-        routeLineRef.current.setLatLngs([
+        [
           [darkstoreLat, darkstoreLon],
           [riderLat, riderLon],
           [customerLat, customerLon]
-        ]);
-      }
-    }
-  }, [riderLat, riderLon, speed, riderName, customerLat, customerLon, displayAddress]);
+        ],
+        {
+          color: '#3b82f6',
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '8, 8',
+          lineCap: 'round'
+        }
+      ).addTo(map);
+      routeLineRef.current = routeLine;
 
-  // Clean cleanup on component destruction
-  useEffect(() => {
+      mapInstanceRef.current = map;
+    } catch (err) {
+      console.warn('Leaflet map initialization error:', err);
+    }
+
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
@@ -245,67 +199,89 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
     };
   }, []);
 
+  // Update Rider Marker position and polyline dynamically when telemetry changes
+  useEffect(() => {
+    if (riderMarkerRef.current) {
+      riderMarkerRef.current.setLatLng([riderLat, riderLon]);
+    }
+    if (routeLineRef.current) {
+      routeLineRef.current.setLatLngs([
+        [darkstoreLat, darkstoreLon],
+        [riderLat, riderLon],
+        [customerLat, customerLon]
+      ]);
+    }
+    if (mapInstanceRef.current && isSimulating) {
+      mapInstanceRef.current.panTo([riderLat, riderLon], { animate: true });
+    }
+  }, [riderLat, riderLon]);
+
   return (
-    <div className="w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-950 flex flex-col relative z-0">
-      {/* Top Telemetry Live Status Header */}
-      <div className="p-3 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex justify-between items-center text-xs text-white z-10">
-        <div className="flex items-center gap-2 font-black text-amber-400">
-          <Compass className="w-4 h-4 text-amber-400 animate-spin" />
-          <span>LocationIQ Live Rider Telemetry</span>
-          <span className="text-[10px] bg-emerald-950 text-emerald-400 font-extrabold px-2 py-0.5 rounded-full border border-emerald-800 flex items-center gap-1">
-            <Activity className="w-3 h-3" />
-            <span>REAL-TIME GPS</span>
+    <div className="bg-white rounded-3xl p-4 shadow-xl border border-gray-100 space-y-3 font-sans relative overflow-hidden">
+      {/* Top Map Status Bar */}
+      <div className="flex justify-between items-center text-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-extrabold text-gray-900 flex items-center gap-1">
+            <Compass className="w-3.5 h-3.5 text-amber-500" />
+            <span>Live GPS Telemetry (LocationIQ)</span>
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsSimulating(!isSimulating)}
-            className={`text-[10px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs ${
-              isSimulating 
-                ? 'bg-amber-400 text-black border border-amber-300 animate-pulse' 
-                : 'bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700'
+            className={`px-2.5 py-1 rounded-full font-extrabold text-[10px] transition-all flex items-center gap-1 cursor-pointer ${
+              isSimulating ? 'bg-amber-400 text-black shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
-            title="Toggle movement simulation on backend"
           >
-            <Play className="w-3 h-3" />
-            <span>{isSimulating ? 'Simulating Rider Movement' : 'Test Rider Movement'}</span>
+            <Play className={`w-3 h-3 ${isSimulating ? 'fill-black' : ''}`} />
+            <span>{isSimulating ? 'Simulating...' : 'Simulate GPS'}</span>
           </button>
         </div>
       </div>
 
       {/* Leaflet Map Canvas */}
-      <div className="w-full h-80 relative z-0">
-        <div ref={mapContainerRef} className="w-full h-full" />
-      </div>
+      <div className="relative w-full h-56 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
+        <div ref={mapContainerRef} className="w-full h-full z-10" />
 
-      {/* Bottom Live Telemetry Metrics Card */}
-      <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-white z-10">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Rider Speed</span>
-            <span className="font-mono font-extrabold text-amber-400 text-sm">{speed} km/h</span>
+        {/* Floating Telemetry Stats Overlay */}
+        <div className="absolute top-2 left-2 z-20 bg-slate-950/85 backdrop-blur-md text-white p-2.5 rounded-xl text-[11px] font-mono shadow-lg border border-slate-800 space-y-1">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-amber-400 font-bold">Rider Speed:</span>
+            <span className="font-bold">{speed} km/h</span>
           </div>
-          <div className="h-6 w-px bg-slate-800" />
-          <div className="flex flex-col">
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Distance</span>
-            <span className="font-mono font-extrabold text-emerald-400 text-sm">{distanceRemaining} km</span>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-emerald-400 font-bold">Battery EV:</span>
+            <span className="font-bold">⚡ {battery}%</span>
           </div>
-          <div className="h-6 w-px bg-slate-800" />
-          <div className="flex flex-col">
-            <span className="text-[10px] text-slate-400 font-bold uppercase">ETA</span>
-            <span className="font-mono font-extrabold text-yellow-300 text-sm">{etaMinutes} Mins</span>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-blue-400 font-bold">Distance:</span>
+            <span className="font-bold">{distanceRemaining} km</span>
           </div>
         </div>
 
+        {/* Bottom SLA Countdown Badge */}
+        <div className="absolute bottom-2 right-2 z-20 bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-black shadow-lg border border-emerald-400 flex items-center gap-1.5 animate-bounce">
+          <Activity className="w-3.5 h-3.5 text-yellow-300" />
+          <span>Arriving in ~{etaMinutes} Mins</span>
+        </div>
+      </div>
+
+      {/* Footer Location Status */}
+      <div className="flex justify-between items-center text-[11px] text-gray-500 pt-1">
+        <span className="font-bold text-gray-700 truncate max-w-[240px]">
+          📍 En route to: {displayAddress}
+        </span>
+
         <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${customerLat},${customerLon}`}
+          href={`https://maps.google.com/?q=${customerLat},${customerLon}`}
           target="_blank"
-          rel="noreferrer"
-          className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition shadow-sm"
+          rel="noopener noreferrer"
+          className="text-amber-600 font-extrabold hover:underline flex items-center gap-1 shrink-0"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Google Maps</span>
+          <span>Open Maps</span>
+          <ExternalLink className="w-3 h-3" />
         </a>
       </div>
     </div>
