@@ -526,6 +526,106 @@ let registeredShops = [
 
 let registeredRiders = [];
 
+// ==========================================
+// USER ACCOUNT & LOCATION TELEMETRY APIS
+// ==========================================
+let registeredUsers = [
+  {
+    id: 'usr-001',
+    name: 'Amiya Sahoo',
+    email: 'amiyasahoo392@gmail.com',
+    phone: '+91 98765 43210',
+    address: 'Sector 1, HSR Layout, Bengaluru',
+    lat: 12.9141,
+    lon: 77.6411,
+    ordersPlaced: 5,
+    totalSpent: 1240,
+    status: 'ACTIVE',
+    riskScore: 2,
+    source: 'LOGIN',
+    lastUpdated: new Date().toISOString()
+  },
+  {
+    id: 'usr-002',
+    name: 'Rahul Sharma',
+    email: 'rahul.s@gmail.com',
+    phone: '+91 98123 45678',
+    address: '27th Main Rd, HSR Layout, Bengaluru',
+    lat: 12.9200,
+    lon: 77.6450,
+    ordersPlaced: 2,
+    totalSpent: 480,
+    status: 'ACTIVE',
+    riskScore: 5,
+    source: 'CHECKOUT',
+    lastUpdated: new Date().toISOString()
+  }
+];
+
+// GET /api/users - Get all registered customer users
+app.get('/api/users', (req, res) => {
+  res.json({ success: true, users: registeredUsers });
+});
+
+// POST /api/users/update-location - Store login GPS & checkout location
+app.post('/api/users/update-location', (req, res) => {
+  const { userId, name, email, phone, address, lat, lon, source = 'LOGIN' } = req.body;
+  if (lat === undefined || lon === undefined) {
+    return res.status(400).json({ error: 'lat and lon are required' });
+  }
+
+  const currentLat = parseFloat(lat);
+  const currentLon = parseFloat(lon);
+
+  let user = registeredUsers.find(
+    (u) => (userId && u.id === userId) || (phone && u.phone === phone) || (email && u.email === email)
+  );
+
+  if (!user) {
+    user = {
+      id: userId || `usr-${Date.now()}`,
+      name: name || 'Customer User',
+      email: email || 'user@cartcraze.com',
+      phone: phone || '+91 98000 00000',
+      address: address || 'Sector 1, HSR Layout, Bengaluru',
+      lat: currentLat,
+      lon: currentLon,
+      ordersPlaced: source === 'CHECKOUT' ? 1 : 0,
+      totalSpent: 0,
+      status: 'ACTIVE',
+      riskScore: 2,
+      source,
+      lastUpdated: new Date().toISOString()
+    };
+    registeredUsers.push(user);
+  } else {
+    user.lat = currentLat;
+    user.lon = currentLon;
+    if (address) user.address = address;
+    if (name) user.name = name;
+    user.source = source;
+    user.lastUpdated = new Date().toISOString();
+    if (source === 'CHECKOUT') {
+      user.ordersPlaced += 1;
+    }
+  }
+
+  console.log(`[User Location Sync] ${user.name} (${source}): ${currentLat}, ${currentLon}`);
+  res.json({ success: true, user });
+});
+
+// POST /api/users/block - Suspend or Unblock User
+app.post('/api/users/block', (req, res) => {
+  const { userId, block } = req.body;
+  const user = registeredUsers.find((u) => u.id === userId);
+  if (user) {
+    user.status = block ? 'SUSPENDED' : 'ACTIVE';
+    user.riskScore = block ? 95 : 2;
+    return res.json({ success: true, user });
+  }
+  res.status(404).json({ error: 'User not found' });
+});
+
 // --- SHOP PARTNER APIS ---
 app.post('/api/shops/register', (req, res) => {
   const { name, email, phone, address, lat, lon, licenseType, licenseNumber, licenseProof } = req.body;

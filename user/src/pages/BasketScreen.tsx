@@ -228,6 +228,24 @@ export const BasketScreen: React.FC = () => {
     }
   };
 
+  const syncCheckoutUserLocation = (addrData: any) => {
+    try {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      fetch(`http://${hostname}:4000/api/users/update-location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: addrData.fullName || userProfile.name,
+          phone: addrData.phone || userProfile.phone,
+          address: addrData.fullAddress,
+          lat: addrData.lat || lat || 12.9141,
+          lon: addrData.lon || lon || 77.6411,
+          source: 'CHECKOUT'
+        })
+      }).catch(() => {});
+    } catch {}
+  };
+
   const handleFinalOrderPlacement = () => {
     const fullAddress = `${street}, ${village}, Landmark: ${landmark}, Pincode: ${pincode}`;
     const addressData = {
@@ -238,14 +256,16 @@ export const BasketScreen: React.FC = () => {
       street,
       landmark,
       fullAddress,
-      lat,
-      lon
+      lat: lat || 12.9141,
+      lon: lon || 77.6411
     };
 
-    if (paymentMethod === 'Pay Online') {
+    syncCheckoutUserLocation(addressData);
+
+    if (paymentMethod === 'Razorpay') {
       handleRazorpayPayment(fullAddress, addressData);
     } else {
-      placeOrder('Cash on Delivery', fullAddress, addressData);
+      placeOrder('Cash on Delivery (COD)', fullAddress, addressData);
     }
   };
 
