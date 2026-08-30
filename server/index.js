@@ -614,6 +614,34 @@ app.post('/api/users/update-location', (req, res) => {
   res.json({ success: true, user });
 });
 
+// POST /api/users/register - Register new customer account
+app.post('/api/users/register', (req, res) => {
+  const { name, email, phone } = req.body;
+  let user = registeredUsers.find((u) => (email && u.email === email) || (phone && u.phone === phone));
+  if (user) {
+    return res.json({ success: true, user });
+  }
+
+  user = {
+    id: `usr-${Date.now()}`,
+    name: name || 'Customer',
+    email: email || 'user@example.com',
+    phone: phone || '+91 98000 00000',
+    address: 'Sector 1, HSR Layout, Bengaluru',
+    lat: 12.9141,
+    lon: 77.6411,
+    status: 'ACTIVE',
+    ordersPlaced: 0,
+    totalSpent: 0,
+    riskScore: 2,
+    source: 'REGISTRATION',
+    lastUpdated: new Date().toISOString()
+  };
+
+  registeredUsers.push(user);
+  res.json({ success: true, user });
+});
+
 // POST /api/users/block - Suspend or Unblock User
 app.post('/api/users/block', (req, res) => {
   const { userId, block } = req.body;
@@ -910,58 +938,7 @@ app.post('/api/riders/block', (req, res) => {
   res.json({ success: true, rider });
 });
 
-// --- USER & FRAUD CONTROL APIS ---
-// Users are registered when they log in via the user app
-let registeredUsers = [];
-
-app.get('/api/users', (req, res) => {
-  res.json({ success: true, users: registeredUsers });
-});
-
-app.post('/api/users/register', (req, res) => {
-  const { name, email, phone } = req.body;
-  const existing = registeredUsers.find(u => u.email === email || u.phone === phone);
-  if (existing) {
-    return res.json({ success: true, user: existing });
-  }
-
-  const newUser = {
-    id: `usr-${Date.now()}`,
-    name: name || 'Customer',
-    email: email || 'user@example.com',
-    phone: phone || '+91 98000 00000',
-    status: 'ACTIVE',
-    ordersPlaced: 0,
-    totalSpent: 0,
-    riskScore: 0
-  };
-
-  registeredUsers.push(newUser);
-  res.json({ success: true, user: newUser });
-});
-
-app.post('/api/users/block', (req, res) => {
-  const { userId, block } = req.body;
-  const user = registeredUsers.find(u => u.id === userId || u.email === userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  user.status = block ? 'SUSPENDED' : 'ACTIVE';
-  user.riskScore = block ? 95 : 2;
-
-  securityLogs.unshift({
-    id: `SEC-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    eventType: block ? 'USER_ACCOUNT_SUSPENDED' : 'USER_ACCOUNT_RESTORED',
-    ipAddress: req.ip || '127.0.0.1',
-    location: 'Super Admin Console',
-    severity: block ? 'CRITICAL' : 'INFO',
-    details: `Super Admin ${block ? 'Suspended' : 'Restored'} customer account "${user.name}" (${user.id})`
-  });
-
-  res.json({ success: true, user });
-});
+// --- USER & FRAUD CONTROL APIS REMOVED (DUPLICATE) ---
 
 // --- INVENTORY / PRODUCT UPLOAD API ---
 app.post('/api/products/upload', (req, res) => {
