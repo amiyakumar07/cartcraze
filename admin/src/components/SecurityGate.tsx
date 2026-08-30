@@ -294,7 +294,7 @@ export const SecurityGate: React.FC<SecurityGateProps> = ({ onAuthenticated }) =
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent text-xs font-bold text-white outline-none"
-                placeholder="amiyasahoo392@gmail.com"
+                placeholder="Enter Admin Email"
               />
             </div>
           </div>
@@ -311,7 +311,7 @@ export const SecurityGate: React.FC<SecurityGateProps> = ({ onAuthenticated }) =
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 className="w-full bg-transparent text-xs font-mono font-bold text-white outline-none"
-                placeholder="Amiya@425516"
+                placeholder="Enter Passcode"
               />
             </div>
           </div>
