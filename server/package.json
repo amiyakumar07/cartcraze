@@ -1,0 +1,16 @@
+{
+  "name": "cartcraze-server",
+  "version": "1.0.0",
+  "description": "CartCraze Real-Time Express API Server linking User, Shop, and Admin Apps",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

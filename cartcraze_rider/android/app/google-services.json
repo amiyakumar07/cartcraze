@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "438473527527",
+    "project_id": "cartcraze-user",
+    "storage_bucket": "cartcraze-user.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438473527527:android:372b2b194523172444d242",
+        "android_client_info": {
+          "package_name": "com.cartcraze.rider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA32Q0rN71YkZmRIs9Th3TmajNZbzDwvTQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

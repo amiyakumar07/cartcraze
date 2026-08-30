@@ -1,0 +1,4 @@
+/* App-specific utility styles */
+.tap-highlight-transparent {
+  -webkit-tap-highlight-color: transparent;
+}
