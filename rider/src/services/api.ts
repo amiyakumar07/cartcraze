@@ -1,19 +1,18 @@
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API_BASE = `http://${hostname}:4000/api`;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
 
-export const fetchAssignedOrdersApi = async () => {
+export async function fetchAvailableOrdersApi() {
   const res = await fetch(`${API_BASE}/orders`);
   if (!res.ok) throw new Error('Failed to fetch orders');
-  const all = await res.json();
-  return all.filter((o: any) => o.status === 'DISPATCHED' || o.status === 'PACKING');
-};
+  return res.json();
+}
 
-export const updateOrderStatusApi = async (orderId: string, status: string) => {
+export async function updateOrderStatusApi(orderId: string, status: string, driverData?: any) {
   const res = await fetch(`${API_BASE}/orders/${orderId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, ...driverData }),
   });
-  if (!res.ok) throw new Error('Failed to update order');
+  if (!res.ok) throw new Error('Failed to update status');
   return res.json();
-};
+}

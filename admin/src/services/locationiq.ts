@@ -15,7 +15,7 @@ export interface LiveRider {
 }
 
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API_BASE = `http://${hostname}:4000/api`;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
 
 export const fetchLiveRidersApi = async (): Promise<LiveRider[]> => {
   try {

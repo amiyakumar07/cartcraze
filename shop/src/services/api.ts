@@ -1,54 +1,54 @@
 const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API_BASE_URL = `http://${hostname}:4000/api`;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
 
-export async function fetchOrdersApi() {
+export async function fetchStoreOrdersApi() {
   try {
     const res = await fetch(`${API_BASE_URL}/orders`);
     return await res.json();
   } catch (err) {
-    console.error('Failed to fetch orders from central API:', err);
+    console.error('Failed to fetch store orders:', err);
     return null;
   }
 }
 
-export async function updateOrderStatusApi(orderId: string, status: string) {
+export async function updateOrderStatusApi(orderId: string, status: string, driverInfo?: any) {
   try {
     const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status, ...driverInfo })
     });
     return await res.json();
   } catch (err) {
-    console.error('Failed to update order status on central API:', err);
+    console.error('Failed to update order status:', err);
     return null;
   }
 }
 
-export async function updateProductStockApi(productId: string, stockData: any) {
+export async function updateStockApi(productId: string, inStock: boolean, stockCount?: number) {
   try {
     const res = await fetch(`${API_BASE_URL}/products/${productId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(stockData)
+      body: JSON.stringify({ inStock, stockCount })
     });
     return await res.json();
   } catch (err) {
-    console.error('Failed to update product stock on central API:', err);
+    console.error('Failed to update product stock:', err);
     return null;
   }
 }
 
-export async function addNewProductApi(product: any) {
+export async function addProductApi(productData: any) {
   try {
     const res = await fetch(`${API_BASE_URL}/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product)
+      body: JSON.stringify(productData)
     });
     return await res.json();
   } catch (err) {
-    console.error('Failed to add product to central API:', err);
+    console.error('Failed to add new product:', err);
     return null;
   }
 }
