@@ -52,3 +52,5 @@ export async function addProductApi(productData: any) {
     return null;
   }
 }
+
+export const addNewProductApi = addProductApi;

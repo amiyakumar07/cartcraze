@@ -21,6 +21,8 @@ export async function fetchAdminDarkstoresApi() {
   }
 }
 
+export const fetchDarkstoresApi = fetchAdminDarkstoresApi;
+
 export async function updateDarkstoreStatusApi(darkstoreId: string, status: string) {
   try {
     const res = await fetch(`${API_BASE_URL}/darkstores/${darkstoreId}`, {
@@ -58,3 +60,5 @@ export async function updateAdminSettingsApi(settings: any) {
     return null;
   }
 }
+
+export const updatePlatformSettingsApi = updateAdminSettingsApi;

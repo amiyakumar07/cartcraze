@@ -7,6 +7,8 @@ export async function fetchAvailableOrdersApi() {
   return res.json();
 }
 
+export const fetchAssignedOrdersApi = fetchAvailableOrdersApi;
+
 export async function updateOrderStatusApi(orderId: string, status: string, driverData?: any) {
   const res = await fetch(`${API_BASE}/orders/${orderId}`, {
     method: 'PATCH',
