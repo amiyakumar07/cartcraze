@@ -19,8 +19,9 @@ import {
 } from 'lucide-react';
 
 export const PartnerApprovalView: React.FC = () => {
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-  const API = `http://${hostname}:4000/api`;
+  const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:4000/api'
+    : 'https://cartcraze-95gt.onrender.com/api';
 
   const [activeTab, setActiveTab] = useState<'shops' | 'riders'>('shops');
   const [shops, setShops] = useState<any[]>([]);

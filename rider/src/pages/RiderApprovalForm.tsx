@@ -86,8 +86,10 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
 
     setSubmitting(true);
     try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const res = await fetch(`http://${hostname}:4000/api/riders/register`, {
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      const res = await fetch(`${API}/riders/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

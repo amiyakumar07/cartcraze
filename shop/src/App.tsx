@@ -17,8 +17,9 @@ import { ShopPendingApprovalScreen } from './pages/ShopPendingApprovalScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 import { reverseGeocodeLocationIQ } from './services/locationiq';
 
-const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API = `http://${hostname}:4000/api`;
+const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000/api'
+  : 'https://cartcraze-95gt.onrender.com/api';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {

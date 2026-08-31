@@ -52,8 +52,10 @@ export const UserFraudControlView: React.FC = () => {
 
   const loadUsers = async () => {
     try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const res = await fetch(`http://${hostname}:4000/api/users`);
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      const res = await fetch(`${API}/users`);
       const data = await res.json();
       if (data && data.users && Array.isArray(data.users) && data.users.length > 0) {
         setUsers(data.users);
@@ -72,8 +74,10 @@ export const UserFraudControlView: React.FC = () => {
   const toggleUserStatus = async (id: string, currentStatus: string) => {
     const isBlock = currentStatus === 'ACTIVE';
     try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      await fetch(`http://${hostname}:4000/api/users/block`, {
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      await fetch(`${API}/users/block`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: id, block: isBlock })

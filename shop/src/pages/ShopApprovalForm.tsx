@@ -79,8 +79,10 @@ export const ShopApprovalForm: React.FC<ShopApprovalFormProps> = ({ onSubmitSucc
 
     setSubmitting(true);
     try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const res = await fetch(`http://${hostname}:4000/api/shops/register`, {
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      const res = await fetch(`${API}/shops/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -14,8 +14,9 @@ import { RiderApprovalForm } from './pages/RiderApprovalForm';
 import { RiderPendingApprovalScreen } from './pages/RiderPendingApprovalScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 
-const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API = `http://${hostname}:4000/api`;
+const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000/api'
+  : 'https://cartcraze-95gt.onrender.com/api';
 
 export type AppTab = 'orders' | 'earnings' | 'ratings' | 'profile' | 'delivery';
 

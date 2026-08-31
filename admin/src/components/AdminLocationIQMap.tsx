@@ -35,7 +35,10 @@ export const AdminLocationIQMap: React.FC = () => {
 
     // 2. Fetch customer user locations (Login GPS & Checkout GPS)
     try {
-      const res = await fetch(`http://${hostname}:4000/api/users`);
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      const res = await fetch(`${API}/users`);
       const data = await res.json();
       if (data && data.users && Array.isArray(data.users)) {
         setUsers(data.users);
