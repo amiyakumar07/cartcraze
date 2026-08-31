@@ -13,7 +13,29 @@ import { PartnerApprovalView } from './pages/PartnerApprovalView';
 import { fetchSecurityLogsApi, fetchDarkstoresApi, updateDarkstoreStatusApi, updatePlatformSettingsApi } from './services/api';
 
 export default function App() {
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
+    const saved = localStorage.getItem('cartcraze_admin_user');
+    const savedTs = localStorage.getItem('cartcraze_admin_login_timestamp');
+    if (saved && savedTs) {
+      if (Date.now() - Number(savedTs) <= 72 * 60 * 60 * 1000) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return null;
+  });
+
+  const handleAdminAuthenticated = (user: AdminUser) => {
+    localStorage.setItem('cartcraze_admin_user', JSON.stringify(user));
+    localStorage.setItem('cartcraze_admin_login_timestamp', Date.now().toString());
+    setAdminUser(user);
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('cartcraze_admin_user');
+    localStorage.removeItem('cartcraze_admin_login_timestamp');
+    setAdminUser(null);
+  };
+
   const [activeTab, setActiveTab] = useState<AdminActiveTab>('overview');
   const [darkstores, setDarkstores] = useState<DarkstoreNode[]>(INITIAL_DARKSTORES);
   const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>(INITIAL_SECURITY_LOGS);
@@ -28,13 +50,13 @@ export default function App() {
       if (logs && Array.isArray(logs)) {
         setSecurityLogs(logs);
       }
+
       const stores = await fetchDarkstoresApi();
-      if (stores && Array.isArray(stores)) {
+      if (stores && Array.isArray(stores) && stores.length > 0) {
         setDarkstores(stores);
       }
     };
 
-    // Fetch immediately on login, then every 4 seconds
     fetchData();
     const interval = setInterval(fetchData, 4000);
     return () => clearInterval(interval);
@@ -42,10 +64,10 @@ export default function App() {
 
   // Handle Master Darkstore Status Toggle
   const handleToggleStoreStatus = (storeId: string) => {
-    const store = darkstores.find((s) => s.id === storeId);
-    if (!store) return;
+    const targetStore = darkstores.find((s) => s.id === storeId);
+    if (!targetStore) return;
 
-    const nextStatus = store.status === 'ONLINE' ? 'PAUSED' : 'ONLINE';
+    const nextStatus = targetStore.status === 'ONLINE' ? 'OFFLINE' : 'ONLINE';
 
     setDarkstores((prev) =>
       prev.map((s) => (s.id === storeId ? { ...s, status: nextStatus } : s))
@@ -62,7 +84,7 @@ export default function App() {
 
   // If not authenticated, force high security gate
   if (!adminUser) {
-    return <SecurityGate onAuthenticated={(user) => setAdminUser(user)} />;
+    return <SecurityGate onAuthenticated={handleAdminAuthenticated} />;
   }
 
   const renderContent = () => {
@@ -102,8 +124,8 @@ export default function App() {
         admin={adminUser}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onLockSession={() => setAdminUser(null)}
-        onLogout={() => setAdminUser(null)}
+        onLockSession={handleAdminLogout}
+        onLogout={handleAdminLogout}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">

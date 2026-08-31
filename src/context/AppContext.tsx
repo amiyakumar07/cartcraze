@@ -50,7 +50,48 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('onboarding');
+  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours (3 days)
+
+  // Initialize user profile from localStorage if valid within 72 hours
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('cartcraze_user_profile');
+    const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
+    if (saved && savedTs) {
+      const elapsed = Date.now() - Number(savedTs);
+      if (elapsed <= SESSION_DURATION_MS) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.isLoggedIn) return parsed;
+        } catch { /* silent */ }
+      }
+    }
+    return {
+      name: '',
+      phone: '',
+      email: '',
+      address: 'HSR Layout Sector 1, Bengaluru',
+      walletBalance: 0,
+      freshCoins: 0,
+      savedAddresses: [],
+      isLoggedIn: false
+    };
+  });
+
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
+    const saved = localStorage.getItem('cartcraze_user_profile');
+    const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
+    if (saved && savedTs) {
+      const elapsed = Date.now() - Number(savedTs);
+      if (elapsed <= SESSION_DURATION_MS) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.isLoggedIn) return 'home';
+        } catch { /* silent */ }
+      }
+    }
+    return 'onboarding';
+  });
+
   const [activeCategory, setActiveCategory] = useState<string>('fruits');
   const [subCategoryFilter, setSubCategoryFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -69,18 +110,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Default to TRUE (Coverage OFF / Coming Soon Screen ACTIVE until an approved store within 5km is verified)
   const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(true);
   const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>({ lat: 12.9141, lon: 77.6411 });
-
-  // User defaults to NOT logged in (Guest Mode)
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: '',
-    phone: '',
-    email: '',
-    address: 'HSR Layout Sector 1, Bengaluru',
-    walletBalance: 0,
-    freshCoins: 0,
-    savedAddresses: [],
-    isLoggedIn: false
-  });
 
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
@@ -185,11 +214,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // ─── 72-HOUR USER SESSION AUTO-LOGOUT ─────────────────────────────────────
-  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours (3 days)
-
-  // On mount and login status change, enforce 72-hour session limit
+  // On mount and login status change, enforce 72-hour session limit and sync profile
   useEffect(() => {
     if (userProfile.isLoggedIn) {
+      localStorage.setItem('cartcraze_user_profile', JSON.stringify(userProfile));
       const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
       if (!savedTs) {
         localStorage.setItem('cartcraze_user_login_timestamp', Date.now().toString());
@@ -201,7 +229,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
     }
-  }, [userProfile.isLoggedIn]);
+  }, [userProfile]);
 
   // Periodic 1-minute background check for 72-hour session expiration
   useEffect(() => {

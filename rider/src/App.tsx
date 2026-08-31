@@ -46,17 +46,29 @@ const App: React.FC = () => {
   });
   const [showRiderLocModal, setShowRiderLocModal] = useState(true);
   const [riderGpsCoords, setRiderGpsCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const [riderProfile, setRiderProfile] = useState<RiderProfile>({
-    id: '',
-    name: '',
-    phone: '',
-    vehicleNumber: '',
-    rating: 5.0,
-    totalDeliveries: 0,
-    todayDeliveries: 0,
-    todayEarnings: 0,
-    isLoggedIn: false,
-    photo: '',
+  const [riderProfile, setRiderProfile] = useState<RiderProfile>(() => {
+    const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
+    const savedData = localStorage.getItem('cartcraze_rider_data');
+    let isLogged = false;
+    let savedObj: any = null;
+    if (savedTs && Date.now() - Number(savedTs) <= 72 * 60 * 60 * 1000) {
+      isLogged = true;
+    }
+    if (savedData) {
+      try { savedObj = JSON.parse(savedData); } catch {}
+    }
+    return {
+      id: savedObj?.id || '',
+      name: savedObj?.name || '',
+      phone: savedObj?.phone || '',
+      vehicleNumber: savedObj?.vehicleNumber || '',
+      rating: 5.0,
+      totalDeliveries: 0,
+      todayDeliveries: 0,
+      todayEarnings: 0,
+      isLoggedIn: isLogged,
+      photo: '',
+    };
   });
 
   // Sync real rider info from riderApprovalData when approved

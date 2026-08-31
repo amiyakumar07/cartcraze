@@ -21,7 +21,13 @@ const hostname = typeof window !== 'undefined' ? window.location.hostname : 'loc
 const API = `http://${hostname}:4000/api`;
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const savedTs = localStorage.getItem('cartcraze_vendor_login_timestamp');
+    if (savedTs && Date.now() - Number(savedTs) <= 72 * 60 * 60 * 1000) {
+      return true;
+    }
+    return false;
+  });
   const [shopData, setShopData] = useState<any>(() => {
     const saved = localStorage.getItem('cartcraze_shop_data');
     if (saved) {
