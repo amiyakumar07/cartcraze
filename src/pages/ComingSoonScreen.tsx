@@ -1,12 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Bell, Compass, CheckCircle2, ArrowRight, ShieldCheck, Zap, Sparkles, Rocket, Clock, Star, AlertTriangle } from 'lucide-react';
-import { LocationIQMap } from '../components/LocationIQMap';
+import React, { useState, useEffect, useRef } from 'react';
+import L from 'leaflet';
+import { MapPin, Bell, Compass, CheckCircle2, ArrowRight, ShieldCheck, Zap, Sparkles, Rocket, Clock, Star, AlertTriangle, ExternalLink } from 'lucide-react';
+import { LOCATIONIQ_API_KEY } from '../services/locationiq';
 import { useApp } from '../context/AppContext';
 
 interface ComingSoonScreenProps {
   userLocationAddress?: string;
   onSearchNewAddress?: () => void;
 }
+
+const OutOfCoverageMap: React.FC<{ userAddress?: string }> = ({ userAddress }) => {
+  const { userCoords, userProfile } = useApp();
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
+  const lat = userCoords?.lat ?? 20.2320;
+  const lon = userCoords?.lon ?? 85.8302;
+  const displayAddress = userAddress || userProfile?.address || 'Your Selected Location';
+
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
+
+    try {
+      const map = L.map(mapContainerRef.current, {
+        center: [lat, lon],
+        zoom: 12,
+        zoomControl: false,
+        attributionControl: false
+      });
+
+      const tileUrl = `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${LOCATIONIQ_API_KEY}`;
+      L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+
+      const userIcon = L.divIcon({
+        className: 'custom-map-icon',
+        html: `
+          <div style="background: #ef4444; color: white; padding: 6px 10px; border-radius: 12px; font-weight: 900; font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid white; display: flex; align-items: center; gap: 4px;">
+            🏠 You
+          </div>
+        `,
+        iconSize: [60, 30],
+        iconAnchor: [30, 15]
+      });
+      L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup(`<b>Your Location</b><br/>${displayAddress}`);
+
+      L.circle([lat, lon], {
+        color: '#ef4444',
+        fillColor: '#f87171',
+        fillOpacity: 0.15,
+        radius: 5000,
+        dashArray: '6, 6'
+      }).addTo(map);
+
+      mapInstanceRef.current = map;
+    } catch { /* silent */ }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [lat, lon]);
+
+  return (
+    <div className="bg-white rounded-3xl p-4 shadow-xl border border-red-100 space-y-3 font-sans relative overflow-hidden">
+      <div className="flex justify-between items-center text-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+          <span className="font-extrabold text-red-600 flex items-center gap-1">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+            <span>Outside 5.0 km Darkstore Radius</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="relative w-full h-52 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
+        <div ref={mapContainerRef} className="w-full h-full z-10" />
+
+        <div className="absolute bottom-2 right-2 z-20 bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-black shadow-lg border border-red-400 flex items-center gap-1">
+          <span>⚠️ Out of 5.0 km Service Zone</span>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center text-[11px] text-gray-500 pt-1">
+        <span className="font-bold text-gray-700 truncate max-w-[240px]">
+          📍 Location: {displayAddress}
+        </span>
+        <a
+          href={`https://maps.google.com/?q=${lat},${lon}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-amber-600 font-extrabold hover:underline flex items-center gap-1 shrink-0"
+        >
+          <span>Open Maps</span>
+          <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+    </div>
+  );
+};
 
 export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
   userLocationAddress = 'Selected Location (Out of 5km Range)',
@@ -17,7 +110,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
   const [email, setEmail] = useState('');
   const [activeShops, setActiveShops] = useState<{ id: string; name: string; address: string }[]>([]);
 
-  // Dynamically check if any approved darkstores exist in backend
   useEffect(() => {
     let isMounted = true;
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
@@ -48,19 +140,15 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
       ...prev,
       address: locationName
     }));
-    // Trigger real coverage check — current userCoords will be re-evaluated
     checkStoreCoverage();
   };
 
   return (
     <div className="p-4 space-y-5 pb-28 font-sans max-w-md mx-auto animate-fadeIn">
-      {/* Premium Hero Gradient Banner with Glassmorphism */}
       <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 shadow-2xl border border-yellow-400/30 relative overflow-hidden space-y-4">
-        {/* Glow Ambient Circles */}
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Floating Badge */}
         <div className="flex justify-between items-center z-10 relative">
           <div className="bg-yellow-400/20 text-yellow-300 text-[10px] font-black px-3 py-1 rounded-full border border-yellow-400/30 flex items-center gap-1.5 backdrop-blur-md">
             <Zap className="w-3.5 h-3.5 fill-yellow-300 animate-pulse text-yellow-300" />
@@ -72,7 +160,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
           </span>
         </div>
 
-        {/* Header Title & Rocket Animation */}
         <div className="z-10 relative space-y-2">
           <div className="flex items-start gap-3">
             <div className="p-3 bg-gradient-to-br from-yellow-400 to-amber-500 text-black rounded-2xl shadow-lg shrink-0 animate-bounce">
@@ -94,7 +181,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
           </p>
         </div>
 
-        {/* Customer Selected Address Bar */}
         <div className="z-10 relative bg-slate-900/90 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-2 shadow-inner">
           <div className="flex items-center gap-2 min-w-0">
             <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
@@ -111,7 +197,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
         </div>
       </div>
 
-      {/* Customer Home Location Map Container */}
       <div className="space-y-2">
         <div className="flex justify-between items-center px-1">
           <span className="text-xs font-black text-gray-900 flex items-center gap-1">
@@ -122,10 +207,9 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
             Outside 5.0 km Zone
           </span>
         </div>
-        <LocationIQMap destinationAddress={userLocationAddress} />
+        <OutOfCoverageMap userAddress={userLocationAddress} />
       </div>
 
-      {/* Dynamic Available Darkstores Section (Only shown if real approved stores exist) */}
       {activeShops.length > 0 ? (
         <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-3xl p-4 space-y-2.5 shadow-2xs">
           <div className="flex items-center justify-between">
@@ -155,7 +239,7 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
         <div className="bg-slate-900/90 text-white border border-slate-800 rounded-3xl p-4 space-y-2 text-xs shadow-md">
           <div className="flex items-center gap-2 font-bold text-amber-400">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>No Darkstores Active Currently</span>
+            <span>No Darkstores Active Currently in Your Area</span>
           </div>
           <p className="text-slate-300 text-[11px] font-medium leading-relaxed">
             CartCraze strictly operates with verified 5km darkstores. Partner onboarding is currently in progress for new franchise stores. Leave your email below to get notified when a store goes live!
@@ -163,7 +247,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
         </div>
       )}
 
-      {/* Stylish Notify Me Card */}
       <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-lg space-y-3 relative overflow-hidden">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-slate-900 text-yellow-300 rounded-2xl shadow-md">
@@ -206,7 +289,6 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
         )}
       </div>
 
-      {/* Feature Bullet points */}
       <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200/60 space-y-2 text-xs text-gray-600 font-semibold">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-amber-500 shrink-0" />
