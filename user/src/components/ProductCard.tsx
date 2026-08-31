@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Product } from '../types';
 import { useApp } from '../context/AppContext';
 import { Plus, Minus, Clock } from 'lucide-react';
+import { getFlashSaleStatus } from '../utils/flashSale';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,9 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { cart, addToCart, updateQuantity, setSelectedProduct } = useApp();
   const [adding, setAdding] = useState(false);
+
+  const flashStatus = getFlashSaleStatus();
+  const isFlashActive = flashStatus.isActiveNow && !flashStatus.isQuotaExhausted;
 
   const cartItem = cart.find((item) => item.product.id === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -25,12 +29,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       className="bg-white border border-[#e8e8e8] rounded-[16px] overflow-hidden card-lift cursor-pointer relative flex flex-col"
       style={{ minWidth: 0 }}
     >
-      {/* ── Discount Badge ── */}
-      {product.discountPercentage > 0 && (
+      {/* ── Flash Sale Badge or Discount Badge ── */}
+      {isFlashActive ? (
+        <span className="absolute top-2 left-2 z-10 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-[5px] leading-none tracking-tight animate-pulse flex items-center gap-0.5">
+          🔥 ₹1 SALE
+        </span>
+      ) : product.discountPercentage > 0 ? (
         <span className="absolute top-2 left-2 z-10 bg-[#256fef] text-white text-[10px] font-black px-1.5 py-0.5 rounded-[5px] leading-none tracking-tight">
           {product.discountPercentage}% OFF
         </span>
-      )}
+      ) : null}
 
       {/* ── Delivery Time Badge ── */}
       <span className="absolute top-2 right-2 z-10 flex items-center gap-0.5 bg-white/90 backdrop-blur-sm border border-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] shadow-sm">
@@ -76,13 +84,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="flex items-center justify-between mt-auto">
           {/* Pricing */}
           <div className="flex flex-col">
-            <span className="text-[14px] font-black text-[#1d1d1d] leading-none">
-              ₹{product.price}
-            </span>
-            {product.originalPrice > product.price && (
-              <span className="text-[11px] text-[#c2c2c2] line-through leading-tight mt-0.5">
-                ₹{product.originalPrice}
-              </span>
+            {isFlashActive ? (
+              <>
+                <span className="text-[14px] font-black text-red-600 leading-none flex items-center gap-1">
+                  ₹1
+                  <span className="text-[9px] bg-red-100 text-red-700 px-1 py-0.2 rounded font-extrabold">9-10 PM</span>
+                </span>
+                <span className="text-[11px] text-[#c2c2c2] line-through leading-tight mt-0.5">
+                  ₹{product.price}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[14px] font-black text-[#1d1d1d] leading-none">
+                  ₹{product.price}
+                </span>
+                {product.originalPrice > product.price && (
+                  <span className="text-[11px] text-[#c2c2c2] line-through leading-tight mt-0.5">
+                    ₹{product.originalPrice}
+                  </span>
+                )}
+              </>
             )}
           </div>
 

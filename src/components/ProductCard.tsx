@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Product } from '../types';
 import { useApp } from '../context/AppContext';
 import { Plus, Minus, Star, Clock } from 'lucide-react';
+import { getFlashSaleStatus } from '../utils/flashSale';
 
 interface ProductCardProps {
   product: Product;
@@ -9,18 +10,32 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { cart, addToCart, updateQuantity, setSelectedProduct } = useApp();
+  const [adding, setAdding] = useState(false);
+
+  const flashStatus = getFlashSaleStatus();
+  const isFlashActive = flashStatus.isActiveNow && !flashStatus.isQuotaExhausted;
 
   const cartItem = cart.find((item) => item.product.id === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
 
+  const handleAdd = () => {
+    setAdding(true);
+    addToCart(product);
+    setTimeout(() => setAdding(false), 300);
+  };
+
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all relative group">
-      {/* Discount Badge */}
-      {product.discountPercentage > 0 && (
+      {/* Discount/Flash Badge */}
+      {isFlashActive ? (
+        <div className="absolute top-2.5 right-2.5 bg-red-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md z-10 animate-pulse">
+          ₹1 SALE
+        </div>
+      ) : product.discountPercentage > 0 ? (
         <div className="absolute top-2.5 right-2.5 bg-pink-50 text-pink-600 text-[10px] font-black px-1.5 py-0.5 rounded-md z-10">
           -{product.discountPercentage}%
         </div>
-      )}
+      ) : null}
 
       {/* Image Preview & Click to open Detail Modal */}
       <div 
@@ -63,12 +78,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Pricing & Add/Stepper Actions */}
         <div className="flex items-center justify-between pt-1 border-t border-gray-50 mt-auto">
           <div>
-            <span className="font-extrabold text-sm text-gray-900">₹{product.price}</span>
-            {product.originalPrice > product.price && (
+            <span className="font-extrabold text-sm text-gray-900">₹{isFlashActive ? 1 : product.price}</span>
+            {(!isFlashActive && product.originalPrice > product.price) || (isFlashActive) ? (
               <span className="text-[10px] text-gray-400 line-through ml-1">
-                ₹{product.originalPrice}
+                ₹{product.price}
               </span>
-            )}
+            ) : null}
           </div>
 
           {/* Stepper or Add Button */}

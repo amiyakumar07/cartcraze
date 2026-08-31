@@ -166,7 +166,9 @@ export const BasketScreen: React.FC = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:4000/api/razorpay/create-order', {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_URL = `http://${hostname}:4000/api`;
+      const res = await fetch(`${API_URL}/razorpay/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: finalPay, currency: 'INR' })
@@ -189,7 +191,7 @@ export const BasketScreen: React.FC = () => {
         order_id: data.order.id,
         handler: async function (response: any) {
           try {
-            await fetch('http://localhost:4000/api/razorpay/verify-payment', {
+            await fetch(`${API_URL}/razorpay/verify-payment`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(response)

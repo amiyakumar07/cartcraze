@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Product, CartItem, Order, UserProfile, ActiveTab } from '../types';
 import confetti from 'canvas-confetti';
+import { getFlashSaleStatus, recordFlashSalePurchase } from '../utils/flashSale';
 import { createOrderApi } from '../services/api';
 
 interface AppContextType {
@@ -272,8 +273,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const getCartCount = () => cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const getCartTotal = () =>
-    cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const getCartTotal = () => {
+    const flashStatus = getFlashSaleStatus();
+    if (flashStatus.isActiveNow && flashStatus.itemsRemainingThisMonth > 0) {
+      let flashQuotaLeft = flashStatus.itemsRemainingThisMonth;
+      let total = 0;
+      for (const item of cart) {
+        for (let q = 0; q < item.quantity; q++) {
+          if (flashQuotaLeft > 0) {
+            total += 1; // ₹1 per item during Flash Sale
+            flashQuotaLeft--;
+          } else {
+            total += item.product.price;
+          }
+        }
+      }
+      return total;
+    }
+    return cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  };
 
   const getFinalPayAmount = () => {
     const itemTotal = getCartTotal();
@@ -290,6 +308,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const handlingFee = 5;
     const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
     const finalTotal = getFinalPayAmount();
+
+    // Record Flash Sale items bought if 9 PM - 10 PM offer is active
+    const flashStatus = getFlashSaleStatus();
+    if (flashStatus.isActiveNow && flashStatus.itemsRemainingThisMonth > 0) {
+      const totalUnitsInCart = cart.reduce((sum, i) => sum + i.quantity, 0);
+      const unitsUsedAtOneRupee = Math.min(flashStatus.itemsRemainingThisMonth, totalUnitsInCart);
+      if (unitsUsedAtOneRupee > 0) {
+        recordFlashSalePurchase(unitsUsedAtOneRupee);
+      }
+    }
 
     const newOrder: Order = {
       id: 'QM-' + Math.floor(100000 + Math.random() * 900000),
