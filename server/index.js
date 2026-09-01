@@ -758,6 +758,118 @@ app.delete('/api/shops/:id', (req, res) => {
   res.json({ success: true, message: `Shop ${shopId} deleted.`, remainingShops: registeredShops.length });
 });
 
+// Helper function to auto-populate 50 essential quick-commerce items for approved stores
+function create50DefaultProductsForShop(shopId, shopName) {
+  const baseCatalog = [
+    // FRUITS (7)
+    { name: 'Organic Shimla Apples', category: 'Fruits', price: 149, originalPrice: 210, weight: '4 pcs (approx 500g)', image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=300&q=80', description: 'Crisp & sweet organic red apples fresh from Shimla orchards.', origin: 'Shimla, India', shelfLife: '7 Days' },
+    { name: 'Fresh Cavendish Bananas', category: 'Fruits', price: 49, originalPrice: 70, weight: '6 pcs (approx 800g)', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=300&q=80', description: 'Rich in potassium, naturally ripened farm bananas.', origin: 'Karnataka, India', shelfLife: '4 Days' },
+    { name: 'Fresh Blueberries', category: 'Fruits', price: 220, originalPrice: 320, weight: '125g Pack', image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=300&q=80', description: 'Juicy, antioxidant-packed wild blueberries.', origin: 'Imported', shelfLife: '5 Days' },
+    { name: 'Hass Avocados (Imported)', category: 'Fruits', price: 189, originalPrice: 260, weight: '2 pcs (approx 350g)', image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=300&q=80', description: 'Creamy Hass avocados perfect for guacamole & toasts.', origin: 'Mexico', shelfLife: '5 Days' },
+    { name: 'Premium Alphonso Mangoes', category: 'Fruits', price: 299, originalPrice: 399, weight: '2 pcs (approx 500g)', image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80', description: 'King of mangoes, sweet aromatic Ratnagiri Alphonso.', origin: 'Ratnagiri, India', shelfLife: '4 Days' },
+    { name: 'Fresh Strawberries', category: 'Fruits', price: 120, originalPrice: 180, weight: '200g Pack', image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=300&q=80', description: 'Sweet, farm-plucked Mahabaleshwar strawberries.', origin: 'Mahabaleshwar, India', shelfLife: '3 Days' },
+    { name: 'Seedless Black Grapes', category: 'Fruits', price: 110, originalPrice: 150, weight: '500g Pack', image: 'https://images.unsplash.com/photo-1537084642907-629340c7e09d?auto=format&fit=crop&w=300&q=80', description: 'Sweet & crunchy seedless black grapes.', origin: 'Nashik, India', shelfLife: '5 Days' },
+
+    // VEGETABLES (8)
+    { name: 'Organic Potato (Jyoti)', category: 'Vegetables', price: 38, originalPrice: 50, weight: '1kg Bag', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80', description: 'Farm fresh Jyoti potatoes for all daily dishes.', origin: 'Bengaluru, India', shelfLife: '10 Days' },
+    { name: 'Red Onion (Nasik)', category: 'Vegetables', price: 42, originalPrice: 60, weight: '1kg Bag', image: 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=300&q=80', description: 'Pungent & flavorful premium red onions.', origin: 'Nashik, India', shelfLife: '14 Days' },
+    { name: 'Hybrid Tomato', category: 'Vegetables', price: 28, originalPrice: 40, weight: '500g Bag', image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=300&q=80', description: 'Ripe, firm tomatoes packed with flavor.', origin: 'Karnataka, India', shelfLife: '5 Days' },
+    { name: 'Fresh Broccoli', category: 'Vegetables', price: 89, originalPrice: 130, weight: '1 pc (250g - 350g)', image: 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=300&q=80', description: 'Nutrient-rich, crisp green broccoli florets.', origin: 'Ooty, India', shelfLife: '4 Days' },
+    { name: 'Fresh Spinach (Palak)', category: 'Vegetables', price: 19, originalPrice: 30, weight: '250g Bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80', description: 'Fresh iron-rich green spinach leaves.', origin: 'Local Farm', shelfLife: '2 Days' },
+    { name: 'Fresh Coriander (Dhania)', category: 'Vegetables', price: 12, originalPrice: 20, weight: '100g Bunch', image: 'https://images.unsplash.com/photo-1514944224142-d1870b4553da?auto=format&fit=crop&w=300&q=80', description: 'Aromatic green coriander leaves for garnishing.', origin: 'Local Farm', shelfLife: '2 Days' },
+    { name: 'Green Capsicum', category: 'Vegetables', price: 35, originalPrice: 50, weight: '250g Pack', image: 'https://images.unsplash.com/photo-1563565312-3b2d137356ca?auto=format&fit=crop&w=300&q=80', description: 'Crisp green bell peppers for cooking & salads.', origin: 'Karnataka, India', shelfLife: '6 Days' },
+    { name: 'Orange Carrot (Ooty)', category: 'Vegetables', price: 49, originalPrice: 70, weight: '500g Pack', image: 'https://images.unsplash.com/photo-1598170845058-32b996a6bd41?auto=format&fit=crop&w=300&q=80', description: 'Sweet crunchy carrots grown in Ooty hills.', origin: 'Ooty, India', shelfLife: '7 Days' },
+
+    // DAIRY & EGGS (7)
+    { name: 'Farm Fresh A2 Cow Milk', category: 'Dairy & Eggs', price: 66, originalPrice: 100, weight: '1 Litre Pouch', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80', description: 'Pure pasteurized A2 cow milk from grass-fed cows.', origin: 'Dairy Farm', shelfLife: '2 Days' },
+    { name: 'Table Eggs (White)', category: 'Dairy & Eggs', price: 55, originalPrice: 75, weight: '6 pcs Pack', image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=300&q=80', description: 'Protein-packed farm fresh white eggs.', origin: 'Poultry Farm', shelfLife: '14 Days' },
+    { name: 'Amul Salted Butter', category: 'Dairy & Eggs', price: 105, originalPrice: 110, weight: '100g Carton', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', description: 'Classic Amul butter made from pure milk fat.', origin: 'Gujarat, India', shelfLife: '6 Months' },
+    { name: 'Processed Cheese Slices', category: 'Dairy & Eggs', price: 135, originalPrice: 150, weight: '100g Pack (5 Slices)', image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', description: 'Rich & melty cheese slices for sandwiches & burgers.', origin: 'India', shelfLife: '3 Months' },
+    { name: 'Nestle Actiplus Dahi', category: 'Dairy & Eggs', price: 35, originalPrice: 45, weight: '400g Cup', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300&q=80', description: 'Thick probiotic curd made from pasteurized milk.', origin: 'India', shelfLife: '7 Days' },
+    { name: 'Organic Cow Ghee', category: 'Dairy & Eggs', price: 650, originalPrice: 750, weight: '500ml Tin', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', description: 'Traditional bilona ghee rich in aroma & nutrients.', origin: 'India', shelfLife: '1 Year' },
+    { name: 'Fresh Paneer Block', category: 'Dairy & Eggs', price: 89, originalPrice: 110, weight: '200g Pack', image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', description: 'Soft, hygienic cottage cheese block.', origin: 'Local Dairy', shelfLife: '5 Days' },
+
+    // BAKERY (6)
+    { name: 'Artisanal Whole Wheat Bread', category: 'Bakery', price: 48, originalPrice: 70, weight: '400g Pack', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', description: 'Soft & fresh 100% whole wheat bread loaf.', origin: 'Fresh Bakery', shelfLife: '4 Days' },
+    { name: 'Whole Wheat Burger Buns', category: 'Bakery', price: 30, originalPrice: 40, weight: '2 pcs Pack', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', description: 'Fluffy whole wheat sesame burger buns.', origin: 'Fresh Bakery', shelfLife: '3 Days' },
+    { name: 'Premium Chocolate Fudge Cake', category: 'Bakery', price: 349, originalPrice: 499, weight: '500g Box', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80', description: 'Rich Belgian dark chocolate ganache cake.', origin: 'Fresh Bakery', shelfLife: '3 Days' },
+    { name: 'Choco Chip Butter Cookies', category: 'Bakery', price: 79, originalPrice: 110, weight: '150g Box', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=300&q=80', description: 'Crunchy butter cookies loaded with dark choco chips.', origin: 'Fresh Bakery', shelfLife: '30 Days' },
+    { name: 'Crispy Whole Wheat Rusk', category: 'Bakery', price: 45, originalPrice: 60, weight: '300g Pack', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', description: 'Double-baked crispy wheat rusk for chai time.', origin: 'Fresh Bakery', shelfLife: '60 Days' },
+    { name: 'Butter Garlic Bread', category: 'Bakery', price: 59, originalPrice: 80, weight: '150g Pack', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=300&q=80', description: 'Garlic infused French loaf slices with butter herbs.', origin: 'Fresh Bakery', shelfLife: '3 Days' },
+
+    // SNACKS & CHOCOLATES (7)
+    { name: 'Classic Salted Potato Chips', category: 'Snacks', price: 20, originalPrice: 20, weight: '50g Pack', image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&q=80', description: 'Crispy potato wafers seasoned with sea salt.', origin: 'India', shelfLife: '4 Months' },
+    { name: 'Cheese Nacho Crisps', category: 'Snacks', price: 45, originalPrice: 60, weight: '150g Pack', image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=300&q=80', description: 'Mexican style cheese flavored corn nachos.', origin: 'India', shelfLife: '6 Months' },
+    { name: 'Roasted & Salted Cashews', category: 'Snacks', price: 189, originalPrice: 250, weight: '100g Pack', image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?auto=format&fit=crop&w=300&q=80', description: 'Slow-roasted premium W240 cashews with sea salt.', origin: 'Goa, India', shelfLife: '6 Months' },
+    { name: 'Dark Hazelnut Chocolate', category: 'Snacks', price: 99, originalPrice: 150, weight: '80g Bar', image: 'https://images.unsplash.com/photo-1549007994-cb92ca817bc7?auto=format&fit=crop&w=300&q=80', description: '70% cocoa dark chocolate loaded with roasted hazelnuts.', origin: 'India', shelfLife: '9 Months' },
+    { name: 'Crispy Oats Biscuits', category: 'Snacks', price: 50, originalPrice: 70, weight: '200g Pack', image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=300&q=80', description: 'High fiber whole grain oat digestive biscuits.', origin: 'India', shelfLife: '6 Months' },
+    { name: 'Roasted California Almonds', category: 'Snacks', price: 169, originalPrice: 220, weight: '100g Pack', image: 'https://images.unsplash.com/photo-1508061461508-cb18c242f556?auto=format&fit=crop&w=300&q=80', description: 'Crunchy California almonds lightly salted.', origin: 'California', shelfLife: '6 Months' },
+    { name: "Haldiram's Bhujia Sev", category: 'Snacks', price: 60, originalPrice: 75, weight: '200g Pack', image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&q=80', description: 'Crispy spiced moth bean flour noodles.', origin: 'Rajasthan, India', shelfLife: '6 Months' },
+
+    // BEVERAGES (6)
+    { name: '100% Pure Orange Juice', category: 'Beverages', price: 99, originalPrice: 120, weight: '1 Litre Carton', image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=300&q=80', description: 'No added sugar 100% pure squeezed Valencia orange juice.', origin: 'India', shelfLife: '6 Months' },
+    { name: 'Fresh Tender Coconut Water', category: 'Beverages', price: 45, originalPrice: 55, weight: '200ml Tetra', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&q=80', description: 'Naturally hydrating raw tender coconut water.', origin: 'Kerala, India', shelfLife: '6 Months' },
+    { name: 'Diet Cola Zero Sugar', category: 'Beverages', price: 40, originalPrice: 40, weight: '300ml Can', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', description: 'Zero calorie sparkling cola beverage.', origin: 'India', shelfLife: '9 Months' },
+    { name: 'Organic Green Tea (Lemon)', category: 'Beverages', price: 145, originalPrice: 180, weight: '25 Tea Bags Box', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=300&q=80', description: 'Himalayan green tea infused with natural lemon zest.', origin: 'Darjeeling, India', shelfLife: '12 Months' },
+    { name: 'Ready-to-Drink Cold Brew Espresso', category: 'Beverages', price: 79, originalPrice: 110, weight: '250ml Can', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80', description: 'Steeped 16 hours cold brew Arabica espresso.', origin: 'Chikmagalur, India', shelfLife: '3 Months' },
+    { name: 'Monster Energy Ultra', category: 'Beverages', price: 120, originalPrice: 120, weight: '350ml Can', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', description: 'Zero sugar energy drink with taurine & B-vitamins.', origin: 'USA', shelfLife: '12 Months' },
+
+    // PANTRY STAPLES (5)
+    { name: 'Super Premium Basmati Rice', category: 'Pantry Staples', price: 149, originalPrice: 199, weight: '1kg Bag', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', description: 'Long grain aged aromatic Basmati rice.', origin: 'Punjab, India', shelfLife: '2 Years' },
+    { name: 'Premium Chakki Atta', category: 'Pantry Staples', price: 230, originalPrice: 280, weight: '5kg Bag', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', description: '100% MP Sharbati stone-ground wheat flour.', origin: 'Madhya Pradesh, India', shelfLife: '3 Months' },
+    { name: 'Polished Toor Dal', category: 'Pantry Staples', price: 135, originalPrice: 175, weight: '1kg Bag', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', description: 'High protein unpolished arhar toor dal.', origin: 'Maharashtra, India', shelfLife: '1 Year' },
+    { name: 'Cold Pressed Sunflower Oil', category: 'Pantry Staples', price: 185, originalPrice: 240, weight: '1 Litre Bottle', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80', description: '100% natural cold pressed sunflower seed oil.', origin: 'India', shelfLife: '1 Year' },
+    { name: 'Tata Salt Vacuum Evaporated', category: 'Pantry Staples', price: 28, originalPrice: 30, weight: '1kg Pack', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', description: 'Iodized crystal salt for daily cooking.', origin: 'Gujarat, India', shelfLife: '2 Years' },
+
+    // PERSONAL & HOUSEHOLD CARE (4)
+    { name: 'Dettol Antiseptic Disinfectant', category: 'Personal Care', price: 110, originalPrice: 130, weight: '250ml Bottle', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80', description: 'First aid antiseptic liquid for germ protection.', origin: 'India', shelfLife: '2 Years' },
+    { name: 'Surf Excel Easy Wash Detergent', category: 'Household', price: 140, originalPrice: 165, weight: '1kg Pack', image: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=300&q=80', description: 'Stain removal washing powder for clothes.', origin: 'India', shelfLife: '2 Years' },
+    { name: 'Colgate Total Dental Toothpaste', category: 'Personal Care', price: 95, originalPrice: 120, weight: '150g Tube', image: 'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?auto=format&fit=crop&w=300&q=80', description: '12-hour antibacterial cavity protection toothpaste.', origin: 'India', shelfLife: '2 Years' },
+    { name: 'Hand Wash Refill Pouch (Aloe)', category: 'Personal Care', price: 85, originalPrice: 110, weight: '500ml Pouch', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80', description: 'Moisturizing germ kill hand wash refill.', origin: 'India', shelfLife: '2 Years' }
+  ];
+
+  const cleanShopId = (shopId || 'shop').replace(/[^a-zA-Z0-9]/g, '');
+  return baseCatalog.map((item, idx) => ({
+    id: `p-${cleanShopId}-${idx + 1}`,
+    shopId: shopId,
+    shopName: shopName || 'Partner Darkstore',
+    name: item.name,
+    description: item.description,
+    category: item.category,
+    price: item.price,
+    originalPrice: item.originalPrice,
+    weight: item.weight,
+    stockCount: 50,
+    inStock: true,
+    image: item.image,
+    images: [item.image],
+    barcode: `89012345${(idx + 1).toString().padStart(3, '0')}`,
+    shelfLocation: `Aisle ${Math.floor(idx / 10) + 1} - Bay ${String.fromCharCode(65 + (idx % 5))}`,
+    origin: item.origin,
+    shelfLife: item.shelfLife
+  }));
+}
+
+// --- CLEAR ALL STORES & INVENTORY ENDPOINT ---
+app.all('/api/shops/clear-all', (req, res) => {
+  const countShops = registeredShops.length;
+  registeredShops = [];
+  darkstores = [];
+  products = [];
+
+  securityLogs.unshift({
+    id: `SEC-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    eventType: 'ALL_SHOPS_CLEARED',
+    ipAddress: req.ip || '127.0.0.1',
+    location: 'Server Memory Reset',
+    severity: 'WARNING',
+    details: `All ${countShops} registered shops, darkstores, and products were cleared from server.`
+  });
+
+  res.json({ success: true, message: `Successfully cleared all ${countShops} registered stores and inventory.` });
+});
+
 app.post('/api/shops/delete', (req, res) => {
   const { shopId } = req.body;
   if (!shopId) return res.status(400).json({ error: 'shopId is required' });
@@ -797,6 +909,7 @@ app.post('/api/shops/approve', (req, res) => {
         city: 'Bengaluru',
         lat: shop.lat || 12.9141,
         lon: shop.lon || 77.6411,
+        address: shop.address || 'Sector 1, HSR Layout, Bengaluru',
         status: 'ONLINE',
         dailyOrders: 0,
         revenue: 0,
@@ -804,6 +917,14 @@ app.post('/api/shops/approve', (req, res) => {
         managerPhone: shop.phone,
         uptimePercent: 100.0
       });
+    }
+
+    // Auto-populate 50 default quick-commerce products if shop has no products yet
+    const existingProducts = products.filter(p => p.shopId === shop.id);
+    if (existingProducts.length === 0) {
+      const auto50 = create50DefaultProductsForShop(shop.id, shop.name);
+      products.unshift(...auto50);
+      console.log(`[Auto-Catalog] Auto-populated 50 products for approved store: ${shop.name} (${shop.id})`);
     }
   }
 

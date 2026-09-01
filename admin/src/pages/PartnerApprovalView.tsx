@@ -135,6 +135,18 @@ export const PartnerApprovalView: React.FC = () => {
     }
   };
 
+  const handleClearAllShops = async () => {
+    if (!window.confirm('Are you sure you want to CLEAR ALL registered stores and their inventory catalog? This will reset all store registrations.')) {
+      return;
+    }
+    try {
+      await fetch(`${API}/shops/clear-all`, { method: 'POST' });
+      loadPendingData();
+    } catch {
+      alert('Failed to clear stores');
+    }
+  };
+
   const pendingShopsCount = shops.filter((s) => s.status === 'PENDING_APPROVAL').length;
   const pendingRidersCount = riders.filter((r) => r.status === 'PENDING_APPROVAL').length;
 
@@ -152,13 +164,24 @@ export const PartnerApprovalView: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={loadPendingData}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 transition cursor-pointer"
-        >
-          <RefreshCw className={`w-4 h-4 text-amber-400 ${loading ? 'animate-spin' : ''}`} />
-          <span>Refresh Approvals</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleClearAllShops}
+            className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-3.5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            title="Clear all registered stores from server memory"
+          >
+            <XCircle className="w-4 h-4 text-red-400" />
+            <span>Clear All Stores</span>
+          </button>
+
+          <button
+            onClick={loadPendingData}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 transition cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 text-amber-400 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh Approvals</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs Switcher */}

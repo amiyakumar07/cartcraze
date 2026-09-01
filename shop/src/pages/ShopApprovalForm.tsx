@@ -39,13 +39,13 @@ export const ShopApprovalForm: React.FC<ShopApprovalFormProps> = ({ onSubmitSucc
         async (pos) => {
           setLat(pos.coords.latitude);
           setLon(pos.coords.longitude);
-          const res = await reverseGeocodeLocationIQ(pos.coords.latitude, pos.coords.longitude);
-          setAddress(res.address);
+          const fullAddress = await reverseGeocodeLocationIQ(pos.coords.latitude, pos.coords.longitude);
+          setAddress(fullAddress);
           setGpsLoading(false);
         },
         async () => {
-          const res = await reverseGeocodeLocationIQ(12.9141, 77.6411);
-          setAddress(res.address);
+          const fullAddress = await reverseGeocodeLocationIQ(12.9141, 77.6411);
+          setAddress(fullAddress);
           setGpsLoading(false);
         }
       );

@@ -13,16 +13,17 @@ export interface LiveRiderLocation {
 
 export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
   try {
-    const key = LOCATIONIQ_API_KEY;
-    if (!key || key === 'YOUR_LOCATIONIQ_API_KEY') {
-      return `HSR Layout Sector 1, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-    }
+    const key = LOCATIONIQ_API_KEY && LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY'
+      ? LOCATIONIQ_API_KEY
+      : 'pk.87f2b73258797339613e6398d60d0e2e';
     const res = await fetch(`https://us1.locationiq.com/v1/reverse?key=${key}&lat=${lat}&lon=${lon}&format=json`);
-    if (!res.ok) return `Sector 1, HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-    const data = await res.json();
-    return data.display_name || `HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.display_name) return data.display_name;
+    }
+    return `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
   } catch {
-    return `Sector 1, HSR Layout, Bengaluru (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    return `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
   }
 };
 
