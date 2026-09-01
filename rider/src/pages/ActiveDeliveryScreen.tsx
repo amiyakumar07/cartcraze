@@ -1,372 +1,263 @@
 import React, { useState } from 'react';
-import type { RiderOrder } from '../types';
-import { DeliveryStepper } from '../components/DeliveryStepper';
+import { MapPin, Phone, CheckCircle2, Package, Navigation, ChevronRight, ArrowLeft } from 'lucide-react';
 import { LocationIQMap } from '../components/LocationIQMap';
-import {
-  PhoneCall,
-  MessageSquare,
-  Navigation,
-  CheckCircle2,
-  AlertTriangle,
-  QrCode,
-  ShieldCheck,
-  Store,
-  MapPin,
-  Clock,
-  DollarSign,
-  PackageCheck,
-  Camera,
-  X,
-  ArrowRight,
-  Zap,
-  Check
-} from 'lucide-react';
+import { SwipeToConfirm } from '../components/SwipeToConfirm';
+import type { RiderOrder } from '../types';
+import type { AppTab } from '../App';
 
-interface ActiveDeliveryScreenProps {
+interface Props {
   activeOrder: RiderOrder | null;
-  onComplete: (orderId: string) => void;
-  setActiveTab: (tab: any) => void;
+  onComplete: (id: string) => void;
+  setActiveTab: (tab: AppTab) => void;
 }
 
-export const ActiveDeliveryScreen: React.FC<ActiveDeliveryScreenProps> = ({
-  activeOrder,
-  onComplete,
-  setActiveTab
-}) => {
-  const [currentStatus, setCurrentStatus] = useState<string>(activeOrder?.status || 'ASSIGNED');
-  const [otpInput, setOtpInput] = useState<string[]>(['', '', '', '']);
-  const [otpError, setOtpError] = useState(false);
-  const [cashCollected, setCashCollected] = useState(false);
-  const [proofPhotoUploaded, setProofPhotoUploaded] = useState(false);
-  const [isCompletedSuccess, setIsCompletedSuccess] = useState(false);
+export const ActiveDeliveryScreen: React.FC<Props> = ({ activeOrder, onComplete, setActiveTab }) => {
+  const [step, setStep] = useState<'PICKUP' | 'DELIVERING' | 'DONE'>('PICKUP');
+  const [confirming, setConfirming] = useState(false);
+  const [inputOtp, setInputOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
 
   if (!activeOrder) {
     return (
-      <div className="bg-slate-950 text-white min-h-screen p-6 flex flex-col justify-center items-center text-center space-y-4 font-sans border-t border-slate-900 animate-fadeIn">
-        <div className="w-16 h-16 rounded-3xl bg-slate-900 text-amber-400 border border-slate-800 flex items-center justify-center text-2xl font-black shadow-xl">
-          📦
+      <div className="min-h-full bg-slate-50 flex flex-col items-center justify-center p-8 text-center min-h-[500px]">
+        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+          <Package className="w-8 h-8 text-slate-400" />
         </div>
-        <h2 className="text-base font-black text-white">No Active Delivery Assigned</h2>
-        <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-          Stay online in your home dashboard to receive new quick-commerce delivery requests.
+        <h2 className="text-base font-bold text-slate-900 mb-1">No Active Delivery</h2>
+        <p className="text-xs text-slate-500 mb-6 max-w-xs leading-relaxed">
+          Go online on the Home screen to receive assigned darkstore orders.
         </p>
         <button
           onClick={() => setActiveTab('orders')}
-          className="mt-2 px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all active:scale-95 shadow-md cursor-pointer"
+          className="min-h-[44px] bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs cursor-pointer"
         >
-          Return to Dashboard
+          Go to Home Queue
         </button>
       </div>
     );
   }
 
-  const isCod = activeOrder.paymentMethod === 'COD' || activeOrder.paymentMethod === 'CASH';
-  const expectedOtp = activeOrder.otp || '4829';
-  const payoutEarnings = Math.max(35, Math.round((activeOrder.finalTotal || 80) * 0.12));
+  const isPrepaid = activeOrder.paymentMethod !== 'COD' && activeOrder.paymentStatus !== 'UNPAID';
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1);
-    const newOtp = [...otpInput];
-    newOtp[index] = value;
-    setOtpInput(newOtp);
-    setOtpError(false);
-
-    // Auto advance focus
-    if (value && index < 3) {
-      const nextInput = document.getElementById(`otp-input-${index + 1}`);
-      nextInput?.focus();
+  const handleVerifyOtpAndComplete = async () => {
+    if (isPrepaid) {
+      const targetOtp = activeOrder.otp || '4829';
+      if (inputOtp.trim() !== targetOtp) {
+        setOtpError(`Incorrect OTP! Ask customer for 4-digit code shown in their app.`);
+        return;
+      }
     }
+    setOtpError('');
+    setConfirming(true);
+    await onComplete(activeOrder.id);
+    setStep('DONE');
+    setConfirming(false);
   };
-
-  const handleVerifyOtpAndComplete = () => {
-    const entered = otpInput.join('');
-    if (entered !== expectedOtp && entered !== '1234' && entered !== '4829') {
-      setOtpError(true);
-      return;
-    }
-
-    if (isCod && !cashCollected) {
-      alert('Please confirm cash collection before completing delivery.');
-      return;
-    }
-
-    setIsCompletedSuccess(true);
-    onComplete(activeOrder.id);
-  };
-
-  if (isCompletedSuccess) {
-    return (
-      <div className="bg-slate-950 text-white min-h-screen p-6 flex flex-col justify-center items-center text-center space-y-5 font-sans animate-fadeIn">
-        <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500 flex items-center justify-center text-4xl font-black shadow-2xl animate-bounce">
-          🎉
-        </div>
-
-        <div className="space-y-1">
-          <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">
-            DELIVERY COMPLETED SUCCESSFULLY
-          </span>
-          <h2 className="text-2xl font-black text-white pt-2">₹{payoutEarnings} Earned!</h2>
-          <p className="text-xs text-slate-400 font-mono">Order #{activeOrder.id} • Completed in 14 mins</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 w-full max-w-xs space-y-2 text-xs text-left">
-          <div className="flex justify-between">
-            <span className="text-slate-400">Base Delivery Fee</span>
-            <span className="font-bold text-white">₹35.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">Distance Surge</span>
-            <span className="font-bold text-emerald-400">₹{payoutEarnings - 35}.00</span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-slate-800 font-extrabold text-sm">
-            <span className="text-slate-200">Total Payout</span>
-            <span className="text-emerald-400">₹{payoutEarnings}.00</span>
-          </div>
-        </div>
-
-        <button
-          onClick={() => { setIsCompletedSuccess(false); setActiveTab('orders'); }}
-          className="w-full max-w-xs py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 cursor-pointer"
-        >
-          BACK TO DASHBOARD
-        </button>
-      </div>
-    );
-  }
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen pb-24 font-sans space-y-4 p-4 animate-fadeIn">
-      {/* Top Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl flex justify-between items-center">
+    <div className="bg-slate-50 font-sans pb-32 min-h-screen text-slate-900">
+      {/* TOP BAR */}
+      <div className="bg-white px-4 py-3.5 flex items-center gap-3 border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+        <button
+          onClick={() => setActiveTab('orders')}
+          className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div>
-          <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider block">ACTIVE DELIVERY ORDER</span>
-          <h2 className="text-base font-black text-white">Order #{activeOrder.id}</h2>
+          <h2 className="text-sm font-bold text-slate-900 font-jakarta leading-none">Active Delivery</h2>
+          <p className="text-[11px] text-slate-500 font-medium mt-0.5">Order #{activeOrder.id}</p>
         </div>
-        <div className="text-right">
-          <span className="text-xs font-mono font-black text-emerald-400 block">Est. Payout</span>
-          <span className="text-lg font-black text-white">₹{payoutEarnings}</span>
+        <div className="ml-auto">
+          <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+            step === 'DONE' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+            step === 'DELIVERING' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+            'bg-amber-100 text-amber-900 border border-amber-200'
+          }`}>
+            {step === 'DONE' ? '✅ Delivered' : step === 'DELIVERING' ? '🛵 En Route' : '📦 Darkstore Pickup'}
+          </span>
         </div>
       </div>
 
-      {/* ── 6-STEP DELIVERY PROGRESS STEPPER ── */}
-      <DeliveryStepper currentStatus={currentStatus} />
+      {/* LocationIQ Live GPS Map with Customer Pin */}
+      <div className="mx-4 mt-4">
+        <LocationIQMap
+          step={step}
+          riderName="Alex Mercer"
+          destLat={activeOrder.customerLat}
+          destLon={activeOrder.customerLon}
+          customerName={activeOrder.customerName}
+          customerAddress={activeOrder.deliveryAddress}
+        />
+      </div>
 
-      {/* ── STEP 1: STORE PICKUP SECTION ── */}
-      {(currentStatus === 'ASSIGNED' || currentStatus === 'GOING_TO_STORE' || currentStatus === 'ARRIVED_AT_STORE') && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-4 shadow-xl">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-lg">
-                🏪
+      {/* DELIVERY STEPS CONTAINER */}
+      <div className="px-4 mt-4 space-y-3">
+        {/* STEP 1: PICKUP */}
+        <div className={`rounded-2xl border p-4 transition-all ${
+          step === 'PICKUP' ? 'border-amber-400 bg-amber-50/50 shadow-xs' : 'border-slate-200 bg-white opacity-70'
+        }`}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                step !== 'PICKUP' ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-slate-950 font-bold'
+              }`}>
+                {step !== 'PICKUP' ? <CheckCircle2 className="w-4 h-4" /> : <Package className="w-4 h-4" />}
               </div>
-              <div>
-                <span className="text-[9px] text-amber-400 font-black uppercase tracking-wider block">STEP 1 • PICKUP AT DARKSTORE</span>
-                <h3 className="text-sm font-extrabold text-white">{activeOrder.restaurantName || 'Fresh Valley Market'}</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">{activeOrder.restaurantAddress || 'Sector 1, HSR Layout'}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-900">1. Pickup from Shop</p>
+                <p className="text-xs text-slate-700 font-bold mt-0.5 truncate">{activeOrder.restaurantName || 'Fresh Valley Market'}</p>
+                <p className="text-[11px] text-slate-500 truncate">{activeOrder.restaurantAddress || 'Sector 1, HSR Layout, Bengaluru'}</p>
               </div>
             </div>
-
-            <a
-              href={`https://maps.google.com/?q=${activeOrder.restaurantAddress || 'HSR Layout'}`}
-              target="_blank"
-              rel="noreferrer"
-              className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
-            >
-              <Navigation className="w-4 h-4" />
-              <span>Map</span>
-            </a>
           </div>
 
-          <div className="flex gap-2">
-            <a
-              href="tel:+919800011111"
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700"
-            >
-              <PhoneCall className="w-3.5 h-3.5 text-amber-400" />
-              <span>Call Darkstore Manager</span>
-            </a>
-          </div>
-
-          {currentStatus === 'ASSIGNED' && (
-            <button
-              onClick={() => setCurrentStatus('GOING_TO_STORE')}
-              className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Navigation className="w-4 h-4 fill-slate-950" />
-              <span>START NAVIGATION TO STORE</span>
-            </button>
-          )}
-
-          {currentStatus === 'GOING_TO_STORE' && (
-            <button
-              onClick={() => setCurrentStatus('ARRIVED_AT_STORE')}
-              className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4 stroke-[3]" />
-              <span>I'VE ARRIVED AT DARKSTORE</span>
-            </button>
-          )}
-
-          {currentStatus === 'ARRIVED_AT_STORE' && (
-            <div className="space-y-3 pt-2 border-t border-slate-800">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
-                <span className="text-slate-300 font-bold">Item Verification Checklist ({activeOrder.itemsCount || 1} SKUs)</span>
-                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/30">
-                  Ready Packed
+          {step === 'PICKUP' && (
+            <div className="mt-3.5 pt-3 border-t border-amber-200/80 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                <span>Confirm Order Pickup at Store:</span>
+                <span className="text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full text-[10px] uppercase font-black">
+                  Ready for Pickup
                 </span>
               </div>
-
-              <button
-                onClick={() => setCurrentStatus('PICKED_UP')}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <PackageCheck className="w-4 h-4 stroke-[3]" />
-                <span>VERIFY &amp; CONFIRM PICKUP</span>
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── STEP 2: CUSTOMER DELIVERY SECTION ── */}
-      {(currentStatus === 'PICKED_UP' || currentStatus === 'GOING_TO_CUSTOMER' || currentStatus === 'ARRIVED_AT_CUSTOMER') && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-4 shadow-xl">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-lg">
-                📍
-              </div>
-              <div>
-                <span className="text-[9px] text-emerald-400 font-black uppercase tracking-wider block">STEP 2 • DELIVER TO CUSTOMER</span>
-                <h3 className="text-sm font-extrabold text-white">{activeOrder.customerName || 'Customer'}</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">{activeOrder.deliveryAddress}</p>
-              </div>
-            </div>
-
-            <a
-              href={`https://maps.google.com/?q=${activeOrder.customerLat || 12.9141},${activeOrder.customerLon || 77.6411}`}
-              target="_blank"
-              rel="noreferrer"
-              className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
-            >
-              <Navigation className="w-4 h-4" />
-              <span>Map</span>
-            </a>
-          </div>
-
-          {/* Customer Call & SMS buttons */}
-          <div className="flex gap-2">
-            <a
-              href={`tel:${activeOrder.customerPhone}`}
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700"
-            >
-              <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Call Customer</span>
-            </a>
-            <a
-              href={`sms:${activeOrder.customerPhone}`}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1 border border-slate-700"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
-            </a>
-          </div>
-
-          {currentStatus === 'PICKED_UP' && (
-            <button
-              onClick={() => setCurrentStatus('GOING_TO_CUSTOMER')}
-              className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Navigation className="w-4 h-4 fill-slate-950" />
-              <span>START NAVIGATION TO CUSTOMER</span>
-            </button>
-          )}
-
-          {currentStatus === 'GOING_TO_CUSTOMER' && (
-            <button
-              onClick={() => setCurrentStatus('ARRIVED_AT_CUSTOMER')}
-              className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4 stroke-[3]" />
-              <span>I'VE ARRIVED AT CUSTOMER LOCATION</span>
-            </button>
-          )}
-
-          {currentStatus === 'ARRIVED_AT_CUSTOMER' && (
-            <div className="space-y-4 pt-3 border-t border-slate-800">
-              {/* COD Cash Collection Section if Cash Order */}
-              {isCod && (
-                <div className="bg-amber-950/60 border border-amber-500/50 p-3.5 rounded-2xl space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CASH ON DELIVERY (COD)</span>
-                    <span className="text-lg font-black text-amber-400">Collect ₹{activeOrder.finalTotal}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setCashCollected(!cashCollected)}
-                    className={`w-full py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      cashCollected
-                        ? 'bg-emerald-500 text-slate-950'
-                        : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
-                    }`}
-                  >
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    <span>{cashCollected ? '✓ CASH RECEIVED FROM CUSTOMER' : 'CONFIRM CASH RECEIVED'}</span>
-                  </button>
-                </div>
-              )}
-
-              {/* 4-Digit OTP Verification */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-slate-200">Customer Delivery OTP Verification</label>
-                  <span className="text-[10px] text-slate-400 font-mono">Demo OTP: {expectedOtp}</span>
-                </div>
-
-                <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map((idx) => (
-                    <input
-                      key={idx}
-                      id={`otp-input-${idx}`}
-                      type="text"
-                      maxLength={1}
-                      value={otpInput[idx]}
-                      onChange={(e) => handleOtpChange(idx, e.target.value)}
-                      className={`w-12 h-14 bg-slate-950 border-2 rounded-2xl text-center text-xl font-black font-mono text-emerald-400 focus:outline-none transition-all ${
-                        otpError ? 'border-red-500' : 'border-slate-700 focus:border-emerald-400'
-                      }`}
-                    />
-                  ))}
-                </div>
-                {otpError && (
-                  <p className="text-[11px] text-red-400 text-center font-bold">Incorrect OTP. Try 4829 or 1234.</p>
-                )}
-              </div>
-
+              <SwipeToConfirm
+                label="Swipe when picked up"
+                confirmLabel="Picked up ✓"
+                onConfirm={async () => {
+                  try {
+                    await fetch(`http://localhost:4000/api/orders/${activeOrder.id}/status`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: 'PICKED_UP', riderId: 'rider-001' })
+                    });
+                  } catch (e) {
+                    console.warn('Mark picked up patch error:', e);
+                  }
+                  setStep('DELIVERING');
+                }}
+              />
               <button
                 type="button"
-                onClick={handleVerifyOtpAndComplete}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-xs shadow-xl transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                onClick={() => setStep('DELIVERING')}
+                className="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-800 py-1 cursor-pointer underline"
               >
-                <ShieldCheck className="w-4 h-4 stroke-[3]" />
-                <span>VERIFY OTP &amp; COMPLETE DELIVERY</span>
+                Tap here to confirm pickup manually
               </button>
             </div>
           )}
         </div>
-      )}
 
-      {/* ── MAP CANVAS FOR ACTIVE DELIVERY ── */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Navigation className="w-4 h-4 text-emerald-400" />
-            <span>Live Delivery Route Telemetry</span>
-          </span>
-          <span className="text-[10px] font-mono text-emerald-400 font-bold">GPS Active</span>
+        {/* STEP 2: DELIVER */}
+        <div className={`rounded-2xl border p-4 transition-all ${
+          step === 'DELIVERING' ? 'border-blue-500 bg-blue-50/50 shadow-xs' :
+          step === 'DONE' ? 'border-slate-200 bg-white opacity-70' :
+          'border-slate-200 bg-white opacity-50'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+              step === 'DONE' ? 'bg-emerald-500 text-white' : step === 'DELIVERING' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
+            }`}>
+              {step === 'DONE' ? <CheckCircle2 className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-slate-900">2. Customer Dropoff</p>
+              <p className="text-sm font-bold text-slate-900 mt-0.5">{activeOrder.customerName}</p>
+              <p className="text-xs text-slate-600 leading-relaxed mt-0.5">{activeOrder.deliveryAddress}</p>
+              
+              {/* PAYMENT HIGHLIGHT BADGE */}
+              <div className="flex items-center gap-2 mt-2.5">
+                <span className="text-xs font-black text-slate-900">₹{activeOrder.finalTotal || activeOrder.payoutAmount || 85}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                  isPrepaid
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold'
+                }`}>
+                  {isPrepaid ? '✓ Prepaid (OTP Required)' : '💵 Collect Cash ₹' + (activeOrder.finalTotal || 85)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {step === 'DELIVERING' && (
+            <div className="mt-4 space-y-3">
+              <a
+                href={`tel:${activeOrder.customerPhone || '9876543210'}`}
+                className="w-full min-h-[44px] bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 border border-slate-300 transition cursor-pointer"
+              >
+                <Phone className="w-4 h-4 text-emerald-600" /> Call Customer ({activeOrder.customerPhone || '+91 98765 43210'})
+              </a>
+
+              {/* OTP Verification Section for Prepaid Orders */}
+              {isPrepaid ? (
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                  <label className="text-[11px] font-bold text-slate-700 block">
+                    Enter 4-Digit Customer Delivery OTP:
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={inputOtp}
+                    onChange={(e) => {
+                      setInputOtp(e.target.value);
+                      setOtpError('');
+                    }}
+                    placeholder="Enter 4-digit OTP (e.g. 4829)"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-center font-mono text-base font-black text-slate-900 focus:outline-none focus:border-emerald-500"
+                  />
+                  {otpError && (
+                    <p className="text-[11px] font-bold text-red-600 leading-tight">{otpError}</p>
+                  )}
+                  <div className="pt-1">
+                    <SwipeToConfirm
+                      label="Swipe when delivered"
+                      confirmLabel="Delivered ✓"
+                      disabled={confirming || inputOtp.length < 4}
+                      onConfirm={handleVerifyOtpAndComplete}
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* COD Cash Collection Section */
+                <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-200 space-y-2">
+                  <p className="text-xs font-bold text-amber-900">
+                    Collect ₹{activeOrder.finalTotal || 85} Cash from Customer before handing over parcel.
+                  </p>
+                  <div className="pt-1">
+                    <SwipeToConfirm
+                      label="Swipe when delivered & paid"
+                      confirmLabel="Delivered ✓"
+                      disabled={confirming}
+                      onConfirm={handleVerifyOtpAndComplete}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="h-52 rounded-2xl overflow-hidden border border-slate-800 relative">
-          <LocationIQMap activeOrder={activeOrder} />
+        {/* STEP 3: DONE CELEBRATION */}
+        {step === 'DONE' && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center animate-slide-up shadow-xs">
+            <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+            <h3 className="text-base font-bold text-slate-900 font-jakarta">Order Delivered! 🎉</h3>
+            <p className="text-xs text-slate-600 mt-0.5 mb-4">₹75 added to today's earnings</p>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className="min-h-[44px] bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-6 py-2.5 rounded-xl shadow-xs cursor-pointer"
+            >
+              Back to Home Queue
+            </button>
+          </div>
+        )}
+
+        {/* PAYOUT BREAKDOWN CARD */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-3 flex items-center justify-between shadow-xs">
+          <span className="text-xs text-slate-500 font-medium">Trip Guaranteed Payout</span>
+          <div className="text-right">
+            <span className="text-base font-black text-slate-900 font-jakarta">₹75.00</span>
+            <p className="text-[10px] text-slate-400 font-medium">Base pay + express bonus</p>
+          </div>
         </div>
       </div>
     </div>
