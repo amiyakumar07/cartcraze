@@ -37,15 +37,16 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
         async (pos) => {
           setLat(pos.coords.latitude);
           setLon(pos.coords.longitude);
-          const res = await reverseGeocodeLocationIQ(pos.coords.latitude, pos.coords.longitude);
-          setAddress(res.address);
+          const fullAddress = await reverseGeocodeLocationIQ(pos.coords.latitude, pos.coords.longitude);
+          setAddress(fullAddress);
           setGpsLoading(false);
         },
         async () => {
-          const res = await reverseGeocodeLocationIQ(12.9141, 77.6411);
-          setAddress(res.address);
+          const fullAddress = await reverseGeocodeLocationIQ(12.9141, 77.6411);
+          setAddress(fullAddress);
           setGpsLoading(false);
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       setAddress('HSR Layout, Sector 1, Bengaluru');

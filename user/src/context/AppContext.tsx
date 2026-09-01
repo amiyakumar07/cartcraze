@@ -433,6 +433,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     createOrderApi({
       ...newOrder,
+      darkstoreName: activeStore?.name || 'Fresh Valley Market',
       customerName: addressDetails?.fullName || userProfile.name,
       customerPhone: addressDetails?.phone || userProfile.phone,
       customerLat: addressDetails?.lat || userCoords.lat,
@@ -441,6 +442,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       village: addressDetails?.village || 'HSR Layout',
       street: addressDetails?.street || '',
       landmark: addressDetails?.landmark || ''
+    }).then((res) => {
+      if (res && res.order) {
+        const syncedOrder = {
+          ...newOrder,
+          id: res.order.id || newOrder.id,
+          darkstoreName: res.order.darkstoreName || activeStore?.name || 'Fresh Valley Market',
+          darkstoreAddress: res.order.darkstoreAddress || 'HSR Layout, Bengaluru',
+          otp: res.order.otp || newOrder.otp,
+          shopId: res.order.shopId || activeStore?.id
+        };
+        setCurrentOrder(syncedOrder);
+        setOrderHistory((prev) => [syncedOrder, ...prev.slice(1)]);
+      }
     });
 
     setCurrentOrder(newOrder);

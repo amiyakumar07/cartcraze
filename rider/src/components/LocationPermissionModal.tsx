@@ -19,19 +19,20 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
         async (pos) => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          const geo = await reverseGeocodeLocationIQ(lat, lon);
-          setDetectedAddress(geo.address);
+          const address = await reverseGeocodeLocationIQ(lat, lon);
+          setDetectedAddress(address);
           setLoading(false);
-          setTimeout(() => onClose({ lat, lon, address: geo.address }), 800);
+          setTimeout(() => onClose({ lat, lon, address }), 800);
         },
         async () => {
           const lat = 12.9141;
           const lon = 77.6411;
-          const geo = await reverseGeocodeLocationIQ(lat, lon);
-          setDetectedAddress(geo.address);
+          const address = await reverseGeocodeLocationIQ(lat, lon);
+          setDetectedAddress(address);
           setLoading(false);
-          setTimeout(() => onClose({ lat, lon, address: geo.address }), 800);
-        }
+          setTimeout(() => onClose({ lat, lon, address }), 800);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       setLoading(false);

@@ -207,38 +207,43 @@ const App: React.FC = () => {
       setApiError(false);
 
       if (Array.isArray(data) && data.length > 0) {
-        const latestOrder = data[0];
-        const formattedOrder: RiderOrder = {
-          id: latestOrder.id,
-          customerName: latestOrder.customerName || 'Customer',
-          customerPhone: latestOrder.customerPhone || '+91 98765 43210',
-          deliveryAddress: latestOrder.deliveryAddress || 'Sector 1, HSR Layout, Bengaluru',
-          customerLat: parseFloat(latestOrder.customerLat) || 12.9141,
-          customerLon: parseFloat(latestOrder.customerLon) || 77.6411,
-          pincode: latestOrder.pincode || '560102',
-          village: latestOrder.village || '',
-          street: latestOrder.street || '',
-          landmark: latestOrder.landmark || '',
-          restaurantName: latestOrder.darkstoreName || 'Fresh Valley Market',
-          restaurantAddress: latestOrder.darkstoreAddress || 'Sector 1, HSR Layout, Bengaluru',
-          itemsCount: latestOrder.items ? latestOrder.items.length : 1,
-          payoutAmount: latestOrder.finalTotal || 75,
-          finalTotal: latestOrder.finalTotal || 75,
-          paymentMethod: latestOrder.paymentMethod || 'UPI',
-          paymentStatus: latestOrder.paymentStatus || 'PAID',
-          otp: latestOrder.otp || '4829',
-          estimatedTime: '12 mins',
-          status: latestOrder.status || 'ASSIGNED',
-          items: (latestOrder.items || []).map((i: any) => ({
-            id: i.id || `i-${Math.random()}`,
-            name: i.name || 'Grocery Item',
-            quantity: i.quantity || 1,
-            price: i.price || 50
-          }))
-        };
+        const activeOrders = data.filter((o: any) => o.status !== 'DELIVERED');
+        if (activeOrders.length > 0) {
+          const latestOrder = activeOrders[0];
+          const formattedOrder: RiderOrder = {
+            id: latestOrder.id,
+            customerName: latestOrder.customerName || 'Customer',
+            customerPhone: latestOrder.customerPhone || '+91 98765 43210',
+            deliveryAddress: latestOrder.deliveryAddress || 'Sector 1, HSR Layout, Bengaluru',
+            customerLat: parseFloat(latestOrder.customerLat) || 12.9141,
+            customerLon: parseFloat(latestOrder.customerLon) || 77.6411,
+            pincode: latestOrder.pincode || '560102',
+            village: latestOrder.village || '',
+            street: latestOrder.street || '',
+            landmark: latestOrder.landmark || '',
+            restaurantName: latestOrder.darkstoreName || 'Fresh Valley Market',
+            restaurantAddress: latestOrder.darkstoreAddress || 'Sector 1, HSR Layout, Bengaluru',
+            itemsCount: latestOrder.items ? latestOrder.items.length : 1,
+            payoutAmount: latestOrder.finalTotal || 75,
+            finalTotal: latestOrder.finalTotal || 75,
+            paymentMethod: latestOrder.paymentMethod || 'UPI',
+            paymentStatus: latestOrder.paymentStatus || 'PAID',
+            otp: latestOrder.otp || '4829',
+            estimatedTime: '12 mins',
+            status: latestOrder.status || 'ASSIGNED',
+            items: (latestOrder.items || []).map((i: any) => ({
+              id: i.id || `i-${Math.random()}`,
+              name: i.name || 'Grocery Item',
+              quantity: i.quantity || 1,
+              price: i.price || 50
+            }))
+          };
 
-        if (!activeOrder || activeOrder.id !== formattedOrder.id) {
-          setActiveOrder(formattedOrder);
+          if (!activeOrder || activeOrder.id !== formattedOrder.id || activeOrder.status !== formattedOrder.status) {
+            setActiveOrder(formattedOrder);
+          }
+        } else {
+          setActiveOrder(null);
         }
       } else {
         setActiveOrder(null);
