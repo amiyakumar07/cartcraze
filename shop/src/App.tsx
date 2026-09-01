@@ -527,6 +527,12 @@ function SettingsView({
   const [locLoading, setLocLoading] = useState(false);
   const [locSaved, setLocSaved] = useState(false);
 
+  useEffect(() => {
+    if (shopData?.address) setAddress(shopData.address);
+    if (shopData?.lat) setLat(shopData.lat);
+    if (shopData?.lon) setLon(shopData.lon);
+  }, [shopData?.address, shopData?.lat, shopData?.lon]);
+
   const handleDetectGPS = () => {
     setLocLoading(true);
     if ('geolocation' in navigator) {
@@ -537,14 +543,12 @@ function SettingsView({
           setLat(newLat);
           setLon(newLon);
           try {
-            const geo = await reverseGeocodeLocationIQ(newLat, newLon);
-            if (geo?.address) setAddress(geo.address);
+            const geoAddress = await reverseGeocodeLocationIQ(newLat, newLon);
+            if (geoAddress) setAddress(geoAddress);
           } catch { /* silent */ }
           setLocLoading(false);
         },
         async () => {
-          setLat(12.9141);
-          setLon(77.6411);
           setLocLoading(false);
         }
       );
