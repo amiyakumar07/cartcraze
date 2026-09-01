@@ -15,6 +15,9 @@ export interface Product {
   inStock: boolean;
   deliveryTimeMinutes: number;
   description: string;
+  hasBuy2Offer?: boolean;
+  buy2DiscountPercent?: number;
+  buy2OfferLabel?: string;
   shelfLife?: string;
   origin?: string;
   storage?: string;

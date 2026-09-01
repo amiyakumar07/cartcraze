@@ -46,6 +46,7 @@ interface AppContextType {
   setIsPhoneFrame: (frame: boolean) => void;
   getCartCount: () => number;
   getCartTotal: () => number;
+  getBuy2DiscountTotal: () => number;
   getFinalPayAmount: () => number;
   logoutUser: () => void;
   isOutOfCoverageRange: boolean;
@@ -161,7 +162,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const shopsMap = new Map((data.nearbyShops || []).map((s: any) => [s.id, s.name]));
         const defaultShopName = data.nearbyShops[0]?.name || 'Fresh Valley Market';
 
-        const mapped = (data.products || []).map((p: any) => ({
+        const mapped = (data.products || []).map((p: any, idx: number) => ({
           id: p.id,
           name: p.name,
           shopId: p.shopId || data.nearbyShops[0]?.id || 'shop-auto',
@@ -170,7 +171,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           subCategory: p.subCategory || 'All',
           price: Number(p.price),
           originalPrice: Number(p.originalPrice) || Number(p.price),
-          weight: p.weight || '1 unit',
+          weight: p.weight || '500 g',
+          hasBuy2Offer: p.hasBuy2Offer ?? (idx % 4 !== 0),
+          buy2DiscountPercent: 5,
+          buy2OfferLabel: "Buy 2+ get 5% OFF",
           image: p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=300&q=80',
           discountPercentage: p.discountPercentage || Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) || 0,
           rating: p.rating || 4.5,
@@ -356,12 +360,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   };
 
+  const getBuy2DiscountTotal = () => {
+    let sum = 0;
+    for (const item of cart) {
+      const hasOffer = item.product.hasBuy2Offer ?? (item.product.id ? (parseInt(item.product.id.replace(/\D/g, '') || '1') % 4 !== 0) : true);
+      if (hasOffer && item.quantity >= 2) {
+        sum += Math.round(item.product.price * item.quantity * 0.05);
+      }
+    }
+    return sum;
+  };
+
   const getFinalPayAmount = () => {
     const itemTotal = getCartTotal();
     const deliveryFee = itemTotal >= 199 ? 0 : 25;
     const handlingFee = 5;
     const discount = appliedCoupon ? appliedCoupon.discount : 0;
-    const total = Math.max(0, itemTotal + deliveryFee + handlingFee + tipAmount - discount);
+    const buy2Discount = getBuy2DiscountTotal();
+    const total = Math.max(1, itemTotal + deliveryFee + handlingFee + tipAmount - discount - buy2Discount);
     return total;
   };
 
@@ -490,6 +506,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsPhoneFrame,
         getCartCount,
         getCartTotal,
+        getBuy2DiscountTotal,
         getFinalPayAmount,
         logoutUser,
         isOutOfCoverageRange,

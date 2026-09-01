@@ -68,12 +68,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* ── Product Info ── */}
       <div className="p-2.5 flex flex-col flex-1">
-        {/* Weight / Pack size & Shop Name */}
-        <div className="flex justify-between items-center mb-0.5 text-[10px]">
-          <span className="text-[#8f8f8f] font-medium">{product.weight}</span>
-          <span className="text-[#0c831f] font-bold font-mono truncate max-w-[55%]" title={product.shopName || 'Darkstore'}>
-            🏪 {product.shopName || 'Fresh Valley Market'}
+        {/* Weight / Pack size & Buy 2 offer badge */}
+        <div className="flex justify-between items-center mb-1 text-[10px]">
+          <span className="bg-gray-100 text-gray-700 font-extrabold px-1.5 py-0.5 rounded-md border border-gray-200">
+            {product.weight || '500 g'}
           </span>
+          {product.hasBuy2Offer !== false && (
+            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs">
+              🏷️ 2+ = 5% OFF
+            </span>
+          )}
         </div>
 
         {/* Name */}

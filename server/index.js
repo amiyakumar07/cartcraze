@@ -838,7 +838,10 @@ function create50DefaultProductsForShop(shopId, shopName) {
     category: item.category,
     price: item.price,
     originalPrice: item.originalPrice,
-    weight: item.weight,
+    weight: item.category === 'Fruits' ? '500 g' : item.weight,
+    hasBuy2Offer: idx % 4 !== 0, // 75% of products
+    buy2DiscountPercent: 5,
+    buy2OfferLabel: "Buy 2+ get 5% OFF",
     stockCount: 50,
     inStock: true,
     image: item.image,

@@ -31,6 +31,7 @@ export const BasketScreen: React.FC = () => {
     cart,
     updateQuantity,
     getCartTotal,
+    getBuy2DiscountTotal,
     getFinalPayAmount,
     couponCode,
     setCouponCode,
@@ -401,8 +402,14 @@ export const BasketScreen: React.FC = () => {
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-emerald-600 font-bold">
-                <span>Discount</span>
+                <span>Coupon Discount</span>
                 <span>-₹{discount}</span>
+              </div>
+            )}
+            {getBuy2DiscountTotal() > 0 && (
+              <div className="flex justify-between text-emerald-600 font-bold">
+                <span className="flex items-center gap-1">🏷️ Buy 2+ Items (5% OFF)</span>
+                <span>-₹{getBuy2DiscountTotal()}</span>
               </div>
             )}
             <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-sm">
