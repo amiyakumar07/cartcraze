@@ -59,8 +59,24 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
     setDlFileName(file.name);
     setDlFileSize(`${(file.size / 1024).toFixed(1)} KB`);
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') setDrivingLicenseProof(reader.result);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scaleSize = MAX_WIDTH / img.width;
+        if (scaleSize < 1) {
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleSize;
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        }
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setDrivingLicenseProof(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -71,8 +87,24 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
     setIdFileName(file.name);
     setIdFileSize(`${(file.size / 1024).toFixed(1)} KB`);
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') setIdProofProof(reader.result);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scaleSize = MAX_WIDTH / img.width;
+        if (scaleSize < 1) {
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleSize;
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        }
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setIdProofProof(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };

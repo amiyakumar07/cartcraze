@@ -62,10 +62,25 @@ export const ShopApprovalForm: React.FC<ShopApprovalFormProps> = ({ onSubmitSucc
     setProofFileSize(`${(file.size / 1024).toFixed(1)} KB`);
 
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setLicenseProofUrl(reader.result);
-      }
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scaleSize = MAX_WIDTH / img.width;
+        if (scaleSize < 1) {
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleSize;
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        }
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        setLicenseProofUrl(dataUrl);
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -78,35 +93,39 @@ export const ShopApprovalForm: React.FC<ShopApprovalFormProps> = ({ onSubmitSucc
     }
 
     setSubmitting(true);
+    const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:4000/api'
+      : 'https://cartcraze-95gt.onrender.com/api';
+
+    const payload = {
+      name: shopName,
+      email,
+      phone,
+      address,
+      lat,
+      lon,
+      licenseType,
+      licenseNumber,
+      licenseProof: licenseProofUrl
+    };
+
     try {
-      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:4000/api'
-        : 'https://cartcraze-95gt.onrender.com/api';
       const res = await fetch(`${API}/shops/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: shopName,
-          email,
-          phone,
-          address,
-          lat,
-          lon,
-          licenseType,
-          licenseNumber,
-          licenseProof: licenseProofUrl
-        })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       setSubmitting(false);
-      if (data.success) {
+      if (data.success && data.shop) {
         onSubmitSuccess(data.shop);
       } else {
         alert(data.error || 'Failed to submit shop registration');
       }
-    } catch {
+    } catch (err) {
+      console.warn('Network error registering shop to backend:', err);
       setSubmitting(false);
-      // Fallback local shop registration
+      // Local shop registration object
       onSubmitSuccess({
         id: `shop-${Date.now()}`,
         name: shopName,
@@ -118,7 +137,8 @@ export const ShopApprovalForm: React.FC<ShopApprovalFormProps> = ({ onSubmitSucc
         licenseType,
         licenseNumber,
         licenseProof: licenseProofUrl,
-        status: 'PENDING_APPROVAL'
+        status: 'PENDING_APPROVAL',
+        createdAt: new Date().toISOString()
       });
     }
   };
