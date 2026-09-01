@@ -419,7 +419,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       discountAmount,
       tipAmount,
       finalTotal,
-      status: 'PLACED',
+      status: 'NEW',
       deliveryAddress: address || userProfile.address,
       paymentMethod,
       estimatedDeliveryMinutes: 9,

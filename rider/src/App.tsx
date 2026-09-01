@@ -35,7 +35,7 @@ export interface RiderProfile {
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>('orders');
-  const [dutyStatus, setDutyStatus] = useState<DutyStatus>('OFF_DUTY');
+  const [dutyStatus, setDutyStatus] = useState<DutyStatus>('ON_DUTY');
   const [activeOrder, setActiveOrder] = useState<RiderOrder | null>(null);
   const [apiError, setApiError] = useState(false);
   const [riderApprovalData, setRiderApprovalData] = useState<any>(() => {
@@ -172,8 +172,8 @@ const App: React.FC = () => {
     if (!riderProfile.isLoggedIn || dutyStatus === 'OFF_DUTY') return;
 
     const sendGpsUpdate = async () => {
-      // Only send if we have real GPS coords
-      if (!riderGpsCoords) return;
+      const currentLat = riderGpsCoords?.lat || riderApprovalData?.lat || 20.2316;
+      const currentLon = riderGpsCoords?.lon || riderApprovalData?.lon || 85.8300;
       try {
         await fetch(`${API}/locationiq/update-rider-location`, {
           method: 'POST',
@@ -183,8 +183,8 @@ const App: React.FC = () => {
             riderName: riderProfile.name || riderApprovalData?.name || 'Rider',
             phone: riderProfile.phone || riderApprovalData?.phone || '',
             vehicleNumber: riderProfile.vehicleNumber || riderApprovalData?.vehicleNumber || '',
-            lat: riderGpsCoords.lat,
-            lon: riderGpsCoords.lon,
+            lat: currentLat,
+            lon: currentLon,
             status: activeOrder ? 'EN_ROUTE' : 'ONLINE'
           })
         });
@@ -200,7 +200,6 @@ const App: React.FC = () => {
 
   // Poll live customer orders placed in User App near rider
   const fetchLiveOrders = useCallback(async () => {
-    if (dutyStatus === 'OFF_DUTY') return;
     try {
       const res = await fetch(`${API}/orders`);
       const data = await res.json();

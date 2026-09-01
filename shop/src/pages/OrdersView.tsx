@@ -38,8 +38,8 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
   ];
 
   const activeList = orders.length > 0 ? orders : sampleOrders;
-  const newOrders = activeList.filter((o) => o.status === 'NEW');
-  const packingOrders = activeList.filter((o) => o.status === 'PACKING' || o.status === 'NEW');
+  const newOrders = activeList.filter((o) => o.status === 'NEW' || o.status === 'PLACED');
+  const packingOrders = activeList.filter((o) => o.status === 'PACKING' || o.status === 'NEW' || o.status === 'PLACED');
   const dispatchedOrders = activeList.filter((o) => o.status === 'DISPATCHED' || o.status === 'READY');
 
   return (
