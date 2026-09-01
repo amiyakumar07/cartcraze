@@ -68,6 +68,12 @@ export const BasketScreen: React.FC = () => {
     if (userProfile.phone) setPhone(userProfile.phone);
   }, [userProfile]);
 
+  useEffect(() => {
+    if (step === 'address') {
+      handleAutoDetectGPS();
+    }
+  }, [step]);
+
   const itemTotal = getCartTotal();
   const deliveryFee = itemTotal >= 199 ? 0 : 25;
   const handlingFee = 5;

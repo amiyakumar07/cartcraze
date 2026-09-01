@@ -79,14 +79,32 @@ export const reverseGeocodeDetailedLocationIQ = async (lat: number, lon: number)
     if (res.ok) {
       const data = await res.json();
       const addr = data.address || {};
+      const parts = data.display_name ? data.display_name.split(',').map((s: string) => s.trim()) : [];
 
+      // 1. Pincode (Always 6-digit postal code)
       const pincode = addr.postcode || (data.display_name?.match(/\b\d{6}\b/)?.[0] || '751002');
-      const village = addr.suburb || addr.village || addr.neighbourhood || addr.city_district || addr.town || addr.city || 'Old Town';
-      const streetParts = [addr.house_number, addr.road || addr.street || addr.pedestrian || addr.footway].filter(Boolean).join(', ');
-      const street = streetParts || (data.display_name ? data.display_name.split(',').slice(0, 2).join(', ').trim() : 'Old Town, Ward 60');
-      const city = addr.city || addr.county || addr.city_district || 'Bhubaneswar';
-      const state = addr.state || 'Odisha';
-      const landmark = addr.city_district || addr.suburb || addr.county || state;
+
+      // 2. Village / Suburb / Area
+      const village = addr.suburb || addr.village || addr.neighbourhood || (parts[0] || 'Old Town');
+
+      // 3. Street / Ward / Road (Distinct from village)
+      let street = '';
+      if (addr.house_number || addr.road || addr.street) {
+        street = [addr.house_number, addr.road || addr.street].filter(Boolean).join(' ');
+      }
+      if (!street || street === village) {
+        street = parts[1] || parts[0] || 'Ward 60';
+      }
+
+      // 4. Landmark (Distinct from village & street)
+      let landmark = addr.city_district || addr.landmark || addr.county || parts[2] || parts[1] || 'South East Zone';
+      if (landmark === village || landmark === street) {
+        landmark = parts[2] || parts[3] || 'South East Zone';
+      }
+
+      // 5. City & State
+      const city = addr.city || addr.town || addr.municipality || parts[3] || 'Bhubaneswar';
+      const state = addr.state || parts[5] || 'Odisha';
       const displayName = data.display_name || `${street}, ${village}, ${city}, ${state} ${pincode}`;
 
       return {

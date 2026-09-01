@@ -47,7 +47,10 @@ export const CheckoutAddressModal: React.FC<CheckoutAddressModalProps> = ({
   useEffect(() => {
     if (initialProfile?.name) setFullName(initialProfile.name);
     if (initialProfile?.phone) setPhone(initialProfile.phone);
-  }, [initialProfile]);
+    if (isOpen) {
+      handleAutoDetectGPS();
+    }
+  }, [isOpen, initialProfile]);
 
   if (!isOpen) return null;
 
