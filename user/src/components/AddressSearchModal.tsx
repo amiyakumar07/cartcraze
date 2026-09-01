@@ -38,16 +38,15 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const res = await reverseGeocodeLocationIQ(position.coords.latitude, position.coords.longitude);
+          const fullAddress = await reverseGeocodeLocationIQ(position.coords.latitude, position.coords.longitude);
           setGpsLoading(false);
-          onSelectAddress(res.address);
+          onSelectAddress(fullAddress);
           onClose();
         },
         async () => {
-          // Fallback location
-          const res = await reverseGeocodeLocationIQ(12.9141, 77.6411);
+          const fullAddress = await reverseGeocodeLocationIQ(12.9141, 77.6411);
           setGpsLoading(false);
-          onSelectAddress(res.address);
+          onSelectAddress(fullAddress);
           onClose();
         }
       );

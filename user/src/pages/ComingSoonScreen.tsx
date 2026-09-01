@@ -115,8 +115,10 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
   // Dynamically check if any approved darkstores exist in backend
   useEffect(() => {
     let isMounted = true;
-    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    fetch(`http://${hostname}:4000/api/shops?status=APPROVED`)
+    const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:4000/api'
+      : 'https://cartcraze-95gt.onrender.com/api';
+    fetch(`${API}/shops?status=APPROVED`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted && data.success && Array.isArray(data.shops)) {

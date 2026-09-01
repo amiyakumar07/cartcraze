@@ -43,52 +43,59 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          setUserCoords({ lat, lon });
-          const res = await reverseGeocodeLocationIQ(lat, lon);
+          try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            setUserCoords({ lat, lon });
+            const gpsAddress = await reverseGeocodeLocationIQ(lat, lon);
 
-          const gpsAddress = res.address;
-          const newGpsAddress: SavedAddress = {
-            id: 'addr-' + Date.now(),
-            label: 'Home',
-            flatNo: gpsAddress.split(',')[0] || 'Current GPS Location',
-            area: gpsAddress.split(',').slice(1).join(', ') || 'Detected LocationIQ GPS',
-            fullAddress: gpsAddress,
-            isDefault: true
-          };
+            const newGpsAddress: SavedAddress = {
+              id: 'addr-' + Date.now(),
+              label: 'Home',
+              flatNo: gpsAddress.split(',')[0] || 'Current GPS Location',
+              area: gpsAddress.split(',').slice(1).join(', ') || 'Detected LocationIQ GPS',
+              fullAddress: gpsAddress,
+              isDefault: true
+            };
 
-          const updatedList = savedAddressesList.map((a) => ({ ...a, isDefault: false }));
-          updatedList.unshift(newGpsAddress);
+            const updatedList = savedAddressesList.map((a) => ({ ...a, isDefault: false }));
+            updatedList.unshift(newGpsAddress);
 
-          setUserProfile((prev) => ({
-            ...prev,
-            address: gpsAddress,
-            savedAddresses: updatedList
-          }));
+            setUserProfile((prev) => ({
+              ...prev,
+              address: gpsAddress,
+              savedAddresses: updatedList
+            }));
 
-          // Check backend coverage — never bypass
-          await checkStoreCoverage(lat, lon);
-          setGpsLoading(false);
-          onClose();
+            await checkStoreCoverage(lat, lon);
+          } catch (err) {
+            console.warn('GPS location error:', err);
+          } finally {
+            setGpsLoading(false);
+            onClose();
+          }
         },
         async () => {
-          // Fallback HSR Layout — still check backend
-          const fallbackLat = 12.9141;
-          const fallbackLon = 77.6411;
-          setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-          const res = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-          setUserProfile((prev) => ({ ...prev, address: res.address }));
-          await checkStoreCoverage(fallbackLat, fallbackLon);
-          setGpsLoading(false);
-          onClose();
+          try {
+            const fallbackLat = 12.9141;
+            const fallbackLon = 77.6411;
+            setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+            const gpsAddress = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+            setUserProfile((prev) => ({ ...prev, address: gpsAddress }));
+            await checkStoreCoverage(fallbackLat, fallbackLon);
+          } catch (err) {
+            console.warn('GPS location fallback error:', err);
+          } finally {
+            setGpsLoading(false);
+            onClose();
+          }
         }
       );
     } else {
       const fallbackLat = 12.9141;
       const fallbackLon = 77.6411;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
+      checkStoreCoverage(fallbackLat, fallbackLon).finally(() => {
         setGpsLoading(false);
         onClose();
       });

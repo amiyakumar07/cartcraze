@@ -150,8 +150,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const targetLat = lat ?? userCoords.lat;
     const targetLon = lon ?? userCoords.lon;
     try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const res = await fetch(`http://${hostname}:4000/api/products/nearby?lat=${targetLat}&lon=${targetLon}&radiusKm=5.0`);
+      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : 'https://cartcraze-95gt.onrender.com/api';
+      const res = await fetch(`${API}/products/nearby?lat=${targetLat}&lon=${targetLon}&radiusKm=5.0`);
       const data = await res.json();
       if (data && data.success && data.inCoverageRange === true && Array.isArray(data.nearbyShops) && data.nearbyShops.length > 0) {
         setIsOutOfCoverageRange(false);

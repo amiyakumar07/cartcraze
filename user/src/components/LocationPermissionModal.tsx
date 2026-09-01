@@ -20,41 +20,46 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          setUserCoords({ lat, lon });
+          try {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            setUserCoords({ lat, lon });
 
-          const geo = await reverseGeocodeLocationIQ(lat, lon);
-          setDetectedAddress(geo.address);
-          setUserProfile((prev) => ({ ...prev, address: geo.address }));
+            const addressString = await reverseGeocodeLocationIQ(lat, lon);
+            setDetectedAddress(addressString);
+            setUserProfile((prev) => ({ ...prev, address: addressString }));
 
-          // Run strict backend coverage check — never assume in-range on error
-          await checkStoreCoverage(lat, lon);
-
-          setLoading(false);
-          setTimeout(() => onClose(), 800);
+            await checkStoreCoverage(lat, lon);
+          } catch (e) {
+            console.warn('Coverage check error:', e);
+          } finally {
+            setLoading(false);
+            setTimeout(() => onClose(), 600);
+          }
         },
         async () => {
-          // GPS denied — fallback HSR Layout coords, STILL must check backend
-          const fallbackLat = 12.9141;
-          const fallbackLon = 77.6411;
-          setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-          const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-          setDetectedAddress(geo.address);
-          setUserProfile((prev) => ({ ...prev, address: geo.address }));
+          try {
+            const fallbackLat = 12.9141;
+            const fallbackLon = 77.6411;
+            setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+            const addressString = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+            setDetectedAddress(addressString);
+            setUserProfile((prev) => ({ ...prev, address: addressString }));
 
-          await checkStoreCoverage(fallbackLat, fallbackLon);
-
-          setLoading(false);
-          setTimeout(() => onClose(), 800);
+            await checkStoreCoverage(fallbackLat, fallbackLon);
+          } catch (e) {
+            console.warn('Coverage check error:', e);
+          } finally {
+            setLoading(false);
+            setTimeout(() => onClose(), 600);
+          }
         }
       );
     } else {
-      // No geolocation API — fallback HSR Layout, check backend
       const fallbackLat = 12.9141;
       const fallbackLon = 77.6411;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
+      checkStoreCoverage(fallbackLat, fallbackLon).finally(() => {
         setLoading(false);
         onClose();
       });
@@ -63,15 +68,19 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
   const handleUseDefault = async () => {
     setLoading(true);
-    const fallbackLat = 12.9141;
-    const fallbackLon = 77.6411;
-    setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-    const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-    setUserProfile((prev) => ({ ...prev, address: geo.address }));
-    // Strictly verify coverage before unlocking — never force-unlock
-    await checkStoreCoverage(fallbackLat, fallbackLon);
-    setLoading(false);
-    onClose();
+    try {
+      const fallbackLat = 12.9141;
+      const fallbackLon = 77.6411;
+      setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+      const addressString = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+      setUserProfile((prev) => ({ ...prev, address: addressString }));
+      await checkStoreCoverage(fallbackLat, fallbackLon);
+    } catch (e) {
+      console.warn('Coverage check error:', e);
+    } finally {
+      setLoading(false);
+      onClose();
+    }
   };
 
   return (
