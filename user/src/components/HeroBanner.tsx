@@ -68,61 +68,118 @@ export const FlashSaleBannerCard: React.FC = () => {
 
   if (isQuotaExhausted) {
     return (
-      <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border border-purple-800 text-white rounded-3xl p-4 shadow-xl flex items-center justify-between gap-3 text-xs mb-3 font-sans">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-500/20 text-purple-300 rounded-2xl flex items-center justify-center font-black text-lg border border-purple-500/40">
+      <div className="bg-gradient-to-r from-purple-950 via-slate-950 to-indigo-950 border border-purple-500/50 text-white rounded-3xl p-4.5 shadow-2xl flex flex-wrap items-center justify-between gap-3 text-xs mb-3 font-sans relative overflow-hidden group">
+        <div className="flex items-center gap-3.5 z-10">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
             🎉
           </div>
           <div>
-            <h3 className="font-extrabold text-amber-300 text-xs">Monthly 5-Item Limit Reached</h3>
+            <div className="flex items-center gap-2">
+              <span className="bg-purple-500/30 text-purple-300 border border-purple-400/40 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                MONTHLY ₹1 OFFER COMPLETE
+              </span>
+            </div>
+            <h3 className="text-sm font-black text-amber-300 mt-1">5 / 5 Items Purchased at ₹1 Each!</h3>
             <p className="text-[11px] text-slate-300 font-medium mt-0.5">
-              You used your 5 items @ ₹1 offer for this month! Next 5-item offer resets on <strong className="text-white">{nextResetDateStr}</strong>.
+              Your ₹1 offer quota resets on <strong className="text-emerald-400">{nextResetDateStr}</strong>.
             </p>
           </div>
+        </div>
+
+        <div className="z-10 bg-purple-900/40 backdrop-blur-md border border-purple-500/30 px-3 py-1.5 rounded-2xl font-mono text-[10px] text-purple-200">
+          Quota: <strong className="text-amber-400">0 / 5 Left</strong>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`border rounded-3xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 text-xs font-sans relative overflow-hidden transition-all mb-3 ${
-      isActiveNow
-        ? 'bg-gradient-to-r from-red-950 via-amber-950 to-red-900 border-red-500 text-white animate-pulse'
-        : 'bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 border-amber-500/40 text-white'
-    }`}>
-      <div className="flex items-center gap-3">
-        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl font-black shadow-md ${
-          isActiveNow ? 'bg-amber-400 text-black animate-bounce' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-        }`}>
+    <div
+      className={`border rounded-3xl p-4.5 shadow-2xl flex flex-wrap items-center justify-between gap-4 text-xs font-sans relative overflow-hidden transition-all duration-300 mb-3 group ${
+        isActiveNow
+          ? 'bg-gradient-to-r from-red-950 via-slate-950 to-amber-950 border-2 border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.3)]'
+          : 'bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/80 border border-amber-500/30'
+      }`}
+    >
+      {/* Animated Background Light Glow */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all" />
+      <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+
+      {/* Shimmer Light Sweep */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+      {/* Main Content */}
+      <div className="flex items-center gap-3.5 z-10 min-w-[260px] flex-1">
+        {/* Animated Flame Icon Container */}
+        <div
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl shrink-0 transition-transform duration-300 group-hover:scale-105 ${
+            isActiveNow
+              ? 'bg-gradient-to-tr from-red-500 to-amber-400 text-slate-950 ring-4 ring-amber-400/30 shadow-red-900/50 animate-bounce'
+              : 'bg-gradient-to-tr from-amber-500/20 to-amber-400/10 text-amber-400 border border-amber-500/40 shadow-inner'
+          }`}
+        >
           🔥
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="bg-amber-400 text-black font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-              {isActiveNow ? 'LIVE NOW • 9 PM - 10 PM' : 'DAILY 9 PM - 10 PM FLASH SALE'}
+
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm ${
+                isActiveNow
+                  ? 'bg-gradient-to-r from-red-600 to-amber-500 text-white animate-pulse'
+                  : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isActiveNow ? 'bg-white animate-ping' : 'bg-amber-400'}`} />
+              <span>{isActiveNow ? 'LIVE NOW • 9 PM - 10 PM' : 'DAILY 9 PM - 10 PM FLASH SALE'}</span>
             </span>
+
             {isActiveNow && (
-              <span className="bg-red-600 text-white text-[10px] font-mono px-2 py-0.5 rounded-full animate-pulse font-bold">
-                ENDS IN {timeRemainingStr}
+              <span className="bg-red-950/80 text-red-300 border border-red-500/40 text-[9px] font-mono px-2 py-0.5 rounded-full font-bold">
+                ⏱️ ENDS IN {timeRemainingStr}
               </span>
             )}
           </div>
 
-          <h3 className="text-sm font-black text-white mt-1">
-            EVERYTHING @ ₹1 EACH! (LIMIT: 5 ITEMS/USER)
+          <h3 className="text-sm sm:text-base font-black tracking-tight text-white drop-shadow-md">
+            EVERYTHING @ <span className="text-amber-400 underline decoration-amber-400/60 decoration-wavy">₹1 EACH!</span>
+            <span className="text-xs text-slate-300 font-bold ml-1.5">(LIMIT: 5 ITEMS/USER)</span>
           </h3>
 
-          <p className="text-[11px] text-slate-300 font-medium mt-0.5">
+          <p className="text-[11px] text-slate-300 font-medium leading-normal">
             {isActiveNow
-              ? `⚡ Flash Sale is LIVE! You have ${itemsRemainingThisMonth} items left at ₹1 this month.`
-              : `⏰ Set your alarm for 9:00 PM tonight! All products available for ₹1 (5 items max/user).`}
+              ? `⚡ Flash Sale active! Add up to 5 items to cart at ₹1 each.`
+              : `⏰ Set your alarm for 9:00 PM tonight! All products ₹1 each (max 5 items/user).`}
           </p>
         </div>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-2xl text-right font-mono shrink-0">
-        <span className="text-[10px] text-slate-300 block">Your ₹1 Quota</span>
-        <span className="text-sm font-black text-amber-400">{itemsRemainingThisMonth} / 5 Items Left</span>
+      {/* Interactive 5-Slot Quota Visualizer */}
+      <div className="z-10 bg-slate-900/90 backdrop-blur-md border border-amber-500/30 p-3 rounded-2xl flex flex-col items-end gap-1.5 shrink-0 shadow-lg">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Your ₹1 Quota</span>
+          <span className="text-xs font-black font-mono text-amber-400">{itemsRemainingThisMonth} / 5 Left</span>
+        </div>
+
+        {/* 5 Coin Slots */}
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((slotIdx) => {
+            const isAvailable = slotIdx <= itemsRemainingThisMonth;
+            return (
+              <div
+                key={slotIdx}
+                title={isAvailable ? `Item ${slotIdx}: Available @ ₹1` : `Item ${slotIdx}: Used`}
+                className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black font-mono transition-all duration-300 ${
+                  isAvailable
+                    ? 'bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 shadow-md shadow-amber-400/30 scale-105 border border-yellow-200'
+                    : 'bg-slate-800 text-slate-600 border border-slate-700/60 opacity-40'
+                }`}
+              >
+                {isAvailable ? '₹1' : '✓'}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
