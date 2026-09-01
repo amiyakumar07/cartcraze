@@ -115,6 +115,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       <img
                         src={item.image}
                         alt={item.name}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=400&q=80';
+                        }}
                         className="w-10 h-10 object-contain rounded-xl bg-slate-50 p-1 border border-slate-100 flex-shrink-0"
                       />
                       <div>
