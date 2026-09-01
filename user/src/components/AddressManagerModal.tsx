@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, MapPin, Plus, Check, Home, Briefcase, Navigation, Loader2 } from 'lucide-react';
-import { reverseGeocodeLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
 import type { SavedAddress } from '../types';
 
 interface AddressManagerModalProps {
@@ -47,13 +47,14 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             setUserCoords({ lat, lon });
-            const gpsAddress = await reverseGeocodeLocationIQ(lat, lon);
+            const detailed = await reverseGeocodeDetailedLocationIQ(lat, lon);
+            const gpsAddress = detailed.displayName;
 
             const newGpsAddress: SavedAddress = {
               id: 'addr-' + Date.now(),
               label: 'Home',
-              flatNo: gpsAddress.split(',')[0] || 'Current GPS Location',
-              area: gpsAddress.split(',').slice(1).join(', ') || 'Detected LocationIQ GPS',
+              flatNo: detailed.street || 'Current GPS Location',
+              area: `${detailed.village}, ${detailed.city} ${detailed.pincode}`,
               fullAddress: gpsAddress,
               isDefault: true
             };
@@ -64,6 +65,10 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
             setUserProfile((prev) => ({
               ...prev,
               address: gpsAddress,
+              pincode: detailed.pincode,
+              village: detailed.village,
+              street: detailed.street,
+              landmark: detailed.landmark,
               savedAddresses: updatedList
             }));
 

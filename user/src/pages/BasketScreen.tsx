@@ -24,7 +24,7 @@ import {
   Lock,
   ArrowRight
 } from 'lucide-react';
-import { reverseGeocodeLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
 
 export const BasketScreen: React.FC = () => {
   const {
@@ -95,24 +95,12 @@ export const BasketScreen: React.FC = () => {
           setLon(currentLon);
 
           try {
-            const geocodeRes = await reverseGeocodeLocationIQ(currentLat, currentLon);
-            if (geocodeRes && geocodeRes.success) {
-              if (geocodeRes.postcode) setPincode(geocodeRes.postcode);
-              
-              const detectedVillage = geocodeRes.village || geocodeRes.suburb || geocodeRes.city || '';
-              if (detectedVillage) setVillage(detectedVillage);
-
-              const streetParts = [geocodeRes.houseNumber, geocodeRes.road].filter(Boolean).join(' ');
-              const finalStreet = streetParts || geocodeRes.displayName?.split(',')[0] || `GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`;
-              setStreet(finalStreet);
-
-              if (geocodeRes.displayName) {
-                const parts = geocodeRes.displayName.split(',');
-                const landmarkText = parts.length > 2 ? parts.slice(1, 3).join(', ').trim() : parts[0];
-                setLandmark(landmarkText);
-              }
-            } else {
-              setStreet(`GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`);
+            const geocodeRes = await reverseGeocodeDetailedLocationIQ(currentLat, currentLon);
+            if (geocodeRes) {
+              if (geocodeRes.pincode) setPincode(geocodeRes.pincode);
+              if (geocodeRes.village) setVillage(geocodeRes.village);
+              if (geocodeRes.street) setStreet(geocodeRes.street);
+              if (geocodeRes.landmark) setLandmark(geocodeRes.landmark);
             }
           } catch {
             setStreet(`GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`);

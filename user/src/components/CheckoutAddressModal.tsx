@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, CheckCircle2, X, Phone, User, Home, Building2, Map, Compass, ShieldCheck } from 'lucide-react';
-import { reverseGeocodeLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
 
 interface CheckoutAddressModalProps {
   isOpen: boolean;
@@ -35,12 +35,12 @@ export const CheckoutAddressModal: React.FC<CheckoutAddressModalProps> = ({
 }) => {
   const [fullName, setFullName] = useState(initialProfile?.name || 'Customer Name');
   const [phone, setPhone] = useState(initialProfile?.phone || '+91 98765 43210');
-  const [pincode, setPincode] = useState('560102');
-  const [village, setVillage] = useState('HSR Layout Sector 1');
-  const [street, setStreet] = useState('Flat #402, Sunshine Residency, 14th Main Road');
-  const [landmark, setLandmark] = useState('Opposite Government High School');
-  const [lat, setLat] = useState<number>(12.9141);
-  const [lon, setLon] = useState<number>(77.6411);
+  const [pincode, setPincode] = useState('751002');
+  const [village, setVillage] = useState('Old Town');
+  const [street, setStreet] = useState('Main Road');
+  const [landmark, setLandmark] = useState('Near Temple');
+  const [lat, setLat] = useState<number>(20.2316);
+  const [lon, setLon] = useState<number>(85.8300);
   const [gpsLoading, setGpsLoading] = useState<boolean>(false);
   const [gpsSuccess, setGpsSuccess] = useState<boolean>(false);
 
@@ -64,24 +64,12 @@ export const CheckoutAddressModal: React.FC<CheckoutAddressModalProps> = ({
           setLon(currentLon);
 
           try {
-            const geocodeRes = await reverseGeocodeLocationIQ(currentLat, currentLon);
-            if (geocodeRes && geocodeRes.success) {
-              if (geocodeRes.postcode) setPincode(geocodeRes.postcode);
-              
-              const detectedVillage = geocodeRes.village || geocodeRes.suburb || geocodeRes.city || '';
-              if (detectedVillage) setVillage(detectedVillage);
-
-              const streetParts = [geocodeRes.houseNumber, geocodeRes.road].filter(Boolean).join(' ');
-              const finalStreet = streetParts || geocodeRes.displayName?.split(',')[0] || `GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`;
-              setStreet(finalStreet);
-
-              if (geocodeRes.displayName) {
-                const parts = geocodeRes.displayName.split(',');
-                const landmarkText = parts.length > 2 ? parts.slice(1, 3).join(', ').trim() : parts[0];
-                setLandmark(landmarkText);
-              }
-            } else {
-              setStreet(`GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`);
+            const geocodeRes = await reverseGeocodeDetailedLocationIQ(currentLat, currentLon);
+            if (geocodeRes) {
+              if (geocodeRes.pincode) setPincode(geocodeRes.pincode);
+              if (geocodeRes.village) setVillage(geocodeRes.village);
+              if (geocodeRes.street) setStreet(geocodeRes.street);
+              if (geocodeRes.landmark) setLandmark(geocodeRes.landmark);
             }
           } catch {
             setStreet(`GPS Pin (${currentLat.toFixed(4)}, ${currentLon.toFixed(4)})`);

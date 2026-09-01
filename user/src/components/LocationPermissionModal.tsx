@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Navigation, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { reverseGeocodeLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
 import { useApp } from '../context/AppContext';
 
 interface Props {
@@ -25,9 +25,16 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
             const lon = pos.coords.longitude;
             setUserCoords({ lat, lon });
 
-            const addressString = await reverseGeocodeLocationIQ(lat, lon);
-            setDetectedAddress(addressString);
-            setUserProfile((prev) => ({ ...prev, address: addressString }));
+            const detailed = await reverseGeocodeDetailedLocationIQ(lat, lon);
+            setDetectedAddress(detailed.displayName);
+            setUserProfile((prev) => ({
+              ...prev,
+              address: detailed.displayName,
+              pincode: detailed.pincode,
+              village: detailed.village,
+              street: detailed.street,
+              landmark: detailed.landmark
+            }));
 
             await checkStoreCoverage(lat, lon);
           } catch (e) {
