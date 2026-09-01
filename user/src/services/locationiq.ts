@@ -74,19 +74,19 @@ export const reverseGeocodeDetailedLocationIQ = async (lat: number, lon: number)
   try {
     const key = LOCATIONIQ_API_KEY && LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY'
       ? LOCATIONIQ_API_KEY
-      : 'pk.87f2b73258797339613e6398d60d0e2e';
+      : 'pk.77659b64212a8f223301cab1faf0a37a';
     const res = await fetch(`https://us1.locationiq.com/v1/reverse?key=${key}&lat=${lat}&lon=${lon}&format=json`);
     if (res.ok) {
       const data = await res.json();
       const addr = data.address || {};
 
       const pincode = addr.postcode || (data.display_name?.match(/\b\d{6}\b/)?.[0] || '751002');
-      const village = addr.village || addr.suburb || addr.neighbourhood || addr.city_district || addr.town || addr.city || 'Old Town';
+      const village = addr.suburb || addr.village || addr.neighbourhood || addr.city_district || addr.town || addr.city || 'Old Town';
       const streetParts = [addr.house_number, addr.road || addr.street || addr.pedestrian || addr.footway].filter(Boolean).join(', ');
-      const street = streetParts || (data.display_name ? data.display_name.split(',')[0] : 'Main Street');
-      const city = addr.city || addr.town || addr.municipality || 'Bhubaneswar';
+      const street = streetParts || (data.display_name ? data.display_name.split(',').slice(0, 2).join(', ').trim() : 'Old Town, Ward 60');
+      const city = addr.city || addr.county || addr.city_district || 'Bhubaneswar';
       const state = addr.state || 'Odisha';
-      const landmark = addr.landmark || addr.suburb || addr.county || state;
+      const landmark = addr.city_district || addr.suburb || addr.county || state;
       const displayName = data.display_name || `${street}, ${village}, ${city}, ${state} ${pincode}`;
 
       return {

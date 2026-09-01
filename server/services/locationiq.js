@@ -4,7 +4,7 @@ export const reverseGeocodeServer = async (lat, lon) => {
   try {
     const key = (process.env.LOCATIONIQ_API_KEY && process.env.LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY')
       ? process.env.LOCATIONIQ_API_KEY
-      : 'pk.87f2b73258797339613e6398d60d0e2e';
+      : 'pk.77659b64212a8f223301cab1faf0a37a';
     const url = `https://us1.locationiq.com/v1/reverse?key=${key}&lat=${lat}&lon=${lon}&format=json`;
     const res = await fetch(url);
     if (res.ok) {
@@ -24,7 +24,7 @@ export const searchGeocodeServer = async (query) => {
   try {
     const key = (process.env.LOCATIONIQ_API_KEY && process.env.LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY')
       ? process.env.LOCATIONIQ_API_KEY
-      : 'pk.87f2b73258797339613e6398d60d0e2e';
+      : 'pk.77659b64212a8f223301cab1faf0a37a';
     const url = `https://us1.locationiq.com/v1/search?key=${key}&q=${encodeURIComponent(query)}&format=json&limit=5`;
     const res = await fetch(url);
     if (!res.ok) return [];

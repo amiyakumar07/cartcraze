@@ -15,7 +15,7 @@ export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promis
   try {
     const key = LOCATIONIQ_API_KEY && LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY'
       ? LOCATIONIQ_API_KEY
-      : 'pk.87f2b73258797339613e6398d60d0e2e';
+      : 'pk.77659b64212a8f223301cab1faf0a37a';
     const res = await fetch(`https://us1.locationiq.com/v1/reverse?key=${key}&lat=${lat}&lon=${lon}&format=json`);
     if (res.ok) {
       const data = await res.json();
