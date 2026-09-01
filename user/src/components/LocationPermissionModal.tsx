@@ -53,7 +53,8 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
             setLoading(false);
             setTimeout(() => onClose(), 600);
           }
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       const fallbackLat = 12.9141;

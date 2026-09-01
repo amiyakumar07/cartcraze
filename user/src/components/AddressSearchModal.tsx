@@ -48,7 +48,8 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
           setGpsLoading(false);
           onSelectAddress(fullAddress);
           onClose();
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       onSelectAddress('HSR Layout, Sector 1, Bengaluru');

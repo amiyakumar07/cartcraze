@@ -68,37 +68,16 @@ export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promis
 export const searchLocationIQ = async (query: string): Promise<LocationIQResult[]> => {
   if (!query || query.trim().length < 2) return [];
   try {
-    const key = LOCATIONIQ_API_KEY;
-    if (!key || key === 'YOUR_LOCATIONIQ_API_KEY') {
-      return [
-        {
-          place_id: '1',
-          lat: '12.9141',
-          lon: '77.6411',
-          display_name: `${query}, Sector 1, HSR Layout, Bengaluru, Karnataka 560102`
-        },
-        {
-          place_id: '2',
-          lat: '12.9200',
-          lon: '77.6450',
-          display_name: `${query}, 27th Main Rd, HSR Layout, Bengaluru, Karnataka 560102`
-        }
-      ];
-    }
+    const key = LOCATIONIQ_API_KEY && LOCATIONIQ_API_KEY !== 'YOUR_LOCATIONIQ_API_KEY'
+      ? LOCATIONIQ_API_KEY
+      : 'pk.87f2b73258797339613e6398d60d0e2e';
     const res = await fetch(`https://us1.locationiq.com/v1/search?key=${key}&q=${encodeURIComponent(query)}&format=json&limit=5`);
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (err) {
     console.warn('LocationIQ Search query failed:', err);
-    return [
-      {
-        place_id: '1',
-        lat: '12.9141',
-        lon: '77.6411',
-        display_name: `${query}, Sector 1, HSR Layout, Bengaluru, Karnataka 560102`
-      }
-    ];
+    return [];
   }
 };
 

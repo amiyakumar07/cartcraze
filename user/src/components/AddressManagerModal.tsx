@@ -89,7 +89,8 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
             setGpsLoading(false);
             onClose();
           }
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       const fallbackLat = 12.9141;
