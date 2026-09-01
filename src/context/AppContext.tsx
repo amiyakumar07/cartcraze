@@ -56,26 +56,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Initialize user profile from localStorage if valid within 72 hours
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('cartcraze_user_profile');
+    const savedAddress = localStorage.getItem('cartcraze_user_selected_address');
     const savedTs = localStorage.getItem('cartcraze_user_login_timestamp');
-    if (saved && savedTs) {
-      const elapsed = Date.now() - Number(savedTs);
-      if (elapsed <= SESSION_DURATION_MS) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.isLoggedIn) return parsed;
-        } catch { /* silent */ }
-      }
-    }
-    return {
+
+    let base: UserProfile = {
       name: '',
       phone: '',
       email: '',
-      address: 'HSR Layout Sector 1, Bengaluru',
+      address: savedAddress || 'HSR Layout Sector 1, Bengaluru',
       walletBalance: 0,
       freshCoins: 0,
       savedAddresses: [],
       isLoggedIn: false
     };
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed) {
+          return {
+            ...base,
+            ...parsed,
+            address: savedAddress || parsed.address || base.address
+          };
+        }
+      } catch { /* silent */ }
+    }
+    return base;
   });
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
