@@ -7,6 +7,7 @@ import { ActiveDeliveryScreen } from './pages/ActiveDeliveryScreen';
 import { EarningsScreen } from './pages/EarningsScreen';
 import { RatingsScreen } from './pages/RatingsScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
+import { OrdersHistoryScreen } from './pages/OrdersHistoryScreen';
 import { MobileFrame } from './components/MobileFrame';
 import { BottomNav } from './components/BottomNav';
 
@@ -18,7 +19,7 @@ const API = typeof window !== 'undefined' && (window.location.hostname === 'loca
   ? 'http://localhost:4000/api'
   : 'https://cartcraze-95gt.onrender.com/api';
 
-export type AppTab = 'orders' | 'earnings' | 'ratings' | 'profile' | 'delivery';
+export type AppTab = 'orders' | 'history' | 'earnings' | 'ratings' | 'profile' | 'delivery';
 
 export interface RiderProfile {
   id: string;
@@ -326,6 +327,13 @@ const App: React.FC = () => {
             setActiveOrder={setActiveOrder}
           />
         );
+      case 'history':
+        return (
+          <OrdersHistoryScreen
+            activeOrder={activeOrder}
+            setActiveTab={setActiveTab}
+          />
+        );
       case 'delivery':
         return (
           <ActiveDeliveryScreen
@@ -357,7 +365,11 @@ const App: React.FC = () => {
       <div className="w-full flex-1">
         {renderScreen()}
       </div>
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        hasActiveOrder={Boolean(activeOrder)}
+      />
     </MobileFrame>
   );
 };
