@@ -26,6 +26,18 @@ export const CATEGORIES: Category[] = [
     subCategories: ['All', 'Fresh Bread', 'Buns & Rolls', 'Cakes & Pastries', 'Cookies']
   },
   {
+    id: 'clothes',
+    name: 'Clothing & Apparel',
+    iconImage: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=200&q=80',
+    subCategories: ['All', "Men's Wear", "Women's Wear", 'Kidswear', 'Accessories']
+  },
+  {
+    id: 'meat',
+    name: 'Meat, Fish & Eggs',
+    iconImage: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80',
+    subCategories: ['All', 'Fresh Chicken', 'Mutton & Lamb', 'Fish & Seafood', 'Fresh Eggs']
+  },
+  {
     id: 'snacks',
     name: 'Snacks',
     iconImage: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=200&q=80',
@@ -42,12 +54,6 @@ export const CATEGORIES: Category[] = [
     name: 'Pantry Staples',
     iconImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80',
     subCategories: ['All', 'Atta & Rice', 'Dal & Pulses', 'Oils & Ghee', 'Spices']
-  },
-  {
-    id: 'meat',
-    name: 'Meat & Seafood',
-    iconImage: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80',
-    subCategories: ['All', 'Fresh Chicken', 'Mutton', 'Fish & Seafood']
   }
 ];
 
@@ -103,79 +109,6 @@ export const PRODUCTS: Product[] = [
     storage: 'Ripen at room temp, refrigerate once soft',
     nutrition: { calories: '160 kcal', carbs: '8.5g', protein: '2g', fat: '15g' }
   },
-  {
-    id: 'p5',
-    name: 'Fresh Blueberries',
-    category: 'fruits',
-    subCategory: 'Berries',
-    price: 220,
-    originalPrice: 320,
-    weight: '125g Pack',
-    image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 31,
-    rating: 4.8,
-    reviewsCount: 276,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Plump, sweet, and juicy handpicked blueberries bursting with flavour. Great Superfood topping for smoothies and yogurt.',
-    shelfLife: '4-6 Days',
-    origin: 'Chile',
-    storage: 'Keep refrigerated at 2-4°C',
-    nutrition: { calories: '84 kcal', carbs: '21g', protein: '1g', fat: '0.5g' }
-  },
-  {
-    id: 'p6',
-    name: 'Valencia Blood Oranges',
-    category: 'fruits',
-    subCategory: 'Citrus',
-    price: 129,
-    originalPrice: 180,
-    weight: '1 kg Pack',
-    image: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 28,
-    rating: 4.6,
-    reviewsCount: 145,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Juicy, naturally sweet Valencia oranges full of vitamin C and immune-boosting antioxidants.',
-    shelfLife: '7-10 Days',
-    origin: 'Nagpur, Maharashtra',
-    storage: 'Store in cool dry location',
-    nutrition: { calories: '62 kcal', carbs: '15g', protein: '1.2g', fat: '0.2g' }
-  },
-  {
-    id: 'p11',
-    name: 'Organic Cavendish Bananas',
-    category: 'fruits',
-    subCategory: 'Organic',
-    price: 49,
-    originalPrice: 70,
-    weight: '6 pcs (approx 800g)',
-    image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1543218024-57a70143c369?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 30,
-    rating: 4.9,
-    reviewsCount: 512,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Naturally ripened carbide-free Cavendish bananas. High in potassium and energy for workouts.',
-    shelfLife: '3-4 Days',
-    origin: 'Coimbatore, Tamil Nadu',
-    storage: 'Keep at room temperature',
-    nutrition: { calories: '105 kcal', carbs: '27g', protein: '1.3g', fat: '0.3g' }
-  },
 
   // VEGETABLES
   {
@@ -201,29 +134,6 @@ export const PRODUCTS: Product[] = [
     origin: 'Hydroponic Farm, Bengaluru',
     storage: 'Refrigerate in crisper drawer',
     nutrition: { calories: '16 kcal', carbs: '3.8g', protein: '0.7g', fat: '0.1g' }
-  },
-  {
-    id: 'p8',
-    name: 'Organic Baby Spinach',
-    category: 'vegetables',
-    subCategory: 'Leafy Greens',
-    price: 45,
-    originalPrice: 65,
-    weight: '250g Pack',
-    image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 30,
-    rating: 4.8,
-    reviewsCount: 310,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Pre-washed, tender organic spinach leaves. Abundant source of iron, vitamin K, and essential minerals.',
-    shelfLife: '3 Days',
-    origin: 'Greenhouse Farms',
-    storage: 'Refrigerate immediately',
-    nutrition: { calories: '23 kcal', carbs: '3.6g', protein: '2.9g', fat: '0.4g' }
   },
   {
     id: 'p12',
@@ -276,78 +186,6 @@ export const PRODUCTS: Product[] = [
     storage: 'Keep refrigerated below 4°C',
     nutrition: { calories: '150 kcal', carbs: '12g', protein: '8g', fat: '8g' }
   },
-  {
-    id: 'p9',
-    name: 'Gourmet Greek Yogurt (Wild Berry)',
-    category: 'dairy',
-    subCategory: 'Yogurt & Dahi',
-    price: 85,
-    originalPrice: 110,
-    weight: '150g Tub',
-    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1571217865189-d9299d0e199d?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 22,
-    rating: 4.9,
-    reviewsCount: 650,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Thick strained high-protein Greek yogurt blended with real berries. No artificial colours or preservatives.',
-    shelfLife: '10 Days',
-    origin: 'Fresh Artisan Creamery',
-    storage: 'Refrigerate at 2-4°C',
-    nutrition: { calories: '130 kcal', carbs: '14g', protein: '10g', fat: '3.5g' }
-  },
-  {
-    id: 'p13',
-    name: 'Organic Brown Eggs (Omega-3)',
-    category: 'dairy',
-    subCategory: 'Eggs',
-    price: 95,
-    originalPrice: 130,
-    weight: '6 Eggs Pack',
-    image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 26,
-    rating: 4.9,
-    reviewsCount: 940,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Free-range brown eggs enriched with natural Omega-3 fatty acids and vitamin E. Cleaned and sanitized.',
-    shelfLife: '14 Days',
-    origin: 'Organic Poultry Farms',
-    storage: 'Keep refrigerated',
-    nutrition: { calories: '72 kcal / egg', carbs: '0.4g', protein: '6.3g', fat: '5g' }
-  },
-  {
-    id: 'p14',
-    name: 'Artisanal Salted Yellow Butter',
-    category: 'dairy',
-    subCategory: 'Butter & Cheese',
-    price: 115,
-    originalPrice: 140,
-    weight: '200g Block',
-    image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=600&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=600&q=80'
-    ],
-    discountPercentage: 18,
-    rating: 4.8,
-    reviewsCount: 430,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Rich, creamy butter churned from pure cow cream with a pinch of sea salt.',
-    shelfLife: '6 Months',
-    origin: 'Dairy Valley',
-    storage: 'Refrigerate below 4°C',
-    nutrition: { calories: '717 kcal', carbs: '0.1g', protein: '0.9g', fat: '81g' }
-  },
 
   // BAKERY
   {
@@ -375,55 +213,155 @@ export const PRODUCTS: Product[] = [
     storage: 'Store in airtight box',
     nutrition: { calories: '120 kcal', carbs: '22g', protein: '4g', fat: '1.5g' }
   },
+
+  // CLOTHING & APPAREL
   {
-    id: 'p15',
-    name: 'Butter Croissants (Baked Daily)',
-    category: 'bakery',
-    subCategory: 'Buns & Rolls',
-    price: 129,
-    originalPrice: 170,
-    weight: '2 pcs Pack',
-    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+    id: 'c1',
+    name: '100% Premium Cotton Casual Shirt',
+    category: 'clothes',
+    subCategory: "Men's Wear",
+    price: 699,
+    originalPrice: 1299,
+    weight: 'Size L',
+    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80',
     images: [
-      'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80'
     ],
-    discountPercentage: 24,
+    discountPercentage: 46,
+    rating: 4.8,
+    reviewsCount: 290,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Soft, breathable 100% combed cotton shirt. Perfect for daily casual wear, office Fridays, and weekend outings.',
+    shelfLife: 'Long Lasting Fabric',
+    origin: 'Tirupur, Tamil Nadu',
+    storage: 'Machine wash cold',
+    nutrition: { calories: 'N/A', carbs: 'N/A', protein: 'N/A', fat: 'N/A' }
+  },
+  {
+    id: 'c2',
+    name: 'Cozy Soft Knit Crewneck Sweater',
+    category: 'clothes',
+    subCategory: "Women's Wear",
+    price: 899,
+    originalPrice: 1599,
+    weight: 'Size M',
+    image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 44,
     rating: 4.9,
     reviewsCount: 380,
     inStock: true,
     deliveryTimeMinutes: 9,
-    description: 'Flaky, buttery French-style croissants baked fresh every morning. Crispy on the outside, soft inside.',
-    shelfLife: '2 Days',
-    origin: 'Artisan Bakehouse',
-    storage: 'Keep cool or warm before eating',
-    nutrition: { calories: '231 kcal', carbs: '26g', protein: '4.7g', fat: '12g' }
+    description: 'Ultra-warm, plush knitted crewneck sweater designed for elegant winter layering.',
+    shelfLife: 'Durable Knit',
+    origin: 'Ludhiana, Punjab',
+    storage: 'Hand wash recommended',
+    nutrition: { calories: 'N/A', carbs: 'N/A', protein: 'N/A', fat: 'N/A' }
   },
-
-  // SNACKS
   {
-    id: 'p16',
-    name: 'Roasted California Almonds',
-    category: 'snacks',
-    subCategory: 'Nuts & Seeds',
-    price: 299,
-    originalPrice: 420,
-    weight: '250g Pouch',
-    image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
+    id: 'c3',
+    name: 'Classic Slim Fit Denim Jeans',
+    category: 'clothes',
+    subCategory: "Men's Wear",
+    price: 999,
+    originalPrice: 1899,
+    weight: 'Size 32',
+    image: 'https://images.unsplash.com/photo-1542272604-780c36856842?auto=format&fit=crop&w=600&q=80',
     images: [
-      'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1542272604-780c36856842?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1582552938357-32b906df40cb?auto=format&fit=crop&w=600&q=80'
     ],
-    discountPercentage: 28,
-    rating: 4.8,
-    reviewsCount: 710,
+    discountPercentage: 47,
+    rating: 4.7,
+    reviewsCount: 510,
     inStock: true,
     deliveryTimeMinutes: 9,
-    description: 'Crunchy, lightly salted jumbo California almonds. High in vitamin E, protein, and dietary fiber.',
-    shelfLife: '6 Months',
-    origin: 'USA / California',
-    storage: 'Store in airtight container',
-    nutrition: { calories: '579 kcal', carbs: '21g', protein: '21g', fat: '49g' }
+    description: 'Stretchable premium indigo denim jeans with reinforced stitching and classic 5-pocket styling.',
+    shelfLife: 'Heavy Duty Denim',
+    origin: 'Ahmedabad, Gujarat',
+    storage: 'Wash inside out',
+    nutrition: { calories: 'N/A', carbs: 'N/A', protein: 'N/A', fat: 'N/A' }
+  },
+
+  // MEAT, FISH & EGGS
+  {
+    id: 'm1',
+    name: 'Fresh Tender Chicken Curry Cut',
+    category: 'meat',
+    subCategory: 'Fresh Chicken',
+    price: 189,
+    originalPrice: 260,
+    weight: '500g Pack (Skinless)',
+    image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 27,
+    rating: 4.9,
+    reviewsCount: 890,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Farm-fresh antibiotics-free tender chicken curry cut pieces. Cleaned, bone-in, and ready to cook.',
+    shelfLife: 'Use within 24 hours',
+    origin: 'Hygienic Poultry Farm',
+    storage: 'Keep refrigerated below 4°C',
+    nutrition: { calories: '165 kcal', carbs: '0g', protein: '20g', fat: '9g' }
+  },
+  {
+    id: 'm2',
+    name: 'Fresh Atlantic Salmon Fillets',
+    category: 'meat',
+    subCategory: 'Fish & Seafood',
+    price: 499,
+    originalPrice: 650,
+    weight: '250g Skin-on',
+    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 23,
+    rating: 4.9,
+    reviewsCount: 410,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Fresh Norwegian Atlantic salmon fillets packed with heart-healthy Omega-3 fatty acids and protein.',
+    shelfLife: '2 Days from pack date',
+    origin: 'Imported Norwegian Salmon',
+    storage: 'Keep chilled below 2°C',
+    nutrition: { calories: '208 kcal', carbs: '0g', protein: '22g', fat: '13g' }
+  },
+  {
+    id: 'm3',
+    name: 'Farm Fresh Organic Brown Eggs',
+    category: 'meat',
+    subCategory: 'Fresh Eggs',
+    price: 89,
+    originalPrice: 120,
+    weight: '6 Eggs Carton',
+    image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 26,
+    rating: 4.8,
+    reviewsCount: 950,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Free-range brown eggs laid by healthy, grain-fed hens. Cleaned, sanitized, and packed for fresh delivery.',
+    shelfLife: '14 Days',
+    origin: 'Organic Poultry Estate',
+    storage: 'Store in refrigerator',
+    nutrition: { calories: '72 kcal / egg', carbs: '0.4g', protein: '6.3g', fat: '5g' }
   }
 ];

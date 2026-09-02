@@ -11,10 +11,11 @@ const CAT_EMOJIS: Record<string, string> = {
   vegetables: '🥦',
   dairy: '🥛',
   bakery: '🥐',
+  clothes: '👕',
+  meat: '🥩',
   snacks: '🍿',
   beverages: '🧃',
   pantry: '🌾',
-  meat: '🍗',
 };
 
 export const HomeScreen: React.FC = () => {
@@ -53,6 +54,8 @@ export const HomeScreen: React.FC = () => {
   const trendingProducts = products.slice(0, 8);
   const dairyProducts = products.filter((p) => p.category === 'dairy').slice(0, 4);
   const freshVeg = products.filter((p) => p.category === 'vegetables').slice(0, 4);
+  const clothesProducts = products.filter((p) => p.category === 'clothes').slice(0, 4);
+  const meatProducts = products.filter((p) => p.category === 'meat').slice(0, 4);
 
   /* ────────────────────────────────────────── */
   return (
@@ -283,6 +286,48 @@ export const HomeScreen: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3 p-3">
                 {freshVeg.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ════════ CLOTHING & APPAREL ════════ */}
+          {clothesProducts.length > 0 && (
+            <div className="bg-white mb-2">
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-3 border-b border-[#f5f5f5]">
+                <div>
+                  <h2 className="text-[14px] font-black text-gray-900 leading-none">👕 Clothing &amp; Apparel</h2>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Premium cotton shirts, denim &amp; knitwear</p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory('clothes'); setSubCategoryFilter('All'); setActiveTab('category_detail'); }}
+                  className="text-[11px] font-bold text-[#0c831f] flex items-center gap-0.5 hover:underline cursor-pointer"
+                >
+                  View All <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-3">
+                {clothesProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ════════ FRESH MEAT, FISH & EGGS ════════ */}
+          {meatProducts.length > 0 && (
+            <div className="bg-white mb-2">
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-3 border-b border-[#f5f5f5]">
+                <div>
+                  <h2 className="text-[14px] font-black text-gray-900 leading-none">🥩 Fresh Meat, Fish &amp; Eggs</h2>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Hygienically cleaned, antibiotics-free &amp; fresh</p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory('meat'); setSubCategoryFilter('All'); setActiveTab('category_detail'); }}
+                  className="text-[11px] font-bold text-[#0c831f] flex items-center gap-0.5 hover:underline cursor-pointer"
+                >
+                  View All <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-3">
+                {meatProducts.map((p) => <ProductCard key={p.id} product={p} />)}
               </div>
             </div>
           )}
