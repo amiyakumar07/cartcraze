@@ -16,25 +16,25 @@ export const CATEGORIES: Category[] = [
   {
     id: 'dairy',
     name: 'Dairy & Eggs',
-    iconImage: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_dairy.jpg',
     subCategories: ['All', 'Milk & Cream', 'Butter & Cheese', 'Yogurt & Dahi', 'Eggs']
   },
   {
     id: 'bakery',
     name: 'Bakery',
-    iconImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_bakery.jpg',
     subCategories: ['All', 'Fresh Bread', 'Buns & Rolls', 'Cakes & Pastries', 'Cookies']
   },
   {
     id: 'clothes',
     name: 'Clothing & Apparel',
-    iconImage: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_clothes.jpg',
     subCategories: ['All', "Men's Wear", "Women's Wear", 'Kidswear', 'Accessories']
   },
   {
     id: 'meat',
     name: 'Meat, Fish & Eggs',
-    iconImage: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_meat.jpg',
     subCategories: ['All', 'Fresh Chicken', 'Mutton & Lamb', 'Fish & Seafood', 'Fresh Eggs']
   },
   {
@@ -46,7 +46,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'beverages',
     name: 'Beverages',
-    iconImage: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_beverages.jpg',
     subCategories: ['All', 'Fresh Juices', 'Soft Drinks', 'Tea & Coffee', 'Energy Drinks']
   },
   {

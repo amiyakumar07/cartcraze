@@ -68,6 +68,13 @@ export const HeroBanner: React.FC = () => {
       category: 'snacks'
     },
     {
+      id: 'summer_drinks_icecream',
+      type: 'image',
+      image: '/cat_beverages.jpg',
+      alt: 'CHILL OUT & INDULGE - Your Favorite Summer Drinks & Ice Creams',
+      category: 'beverages'
+    },
+    {
       id: 'fresh_deals_20off',
       type: 'image',
       image: '/fresh_deals_banner.jpg',
