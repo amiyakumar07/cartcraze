@@ -56,6 +56,9 @@ export const HomeScreen: React.FC = () => {
   const freshVeg = products.filter((p) => p.category === 'vegetables').slice(0, 4);
   const clothesProducts = products.filter((p) => p.category === 'clothes').slice(0, 4);
   const meatProducts = products.filter((p) => p.category === 'meat').slice(0, 4);
+  const snacksProducts = products.filter((p) => p.category === 'snacks').slice(0, 4);
+  const beveragesProducts = products.filter((p) => p.category === 'beverages').slice(0, 4);
+  const pantryProducts = products.filter((p) => p.category === 'pantry').slice(0, 4);
 
   /* ────────────────────────────────────────── */
   return (
@@ -328,6 +331,69 @@ export const HomeScreen: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3 p-3">
                 {meatProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ════════ SNACKS & MUNCHIES ════════ */}
+          {snacksProducts.length > 0 && (
+            <div className="bg-white mb-2">
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-3 border-b border-[#f5f5f5]">
+                <div>
+                  <h2 className="text-[14px] font-black text-gray-900 leading-none">🍿 Snacks &amp; Munchies</h2>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Chips, roasted nuts &amp; party crunch</p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory('snacks'); setSubCategoryFilter('All'); setActiveTab('category_detail'); }}
+                  className="text-[11px] font-bold text-[#0c831f] flex items-center gap-0.5 hover:underline cursor-pointer"
+                >
+                  View All <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-3">
+                {snacksProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ════════ BEVERAGES & DRINKS ════════ */}
+          {beveragesProducts.length > 0 && (
+            <div className="bg-white mb-2">
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-3 border-b border-[#f5f5f5]">
+                <div>
+                  <h2 className="text-[14px] font-black text-gray-900 leading-none">🧃 Cold Beverages &amp; Drinks</h2>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Ice cold sodas, fresh juices &amp; iced teas</p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory('beverages'); setSubCategoryFilter('All'); setActiveTab('category_detail'); }}
+                  className="text-[11px] font-bold text-[#0c831f] flex items-center gap-0.5 hover:underline cursor-pointer"
+                >
+                  View All <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-3">
+                {beveragesProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </div>
+          )}
+
+          {/* ════════ PANTRY STAPLES ════════ */}
+          {pantryProducts.length > 0 && (
+            <div className="bg-white mb-2">
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-3 border-b border-[#f5f5f5]">
+                <div>
+                  <h2 className="text-[14px] font-black text-gray-900 leading-none">🌾 Pantry Staples</h2>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Aged basmati rice, sunflower oil &amp; pulses</p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory('pantry'); setSubCategoryFilter('All'); setActiveTab('category_detail'); }}
+                  className="text-[11px] font-bold text-[#0c831f] flex items-center gap-0.5 hover:underline cursor-pointer"
+                >
+                  View All <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-3">
+                {pantryProducts.map((p) => <ProductCard key={p.id} product={p} />)}
               </div>
             </div>
           )}

@@ -58,7 +58,7 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const PRODUCTS: Product[] = [
-  // FRUITS
+  // 🍎 FRUITS
   {
     id: 'p1',
     name: 'Organic Shimla Apples',
@@ -109,8 +109,32 @@ export const PRODUCTS: Product[] = [
     storage: 'Ripen at room temp, refrigerate once soft',
     nutrition: { calories: '160 kcal', carbs: '8.5g', protein: '2g', fat: '15g' }
   },
+  {
+    id: 'p5',
+    name: 'Fresh Blueberries',
+    category: 'fruits',
+    subCategory: 'Berries',
+    price: 220,
+    originalPrice: 320,
+    weight: '125g Pack',
+    image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 31,
+    rating: 4.8,
+    reviewsCount: 276,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Plump, sweet, and juicy handpicked blueberries bursting with flavour. Great Superfood topping for smoothies and yogurt.',
+    shelfLife: '4-6 Days',
+    origin: 'Chile',
+    storage: 'Keep refrigerated at 2-4°C',
+    nutrition: { calories: '84 kcal', carbs: '21g', protein: '1g', fat: '0.5g' }
+  },
 
-  // VEGETABLES
+  // 🥦 VEGETABLES
   {
     id: 'p7',
     name: 'Hydroponic English Cucumber',
@@ -161,7 +185,7 @@ export const PRODUCTS: Product[] = [
     nutrition: { calories: '22 kcal', carbs: '4.8g', protein: '1.1g', fat: '0.2g' }
   },
 
-  // DAIRY & EGGS
+  // 🥛 DAIRY & EGGS
   {
     id: 'p2',
     name: 'Farm Fresh A2 Cow Milk',
@@ -186,8 +210,32 @@ export const PRODUCTS: Product[] = [
     storage: 'Keep refrigerated below 4°C',
     nutrition: { calories: '150 kcal', carbs: '12g', protein: '8g', fat: '8g' }
   },
+  {
+    id: 'p9',
+    name: 'Gourmet Greek Yogurt (Wild Berry)',
+    category: 'dairy',
+    subCategory: 'Yogurt & Dahi',
+    price: 85,
+    originalPrice: 110,
+    weight: '150g Tub',
+    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1571217865189-d9299d0e199d?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 22,
+    rating: 4.9,
+    reviewsCount: 650,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Thick strained high-protein Greek yogurt blended with real berries. No artificial colours or preservatives.',
+    shelfLife: '10 Days',
+    origin: 'Fresh Artisan Creamery',
+    storage: 'Refrigerate at 2-4°C',
+    nutrition: { calories: '130 kcal', carbs: '14g', protein: '10g', fat: '3.5g' }
+  },
 
-  // BAKERY
+  // 🥐 BAKERY
   {
     id: 'p3',
     name: 'Artisanal Whole Wheat Bread',
@@ -213,8 +261,32 @@ export const PRODUCTS: Product[] = [
     storage: 'Store in airtight box',
     nutrition: { calories: '120 kcal', carbs: '22g', protein: '4g', fat: '1.5g' }
   },
+  {
+    id: 'p15',
+    name: 'Butter Croissants (Baked Daily)',
+    category: 'bakery',
+    subCategory: 'Buns & Rolls',
+    price: 129,
+    originalPrice: 170,
+    weight: '2 pcs Pack',
+    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 24,
+    rating: 4.9,
+    reviewsCount: 380,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Flaky, buttery French-style croissants baked fresh every morning. Crispy on the outside, soft inside.',
+    shelfLife: '2 Days',
+    origin: 'Artisan Bakehouse',
+    storage: 'Keep cool or warm before eating',
+    nutrition: { calories: '231 kcal', carbs: '26g', protein: '4.7g', fat: '12g' }
+  },
 
-  // CLOTHING & APPAREL
+  // 👕 CLOTHING & APPAREL
   {
     id: 'c1',
     name: '100% Premium Cotton Casual Shirt',
@@ -290,7 +362,7 @@ export const PRODUCTS: Product[] = [
     nutrition: { calories: 'N/A', carbs: 'N/A', protein: 'N/A', fat: 'N/A' }
   },
 
-  // MEAT, FISH & EGGS
+  // 🥩 MEAT, FISH & EGGS
   {
     id: 'm1',
     name: 'Fresh Tender Chicken Curry Cut',
@@ -340,28 +412,155 @@ export const PRODUCTS: Product[] = [
     storage: 'Keep chilled below 2°C',
     nutrition: { calories: '208 kcal', carbs: '0g', protein: '22g', fat: '13g' }
   },
+
+  // 🍿 SNACKS
   {
-    id: 'm3',
-    name: 'Farm Fresh Organic Brown Eggs',
-    category: 'meat',
-    subCategory: 'Fresh Eggs',
-    price: 89,
-    originalPrice: 120,
-    weight: '6 Eggs Carton',
-    image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+    id: 's1',
+    name: 'Roasted California Almonds',
+    category: 'snacks',
+    subCategory: 'Nuts & Seeds',
+    price: 299,
+    originalPrice: 420,
+    weight: '250g Pouch',
+    image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
     images: [
-      'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80'
     ],
-    discountPercentage: 26,
+    discountPercentage: 28,
     rating: 4.8,
-    reviewsCount: 950,
+    reviewsCount: 710,
     inStock: true,
     deliveryTimeMinutes: 9,
-    description: 'Free-range brown eggs laid by healthy, grain-fed hens. Cleaned, sanitized, and packed for fresh delivery.',
-    shelfLife: '14 Days',
-    origin: 'Organic Poultry Estate',
-    storage: 'Store in refrigerator',
-    nutrition: { calories: '72 kcal / egg', carbs: '0.4g', protein: '6.3g', fat: '5g' }
+    description: 'Crunchy, lightly salted jumbo California almonds. High in vitamin E, protein, and dietary fiber.',
+    shelfLife: '6 Months',
+    origin: 'USA / California',
+    storage: 'Store in airtight container',
+    nutrition: { calories: '579 kcal', carbs: '21g', protein: '21g', fat: '49g' }
+  },
+  {
+    id: 's2',
+    name: 'Doritos Nacho Cheese Tortilla Chips',
+    category: 'snacks',
+    subCategory: 'Chips & Nachos',
+    price: 50,
+    originalPrice: 70,
+    weight: '100g Pack',
+    image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1621447504864-d8686e12698c?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 28,
+    rating: 4.7,
+    reviewsCount: 1120,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Crispy corn tortilla chips loaded with tangy nacho cheese flavour. Perfect crunch for movie nights.',
+    shelfLife: '4 Months',
+    origin: 'Pepsico India',
+    storage: 'Store in cool dry location',
+    nutrition: { calories: '500 kcal', carbs: '58g', protein: '7g', fat: '26g' }
+  },
+
+  // 🧃 BEVERAGES
+  {
+    id: 'b1',
+    name: 'Chilled Sparkling Lemon-Lime Soda',
+    category: 'beverages',
+    subCategory: 'Soft Drinks',
+    price: 40,
+    originalPrice: 55,
+    weight: '750ml Bottle',
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 27,
+    rating: 4.8,
+    reviewsCount: 840,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Refreshing, fizzy lemon-lime sparkling soda served ice-cold for instant summer energy.',
+    shelfLife: '6 Months',
+    origin: 'Coca-Cola India',
+    storage: 'Serve chilled',
+    nutrition: { calories: '140 kcal', carbs: '35g', protein: '0g', fat: '0g' }
+  },
+  {
+    id: 'b2',
+    name: 'Cold Brewed Peach Iced Tea',
+    category: 'beverages',
+    subCategory: 'Tea & Coffee',
+    price: 75,
+    originalPrice: 110,
+    weight: '350ml Can',
+    image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 32,
+    rating: 4.9,
+    reviewsCount: 520,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Real brewed black tea infused with sweet juicy peach nectar. Zero artificial flavors.',
+    shelfLife: '4 Months',
+    origin: 'Hygienic Beverage Estate',
+    storage: 'Keep chilled',
+    nutrition: { calories: '90 kcal', carbs: '22g', protein: '0g', fat: '0g' }
+  },
+
+  // 🌾 PANTRY STAPLES
+  {
+    id: 'n1',
+    name: 'Fortune Sunlite Sunflower Oil',
+    category: 'pantry',
+    subCategory: 'Oils & Ghee',
+    price: 145,
+    originalPrice: 195,
+    weight: '1 Litre Pouch',
+    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 25,
+    rating: 4.8,
+    reviewsCount: 1420,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Refined sunflower oil fortified with vitamins A & D. Light, healthy cooking medium for everyday meals.',
+    shelfLife: '9 Months',
+    origin: 'Adani Wilmar',
+    storage: 'Store in cool dry place',
+    nutrition: { calories: '900 kcal', carbs: '0g', protein: '0g', fat: '100g' }
+  },
+  {
+    id: 'n2',
+    name: 'Royal Extra Long Basmati Rice',
+    category: 'pantry',
+    subCategory: 'Atta & Rice',
+    price: 349,
+    originalPrice: 480,
+    weight: '2 kg Pack',
+    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=600&q=80'
+    ],
+    discountPercentage: 27,
+    rating: 4.9,
+    reviewsCount: 980,
+    inStock: true,
+    deliveryTimeMinutes: 9,
+    description: 'Aged extra-long basmati rice with unmatched aroma and fluffy separate grains. Perfect for biryanis.',
+    shelfLife: '2 Years',
+    origin: 'Dehradun, Uttarakhand',
+    storage: 'Store in dry container',
+    nutrition: { calories: '350 kcal', carbs: '78g', protein: '8.5g', fat: '0.6g' }
   }
 ];
