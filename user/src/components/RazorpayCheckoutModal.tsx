@@ -41,16 +41,16 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn font-[Inter,sans-serif]">
       <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative flex flex-col">
-        {/* Razorpay Branded Navy Header */}
+        {/* Branded Navy Header */}
         <div className="bg-[#0C2340] text-white p-4.5 rounded-t-3xl flex items-center justify-between shadow-md">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-base text-[#528FF0] tracking-wider">RAZORPAY</span>
+              <span className="font-black text-base text-[#528FF0] tracking-wider">CARTCRAZE PAY</span>
               <span className="bg-[#02A95C] text-white font-bold text-[9px] px-1.5 py-0.5 rounded uppercase">
                 SECURE
               </span>
             </div>
-            <p className="text-xs text-slate-300 font-medium">CartCraze Quick Commerce</p>
+            <p className="text-xs text-slate-300 font-medium">CartCraze Express Delivery</p>
           </div>
 
           <div className="text-right">
@@ -179,7 +179,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
                 className="w-full py-3.5 bg-[#0C2340] hover:bg-slate-900 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98"
               >
                 <Lock className="w-4 h-4 text-[#528FF0]" />
-                <span>Pay {currency}{amount.toFixed(2)} via Razorpay</span>
+                <span>Pay {currency}{amount.toFixed(2)} Securely</span>
               </button>
             </>
           )}
@@ -188,7 +188,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
             <div className="py-12 text-center space-y-4">
               <Loader2 className="w-12 h-12 text-[#528FF0] animate-spin mx-auto" />
               <div>
-                <h3 className="font-extrabold text-slate-900 text-base">Contacting Razorpay Gateway...</h3>
+                <h3 className="font-extrabold text-slate-900 text-base">Connecting to Secure Payment Gateway...</h3>
                 <p className="text-xs text-slate-500 font-medium mt-1">
                   Authenticating with {selectedMethod}. Please do not press back or refresh.
                 </p>
@@ -203,7 +203,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
               </div>
               <h3 className="text-lg font-black text-[#006C49]">Payment Verified & Received!</h3>
               <p className="text-xs text-slate-500 font-semibold">
-                Razorpay Transaction ID: pay_rzp_{Math.random().toString(36).substring(2, 10)}
+                Transaction Reference ID: pay_${Math.random().toString(36).substring(2, 10)}
               </p>
             </div>
           )}

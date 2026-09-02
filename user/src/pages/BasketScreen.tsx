@@ -157,7 +157,7 @@ export const BasketScreen: React.FC = () => {
     setIsProcessingPayment(true);
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {
-      alert('Failed to load Razorpay Payment SDK. Please check your internet connection.');
+      alert('Failed to load Payment SDK. Please check your internet connection.');
       setIsProcessingPayment(false);
       return;
     }
@@ -173,7 +173,7 @@ export const BasketScreen: React.FC = () => {
       const data = await res.json();
 
       if (!data.success || !data.order) {
-        alert('Could not initialize Razorpay payment. Please try again.');
+        alert('Could not initialize online payment. Please try again.');
         setIsProcessingPayment(false);
         return;
       }
@@ -194,10 +194,10 @@ export const BasketScreen: React.FC = () => {
               body: JSON.stringify(response)
             });
           } catch (e) {
-            console.warn('Razorpay signature verification:', e);
+            console.warn('Payment signature verification:', e);
           }
           setIsProcessingPayment(false);
-          placeOrder('Razorpay (Online Payment)', fullAddress, addressData);
+          placeOrder('Online Payment', fullAddress, addressData);
         },
         prefill: {
           name: fullName || 'CartCraze Customer',
@@ -221,9 +221,9 @@ export const BasketScreen: React.FC = () => {
       const razorpayInstance = new (window as any).Razorpay(options);
       razorpayInstance.open();
     } catch (err) {
-      console.error('Razorpay Error:', err);
+      console.error('Payment Error:', err);
       setIsProcessingPayment(false);
-      placeOrder('Razorpay (Online Payment)', fullAddress, addressData);
+      placeOrder('Online Payment', fullAddress, addressData);
     }
   };
 
@@ -286,7 +286,7 @@ export const BasketScreen: React.FC = () => {
       lon: lon || 77.6411
     };
     record10RsSalePurchase();
-    placeOrder(`Razorpay (${method} - ID: ${paymentId})`, fullAddress, addressData);
+    placeOrder(`Online Payment (${method} - ID: ${paymentId})`, fullAddress, addressData);
   };
 
   if (cart.length === 0 && step === 'cart') {
@@ -664,7 +664,7 @@ export const BasketScreen: React.FC = () => {
                 {
                   id: 'Pay Online',
                   name: 'Pay Online (UPI, Cards, NetBanking, Wallets)',
-                  sub: '⚡ Instant 1-Click Pay • Safe & Secure via Razorpay Gateway',
+                  sub: '⚡ Instant 1-Click Pay • 256-Bit Encrypted & Secure Payment',
                   icon: ShieldCheck
                 },
                 {
@@ -725,7 +725,7 @@ export const BasketScreen: React.FC = () => {
               <ShieldCheck className="w-5 h-5 text-slate-950" />
               <span>
                 {isProcessingPayment
-                  ? 'INITIALIZING RAZORPAY SECURE GATEWAY...'
+                  ? 'INITIALIZING SECURE PAYMENT GATEWAY...'
                   : `PAY ₹${finalPay} & CONFIRM ORDER NOW`}
               </span>
             </button>
