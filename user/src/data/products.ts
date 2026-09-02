@@ -4,13 +4,13 @@ export const CATEGORIES: Category[] = [
   {
     id: 'fruits',
     name: 'Fruits',
-    iconImage: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_fruits.jpg',
     subCategories: ['All', 'Citrus', 'Berries', 'Organic', 'Exotic', 'Apples & Pears']
   },
   {
     id: 'vegetables',
     name: 'Vegetables',
-    iconImage: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_vegetables.jpg',
     subCategories: ['All', 'Leafy Greens', 'Root Vegetables', 'Exotic Veggies', 'Organic']
   },
   {
@@ -40,7 +40,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'snacks',
     name: 'Snacks',
-    iconImage: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_snacks.jpg',
     subCategories: ['All', 'Chips & Nachos', 'Nuts & Seeds', 'Chocolates', 'Biscuits']
   },
   {
@@ -52,7 +52,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'pantry',
     name: 'Pantry Staples',
-    iconImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80',
+    iconImage: '/cat_pantry.jpg',
     subCategories: ['All', 'Atta & Rice', 'Dal & Pulses', 'Oils & Ghee', 'Spices']
   }
 ];
