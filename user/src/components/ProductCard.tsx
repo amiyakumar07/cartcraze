@@ -28,7 +28,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-[#006C49]/40 hover:shadow-xl transition-all duration-300 cursor-pointer relative flex flex-col justify-between h-[285px] w-full group shadow-2xs"
+      className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-[#006C49]/40 hover:shadow-xl figma-spring figma-shimmer-card cursor-pointer relative flex flex-col justify-between h-[285px] w-full group shadow-2xs"
       style={{ minWidth: 0 }}
     >
       {/* ── Top Left: Discount / Flash Sale Badge ── */}
@@ -42,9 +42,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
       ) : null}
 
-      {/* ── Top Right: 8-10 Mins Delivery Speed Badge ── */}
-      <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-white/95 backdrop-blur-md border border-slate-200/80 text-slate-800 text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-2xs">
-        <Zap className="w-2.5 h-2.5 text-[#006C49] fill-[#006C49]" />
+      {/* ── Top Right: 8-10 Mins Delivery Speed Badge with Figma Beacon Ring ── */}
+      <span className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-white/95 backdrop-blur-md border border-slate-200/80 text-slate-800 text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-2xs figma-beacon">
+        <Zap className="w-2.5 h-2.5 text-[#006C49] fill-[#006C49] animate-bounce" />
         {product.deliveryTimeMinutes || 9}m
       </span>
 

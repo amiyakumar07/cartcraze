@@ -60,7 +60,7 @@ export const LocationStoreAvailabilitySheet: React.FC<LocationStoreAvailabilityS
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 font-[Inter,sans-serif]">
-      <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl animate-fadeIn border border-emerald-100 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl animate-figmaSlideUp border border-emerald-100 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center pb-2 border-b border-slate-100">
           <div className="flex items-center gap-2 text-slate-900">
             <MapPin className="w-5 h-5 text-[#006C49]" />
