@@ -41,8 +41,10 @@ export const Header: React.FC = () => {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-black text-[#006C49] uppercase tracking-wider">
-                Deliver to {activeAddrObj?.label || 'Home'} • 8 Mins
+              <span className={`text-[11px] font-black uppercase tracking-wider ${
+                isOutOfCoverageRange ? 'text-rose-600' : 'text-[#006C49]'
+              }`}>
+                Deliver to {activeAddrObj?.label || 'Home'} • {isOutOfCoverageRange ? 'Unserviceable Area' : '8 Mins'}
               </span>
             </div>
             <div className="flex items-center gap-1">
@@ -130,19 +132,27 @@ export const Header: React.FC = () => {
             )}
             <div className="min-w-0">
               <div className={`text-[11px] font-black leading-none flex items-center gap-1 ${
-                isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
+                isOutOfCoverageRange ? 'text-rose-700' : isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
               }`}>
-                <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ Delivery in 8-10 Mins'}</span>
+                <span>{
+                  isOutOfCoverageRange 
+                    ? '📍 Location Unserviceable' 
+                    : isStoreClosed 
+                    ? '🌙 Store Currently Closed' 
+                    : '⚡ Delivery in 8-10 Mins'
+                }</span>
               </div>
               <div className="text-[10px] text-slate-600 font-medium truncate mt-0.5">
-                Dispatched from {activeStore ? activeStore.name : 'Patia DarkStore Hub #3'} • {isStoreClosed ? 'Closed right now' : '1.2 km away'}
+                {isOutOfCoverageRange 
+                  ? "No darkstore in 5km radius. We're launching soon!"
+                  : `Dispatched from ${activeStore ? activeStore.name : 'Local DarkStore'} • ${isStoreClosed ? 'Closed right now' : '1.2 km away'}`}
               </div>
             </div>
           </div>
           <span className={`text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
-            isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
+            isOutOfCoverageRange ? 'bg-rose-600' : isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
           }`}>
-            {isStoreClosed ? 'CLOSED' : 'LIVE'}
+            {isOutOfCoverageRange ? 'NO STORE' : isStoreClosed ? 'CLOSED' : 'LIVE'}
           </span>
         </div>
       </div>
