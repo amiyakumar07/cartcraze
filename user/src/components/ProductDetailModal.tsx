@@ -145,32 +145,32 @@ export const ProductDetailModal: React.FC = () => {
         </div>
 
         {/* Bottom Sticky Action Button */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 p-3 shadow-lg flex justify-between items-center">
+        <div className="sticky bottom-0 bg-white border-t border-slate-100 p-3 shadow-lg flex justify-between items-center">
           <div>
-            <span className="text-[10px] text-gray-400 block">Total Price</span>
-            <span className="text-lg font-black text-gray-900">
+            <span className="text-[10px] text-slate-400 block font-semibold">Total Price</span>
+            <span className="text-lg font-black text-slate-900">
               ₹{quantity > 0 ? selectedProduct.price * quantity : selectedProduct.price}
             </span>
           </div>
 
           {!selectedProduct.inStock ? (
-            <span className="text-xs font-black text-red-500 bg-red-50 border border-red-200 px-5 py-3 rounded-xl uppercase">
+            <span className="text-xs font-black text-rose-500 bg-rose-50 border border-rose-200 px-5 py-3 rounded-xl uppercase">
               OUT OF STOCK
             </span>
           ) : quantity > 0 ? (
-            <div className="flex items-center bg-gray-900 text-white rounded-xl p-1 shadow-md">
+            <div className="flex items-center bg-[#131B2E] text-white rounded-full p-1 shadow-md">
               <button
                 onClick={() => updateQuantity(selectedProduct.id, -1)}
-                className="w-8 h-8 flex items-center justify-center text-white hover:bg-gray-800 rounded-lg transition-colors"
+                className="w-8 h-8 flex items-center justify-center text-white hover:bg-slate-800 rounded-full transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="px-4 font-black text-sm text-yellow-300">
-                {quantity} in Basket
+              <span className="px-4 font-black text-xs text-emerald-400">
+                {quantity} in Cart
               </span>
               <button
                 onClick={() => updateQuantity(selectedProduct.id, 1)}
-                className="w-8 h-8 flex items-center justify-center text-white hover:bg-gray-800 rounded-lg transition-colors"
+                className="w-8 h-8 flex items-center justify-center text-[#00422B] bg-[#10B981] rounded-full transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -178,9 +178,10 @@ export const ProductDetailModal: React.FC = () => {
           ) : (
             <button
               onClick={() => addToCart(selectedProduct)}
-              className="bg-[#fdee24] hover:bg-yellow-400 text-black font-extrabold text-sm py-3 px-6 rounded-xl flex items-center gap-2 shadow-md transition-all active:scale-95"
+              data-testid="add_to_cart_main_btn"
+              className="bg-[#10B981] hover:bg-emerald-400 text-[#00422B] font-black text-sm py-3 px-6 rounded-full flex items-center gap-2 shadow-md transition-all active:scale-95"
             >
-              <span>Add to Basket</span>
+              <span>Add to Cart</span>
               <Plus className="w-4 h-4" />
             </button>
           )}

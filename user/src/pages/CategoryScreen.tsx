@@ -184,8 +184,8 @@ export const CategoryScreen: React.FC = () => {
                 onClick={() => setSubCategoryFilter(sub)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isSubSelected
-                    ? 'bg-[#fdee24] text-black font-extrabold shadow-2xs'
-                    : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                    ? 'bg-[#10B981] text-[#00422B] font-extrabold shadow-2xs'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 {sub}

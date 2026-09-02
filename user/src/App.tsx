@@ -15,6 +15,9 @@ import { LoginScreen } from './pages/LoginScreen';
 import { OnboardingScreen } from './pages/OnboardingScreen';
 import { ComingSoonScreen } from './pages/ComingSoonScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
+import { SearchScreen } from './pages/SearchScreen';
+import { OffersScreen } from './pages/OffersScreen';
+import { AddressesScreen } from './pages/AddressesScreen';
 
 const MainAppContent: React.FC = () => {
   const { activeTab, setActiveTab, getCartCount, getCartTotal, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
@@ -53,6 +56,12 @@ const MainAppContent: React.FC = () => {
       case 'categories':
       case 'category_detail':
         return <CategoryScreen />;
+      case 'search':
+        return <SearchScreen />;
+      case 'offers':
+        return <OffersScreen />;
+      case 'addresses':
+        return <AddressesScreen />;
       case 'cart':
         return <BasketScreen />;
       case 'order_confirmed':

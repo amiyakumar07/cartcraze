@@ -283,7 +283,7 @@ export const AccountScreen: React.FC = () => {
         </button>
 
         <button 
-          onClick={() => setShowAddressManager(true)}
+          onClick={() => setActiveTab('addresses')}
           className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-3">

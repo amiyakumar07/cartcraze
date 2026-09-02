@@ -190,3 +190,8 @@ export const calculateExpressSLA = (distanceKm: number): number => {
 export const getLocationIQTileUrl = (token: string = LOCATIONIQ_API_KEY) => {
   return `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${token}`;
 };
+
+export const LocationIQService = {
+  reverseGeocode: reverseGeocodeDetailedLocationIQ,
+  search: searchLocationIQ
+};
