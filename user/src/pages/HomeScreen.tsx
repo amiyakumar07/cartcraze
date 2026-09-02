@@ -266,10 +266,10 @@ export const HomeScreen: React.FC = () => {
 
           {/* ════════ APP FOOTER STRIP ════════ */}
           <div className="bg-white mx-0 px-4 py-5 text-center">
-            <p className="text-[11px] text-gray-400 font-medium">
-              🛡️ <strong className="text-gray-600">100% Safe</strong> • Fresh Guaranteed • Free Delivery Above ₹199
+            <p className="text-[11px] text-slate-400 font-medium">
+              🛡️ <strong className="text-slate-600">100% Safe</strong> • Fresh Guaranteed • Free Delivery Above ₹199
             </p>
-            <p className="text-[10px] text-gray-300 mt-1">© 2026 FreshCart. All rights reserved.</p>
+            <p className="text-[10px] text-slate-300 mt-1">© 2026 CartCraze Quick Commerce. All rights reserved.</p>
           </div>
         </>
       )}

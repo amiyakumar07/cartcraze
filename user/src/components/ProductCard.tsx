@@ -122,11 +122,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               Out of Stock
             </span>
           ) : quantity > 0 ? (
-            /* Stepper — Blinkit green style */
-            <div className="flex items-center bg-[#0c831f] text-white rounded-[10px] overflow-hidden h-[32px]">
+            /* Stepper — Eco-Emerald style */
+            <div className="flex items-center bg-[#006C49] text-white rounded-[10px] overflow-hidden h-[32px]">
               <button
                 onClick={() => updateQuantity(product.id, -1)}
-                className="w-8 h-full flex items-center justify-center hover:bg-[#0a7019] transition-colors"
+                className="w-8 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
                 aria-label="Decrease"
               >
                 <Minus className="w-3.5 h-3.5" />
@@ -134,17 +134,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <span className="w-6 text-center font-black text-[13px]">{quantity}</span>
               <button
                 onClick={() => updateQuantity(product.id, 1)}
-                className="w-8 h-full flex items-center justify-center hover:bg-[#0a7019] transition-colors"
+                className="w-8 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
                 aria-label="Increase"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
-            /* ADD Button — Blinkit green */
+            /* ADD Button — Eco-Emerald green */
             <button
               onClick={handleAdd}
-              className={`flex items-center gap-1 text-[#0c831f] border-2 border-[#0c831f] bg-white font-black text-[13px] py-1.5 px-3 rounded-[10px] transition-all active:scale-95 btn-ripple hover:bg-[#0c831f] hover:text-white ${
+              className={`flex items-center gap-1 text-[#006C49] border-2 border-[#006C49] bg-white font-black text-[13px] py-1.5 px-3 rounded-[10px] transition-all active:scale-95 btn-ripple hover:bg-[#006C49] hover:text-white ${
                 adding ? 'scale-95 opacity-80' : ''
               }`}
               aria-label={`Add ${product.name} to cart`}

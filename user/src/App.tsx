@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { MobileFrame } from './components/MobileFrame';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
+import { FloatingCartBar } from './components/FloatingCartBar';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { HomeScreen } from './pages/HomeScreen';
 import { CategoryScreen } from './pages/CategoryScreen';
@@ -16,7 +17,7 @@ import { ComingSoonScreen } from './pages/ComingSoonScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 
 const MainAppContent: React.FC = () => {
-  const { activeTab, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
+  const { activeTab, setActiveTab, getCartCount, getCartTotal, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
   const [showLocationModal, setShowLocationModal] = React.useState(true);
 
   if (activeTab === 'onboarding') {
@@ -71,6 +72,13 @@ const MainAppContent: React.FC = () => {
       <main className="flex-1">
         {renderActiveScreen()}
       </main>
+      {activeTab !== 'cart' && (
+        <FloatingCartBar
+          itemCount={getCartCount()}
+          subtotal={getCartTotal()}
+          onViewCart={() => setActiveTab('cart')}
+        />
+      )}
       <BottomNav />
       <ProductDetailModal />
       <LocationPermissionModal
