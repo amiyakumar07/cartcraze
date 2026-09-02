@@ -21,17 +21,17 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     id: 0,
-    badge: '🍎 FARM FRESH FESTIVAL',
-    title: 'UP TO 50% OFF',
-    highlightText: 'Organic Fruits & Veggies',
-    subtitle: 'Plucked fresh from local orchards • Delivered in 8-10 Mins',
-    buttonText: 'Shop Fresh Now',
-    category: 'fruits',
+    badge: '🥦 FARM FRESH VEGETABLES',
+    title: 'SAVE ON FARM-FRESH',
+    highlightText: '20% OFF ORGANIC PRODUCE',
+    subtitle: 'Plucked fresh from local farms • Valid on all organic produce',
+    buttonText: 'Shop Fresh Veggies',
+    category: 'vegetables',
     bgGradient: 'linear-gradient(135deg, #003B25 0%, #006C49 50%, #059669 100%)',
     accentColor: '#10B981',
     badgeColor: '#34D399',
-    image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=85',
-    tag: 'BEST PRICE GUARANTEE'
+    image: '/fresh_deals_banner.jpg',
+    tag: 'FRESH DEALS 20% OFF'
   },
   {
     id: 1,

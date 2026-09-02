@@ -66,18 +66,21 @@ export const OffersScreen: React.FC = () => {
       </div>
 
       <div className="p-4 space-y-5 max-w-md mx-auto">
-        {/* ── Hero Banner Card ── */}
-        <div className="rounded-2xl bg-gradient-to-r from-[#005338] via-[#007A53] to-[#10B981] p-5 text-white shadow-md relative overflow-hidden">
-          <div className="absolute right-[-10px] top-[-10px] opacity-20 pointer-events-none">
-            <Sparkles className="w-32 h-32 text-amber-300" />
+        {/* ── Visual Fresh Deals Banner Card ── */}
+        <div className="rounded-3xl overflow-hidden shadow-xl border border-emerald-100 bg-white relative group cursor-pointer">
+          <img
+            src="/fresh_deals_banner.jpg"
+            alt="Fresh Deals 20% OFF Save on Farm-Fresh Vegetables"
+            className="w-full h-auto object-cover group-hover:scale-102 transition-transform duration-500"
+          />
+          <div className="p-3 bg-emerald-900 text-white flex items-center justify-between text-xs">
+            <span className="font-extrabold flex items-center gap-1.5 text-amber-300">
+              <Zap className="w-4 h-4 fill-amber-300" /> 20% OFF Farm-Fresh Veggies
+            </span>
+            <span className="bg-[#10B981] text-[#00422B] text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+              APPLY OFFER
+            </span>
           </div>
-          <span className="inline-flex items-center gap-1 bg-[#E29100] text-slate-900 font-black text-[10px] uppercase px-2.5 py-1 rounded-md mb-2">
-            <Zap className="w-3 h-3 fill-current" /> Quick Commerce Mega Sale
-          </span>
-          <h2 className="text-xl font-black leading-tight mb-1">Up to 50% OFF<br />on Daily Essentials</h2>
-          <p className="text-xs text-emerald-100 font-medium">
-            Lightning 10-minute delivery to your doorstep. Free delivery on orders above ₹199!
-          </p>
         </div>
 
         {/* ── Available Coupons ── */}
