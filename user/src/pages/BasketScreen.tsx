@@ -25,6 +25,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
+import { RazorpayCheckoutModal } from '../components/RazorpayCheckoutModal';
 
 export const BasketScreen: React.FC = () => {
   const {
@@ -243,6 +244,8 @@ export const BasketScreen: React.FC = () => {
     } catch {}
   };
 
+  const [showRazorpayModal, setShowRazorpayModal] = useState<boolean>(false);
+
   const handleFinalOrderPlacement = () => {
     const fullAddress = `${street}, ${village}, Landmark: ${landmark}, Pincode: ${pincode}`;
     const addressData = {
@@ -259,11 +262,28 @@ export const BasketScreen: React.FC = () => {
 
     syncCheckoutUserLocation(addressData);
 
-    if (paymentMethod === 'Razorpay') {
-      handleRazorpayPayment(fullAddress, addressData);
+    if (paymentMethod === 'Pay Online' || paymentMethod === 'Razorpay') {
+      setShowRazorpayModal(true);
     } else {
       placeOrder('Cash on Delivery (COD)', fullAddress, addressData);
     }
+  };
+
+  const handleRazorpaySuccess = (method: string, paymentId: string) => {
+    setShowRazorpayModal(false);
+    const fullAddress = `${street}, ${village}, Landmark: ${landmark}, Pincode: ${pincode}`;
+    const addressData = {
+      fullName,
+      phone,
+      pincode,
+      village,
+      street,
+      landmark,
+      fullAddress,
+      lat: lat || 12.9141,
+      lon: lon || 77.6411
+    };
+    placeOrder(`Razorpay (${method} - ID: ${paymentId})`, fullAddress, addressData);
   };
 
   if (cart.length === 0 && step === 'cart') {
@@ -709,6 +729,14 @@ export const BasketScreen: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Razorpay Gateway Dialog */}
+      <RazorpayCheckoutModal
+        isOpen={showRazorpayModal}
+        amount={finalPay}
+        onClose={() => setShowRazorpayModal(false)}
+        onPaymentSuccess={handleRazorpaySuccess}
+      />
     </div>
   );
 };
