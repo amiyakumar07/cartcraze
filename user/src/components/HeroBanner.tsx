@@ -61,6 +61,13 @@ export const HeroBanner: React.FC = () => {
       category: 'dairy'
     },
     {
+      id: 'clothing_deals',
+      type: 'image',
+      image: '/banner_clothing_deals.png',
+      alt: 'PREMIUM CLOTHING DEALS - 45% OFF Apparel & Accessories',
+      category: 'snacks'
+    },
+    {
       id: 'fresh_deals_20off',
       type: 'image',
       image: '/fresh_deals_banner.jpg',
