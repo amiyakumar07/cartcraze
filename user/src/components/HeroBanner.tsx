@@ -109,92 +109,45 @@ export const FlashSaleBannerCard: React.FC = () => {
         setActiveCategory('fruits');
         setActiveTab('category_detail');
       }}
-      className={`rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-wrap items-center justify-between gap-4 text-xs font-[Inter,sans-serif] relative overflow-hidden transition-all duration-500 mb-3 cursor-pointer group border ${
+      className={`rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 mb-3 cursor-pointer group border relative bg-[#003B25] ${
         isActiveNow
-          ? 'bg-gradient-to-r from-[#4C0519] via-[#881337] to-[#BE123C] border-2 border-amber-400 shadow-[0_0_35px_rgba(225,29,72,0.4)]'
-          : 'bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#311B92] border-amber-400/40 shadow-xl'
+          ? 'border-2 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.4)]'
+          : 'border-amber-400/40 shadow-xl'
       }`}
     >
-      {/* Dynamic Background Glow Effect */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/15 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-400/25 transition-all duration-700" />
-      <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-rose-500/15 rounded-full blur-2xl pointer-events-none" />
+      {/* Visual Image Banner Background */}
+      <div className="relative w-full h-[140px] sm:h-[160px] overflow-hidden">
+        <img
+          src="/one_rs_deal_banner.jpg"
+          alt="MEGA DEAL ₹1 ONLY - Grocery Mart"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
 
-      {/* Shimmer Sweep Animation */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+        {/* Live Status Overlay Ribbon */}
+        <div className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-2">
+          <span
+            className={`text-[9.5px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-md ${
+              isActiveNow
+                ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 animate-pulse font-black'
+                : 'bg-black/60 backdrop-blur-md text-amber-300 border border-amber-400/40 font-extrabold'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${isActiveNow ? 'bg-slate-950 animate-ping' : 'bg-amber-400'}`} />
+            <span>{isActiveNow ? '⚡ LIVE NOW • 9 PM - 10 PM' : 'DAILY 9 PM - 10 PM FLASH SALE'}</span>
+          </span>
 
-      {/* Main Content */}
-      <div className="flex items-center gap-3.5 z-10 min-w-[260px] flex-1">
-        {/* Flame Badge Icon */}
-        <div
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl shrink-0 transition-transform duration-300 group-hover:scale-110 ${
-            isActiveNow
-              ? 'bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 ring-4 ring-amber-400/40 shadow-rose-900/60 animate-bounce'
-              : 'bg-gradient-to-tr from-amber-500/30 to-yellow-400/10 text-yellow-300 border border-amber-400/40 shadow-inner'
-          }`}
-        >
-          🔥
+          {isActiveNow && (
+            <span className="bg-rose-950/90 text-rose-200 border border-rose-400/50 text-[9.5px] font-mono px-2.5 py-1 rounded-full font-extrabold flex items-center gap-1 shadow-md">
+              <Clock className="w-3 h-3 text-amber-400" />
+              <span>ENDS IN {timeRemainingStr}</span>
+            </span>
+          )}
         </div>
 
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`text-[9.5px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
-                isActiveNow
-                  ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 animate-pulse font-extrabold'
-                  : 'bg-amber-400/20 text-yellow-300 border border-amber-400/40'
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${isActiveNow ? 'bg-slate-950 animate-ping' : 'bg-amber-400'}`} />
-              <span>{isActiveNow ? '⚡ LIVE NOW • 9 PM - 10 PM' : 'DAILY 9 PM - 10 PM MEGA FLASH SALE'}</span>
-            </span>
-
-            {isActiveNow && (
-              <span className="bg-rose-950/80 text-rose-200 border border-rose-400/40 text-[9.5px] font-mono px-2.5 py-0.5 rounded-full font-extrabold flex items-center gap-1">
-                <Clock className="w-3 h-3 text-amber-400" />
-                <span>ENDS IN {timeRemainingStr}</span>
-              </span>
-            )}
-          </div>
-
-          <h3 className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-md leading-tight">
-            EVERY EVERYTHING AT <span className="text-amber-300 underline decoration-amber-400 decoration-wavy decoration-2">₹1 ONLY!</span>
-          </h3>
-
-          <p className="text-[11px] text-slate-200 font-semibold leading-normal flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>
-              {isActiveNow
-                ? 'Add up to 5 groceries to cart right now at ₹1 each!'
-                : 'Set your alarm for 9:00 PM tonight! 5 items per user at ₹1.'}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* 5 Golden Coin Quota Slots */}
-      <div className="z-10 bg-slate-950/80 backdrop-blur-md border border-amber-400/40 p-3 rounded-2xl flex flex-col items-center sm:items-end gap-1.5 shrink-0 shadow-xl">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-amber-200 font-extrabold uppercase tracking-wider">Your ₹1 Quota</span>
+        {/* Floating Quota Counter Badge */}
+        <div className="absolute bottom-3 right-3 z-10 bg-slate-950/85 backdrop-blur-md border border-amber-400/50 p-2 px-3 rounded-2xl flex items-center gap-2 shadow-xl">
+          <span className="text-[10px] text-amber-200 font-extrabold uppercase tracking-wider">₹1 Quota:</span>
           <span className="text-xs font-black font-mono text-amber-300">{itemsRemainingThisMonth} / 5 Left</span>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          {[1, 2, 3, 4, 5].map((slotIdx) => {
-            const isAvailable = slotIdx <= itemsRemainingThisMonth;
-            return (
-              <div
-                key={slotIdx}
-                title={isAvailable ? `Slot ${slotIdx}: Ready for ₹1` : `Slot ${slotIdx}: Claimed`}
-                className={`w-7 h-7 rounded-xl flex items-center justify-center text-[11px] font-black font-mono transition-all duration-300 ${
-                  isAvailable
-                    ? 'bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-200 text-slate-950 shadow-md shadow-amber-400/40 scale-105 border border-yellow-100 ring-1 ring-amber-400/50'
-                    : 'bg-slate-900 text-slate-600 border border-slate-800 opacity-40'
-                }`}
-              >
-                {isAvailable ? '₹1' : '✓'}
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>
