@@ -23,7 +23,9 @@ export const HomeScreen: React.FC = () => {
     setActiveTab,
     searchQuery,
     setSubCategoryFilter,
-    products
+    products,
+    activeStore,
+    isStoreClosed
   } = useApp();
 
   /* ── Flash Deals Countdown ── */
@@ -54,7 +56,28 @@ export const HomeScreen: React.FC = () => {
 
   /* ────────────────────────────────────────── */
   return (
-    <div className="bg-[#f1f2f6] min-h-full pb-24 font-[Inter,sans-serif] animate-fadeIn">
+    <div className="bg-[#F4FBF4] min-h-screen pb-28 font-[Inter,sans-serif] animate-fadeIn">
+      {/* ════════ STORE CURRENTLY CLOSED BANNER ════════ */}
+      {isStoreClosed && (
+        <div className="bg-[#131B2E] text-white p-3.5 px-4 shadow-md border-b border-amber-500/40 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-extrabold text-lg shrink-0">
+              🌙
+            </div>
+            <div>
+              <h4 className="font-extrabold text-xs text-amber-300">
+                Store Currently Closed • Dispatched from {activeStore?.name || 'Local Darkstore'}
+              </h4>
+              <p className="text-[11px] text-slate-300 font-medium">
+                We are closed for orders right now. Operating hours: 6:00 AM - 11:00 PM.
+              </p>
+            </div>
+          </div>
+          <span className="bg-amber-500/20 text-amber-300 font-black text-[10px] uppercase px-2 py-1 rounded-md border border-amber-400/40 shrink-0">
+            CLOSED
+          </span>
+        </div>
+      )}
 
       {/* ════════ SEARCH RESULTS ════════ */}
       {searchQuery ? (

@@ -15,7 +15,8 @@ export const Header: React.FC = () => {
     setActiveTab,
     setUserProfile,
     isOutOfCoverageRange,
-    activeStore
+    activeStore,
+    isStoreClosed
   } = useApp();
 
   const [showSearchAddress, setShowSearchAddress] = useState(false);
@@ -107,33 +108,41 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Real-Time Dark Store Availability Badge ── */}
+      {/* ── Real-Time Dark Store Availability / Closed Badge ── */}
       <div className="px-4 pb-2.5">
         <div 
           onClick={() => setShowLocationSheet(true)}
           className={`flex items-center justify-between p-2 px-3 rounded-xl border transition-all cursor-pointer ${
             isOutOfCoverageRange
-              ? 'bg-red-50 border-red-200 text-red-900'
+              ? 'bg-rose-50 border-rose-200 text-rose-900'
+              : isStoreClosed
+              ? 'bg-amber-50 border-amber-300 text-amber-950'
               : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 hover:bg-emerald-500/15'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
             {isOutOfCoverageRange ? (
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            ) : isStoreClosed ? (
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
             ) : (
               <Zap className="w-4 h-4 text-[#006C49] shrink-0 fill-[#006C49] animate-pulse" />
             )}
             <div className="min-w-0">
-              <div className="text-[11px] font-black text-[#006C49] leading-none flex items-center gap-1">
-                <span>⚡ Delivery in 8-10 Mins</span>
+              <div className={`text-[11px] font-black leading-none flex items-center gap-1 ${
+                isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
+              }`}>
+                <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ Delivery in 8-10 Mins'}</span>
               </div>
               <div className="text-[10px] text-slate-600 font-medium truncate mt-0.5">
-                Dispatched from {activeStore ? activeStore.name : 'Patia DarkStore Hub #3'} (1.2 km away)
+                Dispatched from {activeStore ? activeStore.name : 'Patia DarkStore Hub #3'} • {isStoreClosed ? 'Closed right now' : '1.2 km away'}
               </div>
             </div>
           </div>
-          <span className="bg-[#006C49] text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
-            LIVE
+          <span className={`text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
+            isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
+          }`}>
+            {isStoreClosed ? 'CLOSED' : 'LIVE'}
           </span>
         </div>
       </div>

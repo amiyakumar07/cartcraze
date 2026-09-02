@@ -56,6 +56,7 @@ interface AppContextType {
   checkStoreCoverage: (lat?: number, lon?: number) => Promise<boolean>;
   products: Product[];
   activeStore: any | null;
+  isStoreClosed: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -529,7 +530,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserCoords,
         checkStoreCoverage,
         products,
-        activeStore
+        activeStore,
+        isStoreClosed: Boolean(
+          activeStore &&
+            (activeStore.status === 'CLOSED' ||
+              activeStore.status === 'OFFLINE' ||
+              activeStore.isOnline === false)
+        )
       }}
     >
       {children}
