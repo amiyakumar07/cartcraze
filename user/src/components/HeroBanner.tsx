@@ -54,6 +54,13 @@ export const HeroBanner: React.FC = () => {
       category: 'bakery'
     },
     {
+      id: 'refrigerated_deals',
+      type: 'image',
+      image: '/banner_refrigerated_deals.png',
+      alt: 'DAILY FRESH REFRIGERATED DEALS - 20% OFF Dairy, Drinks & Meats',
+      category: 'dairy'
+    },
+    {
       id: 'fresh_deals_20off',
       type: 'image',
       image: '/fresh_deals_banner.jpg',
