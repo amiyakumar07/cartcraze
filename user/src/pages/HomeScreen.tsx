@@ -172,7 +172,7 @@ export const HomeScreen: React.FC = () => {
             {/* Horizontal scroll row like Blinkit */}
             <div className="flex gap-3 overflow-x-auto no-scrollbar p-3">
               {flashDeals.map((p) => (
-                <div key={p.id} className="min-w-[145px] max-w-[145px]">
+                <div key={p.id} className="min-w-[155px] max-w-[155px] h-[280px] shrink-0">
                   <ProductCard product={p} />
                 </div>
               ))}

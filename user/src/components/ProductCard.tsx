@@ -26,13 +26,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className="bg-white border border-[#e8e8e8] rounded-[16px] overflow-hidden card-lift cursor-pointer relative flex flex-col"
+      className="bg-white border border-[#e8e8e8] rounded-[16px] overflow-hidden card-lift cursor-pointer relative flex flex-col justify-between h-[280px] w-full shadow-2xs"
       style={{ minWidth: 0 }}
     >
       {/* ── Flash Sale Badge or Discount Badge ── */}
       {isFlashActive ? (
         <span className="absolute top-2 left-2 z-10 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-[5px] leading-none tracking-tight animate-pulse flex items-center gap-0.5">
-          🔥 ₹1 SALE
+          🔥 ₹10 SALE
         </span>
       ) : product.discountPercentage > 0 ? (
         <span className="absolute top-2 left-2 z-10 bg-[#256fef] text-white text-[10px] font-black px-1.5 py-0.5 rounded-[5px] leading-none tracking-tight">
@@ -46,10 +46,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {product.deliveryTimeMinutes}m
       </span>
 
-      {/* ── Product Image Container ── */}
+      {/* ── Product Image Container (Fixed Height) ── */}
       <div
         onClick={() => setSelectedProduct(product)}
-        className="bg-slate-50 flex items-center justify-center h-[130px] w-full overflow-hidden relative group/img"
+        className="bg-slate-50 flex items-center justify-center h-[125px] w-full overflow-hidden relative shrink-0 group/img"
       >
         <img
           src={product.image}
@@ -58,7 +58,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=400&q=80';
           }}
-          className="h-[110px] w-full object-contain p-2 group-hover/img:scale-110 transition-transform duration-500 drop-shadow-xs"
+          className="h-[105px] w-full object-contain p-2 group-hover/img:scale-110 transition-transform duration-500 drop-shadow-xs"
           loading="lazy"
         />
         {Array.isArray(product.images) && product.images.length > 1 && (
@@ -69,51 +69,53 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       {/* ── Horizontal divider ── */}
-      <div className="h-px bg-[#f0f0f0] mx-0" />
+      <div className="h-px bg-[#f0f0f0] mx-0 shrink-0" />
 
-      {/* ── Product Info ── */}
-      <div className="p-2.5 flex flex-col flex-1">
+      {/* ── Product Info (Fixed Flex Section) ── */}
+      <div className="p-2.5 flex flex-col justify-between flex-1 min-h-0">
         {/* Weight / Pack size & Buy 2 offer badge */}
-        <div className="flex justify-between items-center mb-1 text-[10px]">
-          <span className="bg-gray-100 text-gray-700 font-extrabold px-1.5 py-0.5 rounded-md border border-gray-200">
+        <div className="flex justify-between items-center h-[20px] shrink-0 text-[10px]">
+          <span className="bg-gray-100 text-gray-700 font-extrabold px-1.5 py-0.5 rounded-md border border-gray-200 truncate max-w-[70px]">
             {product.weight || '500 g'}
           </span>
           {product.hasBuy2Offer !== false && (
-            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs">
+            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs shrink-0">
               🏷️ 2+ = 5% OFF
             </span>
           )}
         </div>
 
-        {/* Name */}
-        <h4
-          onClick={() => setSelectedProduct(product)}
-          className="text-[13px] font-bold text-[#1d1d1d] leading-[1.3] line-clamp-2 mb-2 cursor-pointer hover:text-[#0c831f] transition-colors"
-        >
-          {product.name}
-        </h4>
+        {/* Name (Fixed 2-Line Height) */}
+        <div className="h-[36px] flex items-center my-1 shrink-0">
+          <h4
+            onClick={() => setSelectedProduct(product)}
+            className="text-[12.5px] font-bold text-[#1d1d1d] leading-[1.3] line-clamp-2 cursor-pointer hover:text-[#0c831f] transition-colors"
+          >
+            {product.name}
+          </h4>
+        </div>
 
-        {/* ── Price Row + ADD Button ── */}
-        <div className="flex items-center justify-between mt-auto">
+        {/* ── Price Row + ADD Button (Fixed Bottom Row) ── */}
+        <div className="flex items-center justify-between h-[32px] shrink-0 mt-auto">
           {/* Pricing */}
-          <div className="flex flex-col">
+          <div className="flex flex-col justify-center">
             {isFlashActive ? (
               <>
-                <span className="text-[14px] font-black text-red-600 leading-none flex items-center gap-1">
-                  ₹1
-                  <span className="text-[9px] bg-red-100 text-red-700 px-1 py-0.2 rounded font-extrabold">9-10 PM</span>
+                <span className="text-[13.5px] font-black text-red-600 leading-none flex items-center gap-1">
+                  ₹10
+                  <span className="text-[8.5px] bg-red-100 text-red-700 px-1 py-0.2 rounded font-extrabold">DEAL</span>
                 </span>
-                <span className="text-[11px] text-[#c2c2c2] line-through leading-tight mt-0.5">
+                <span className="text-[10.5px] text-[#c2c2c2] line-through leading-tight mt-0.5">
                   ₹{product.price}
                 </span>
               </>
             ) : (
               <>
-                <span className="text-[14px] font-black text-[#1d1d1d] leading-none">
+                <span className="text-[13.5px] font-black text-[#1d1d1d] leading-none">
                   ₹{product.price}
                 </span>
                 {product.originalPrice > product.price && (
-                  <span className="text-[11px] text-[#c2c2c2] line-through leading-tight mt-0.5">
+                  <span className="text-[10.5px] text-[#c2c2c2] line-through leading-tight mt-0.5">
                     ₹{product.originalPrice}
                   </span>
                 )}
@@ -123,38 +125,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* ADD / Stepper */}
           {!product.inStock ? (
-            <span className="text-[10px] font-black text-red-500 bg-red-50 border border-red-200 px-2 py-1 rounded-[8px] uppercase">
+            <span className="text-[9.5px] font-black text-red-500 bg-red-50 border border-red-200 px-1.5 py-1 rounded-[8px] uppercase">
               Out of Stock
             </span>
           ) : quantity > 0 ? (
             /* Stepper — Eco-Emerald style */
-            <div className="flex items-center bg-[#006C49] text-white rounded-[10px] overflow-hidden h-[32px]">
+            <div className="flex items-center bg-[#006C49] text-white rounded-[10px] overflow-hidden h-[30px]">
               <button
                 onClick={() => updateQuantity(product.id, -1)}
-                className="w-8 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
+                className="w-7 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
                 aria-label="Decrease"
               >
-                <Minus className="w-3.5 h-3.5" />
+                <Minus className="w-3 h-3" />
               </button>
-              <span className="w-6 text-center font-black text-[13px]">{quantity}</span>
+              <span className="w-5 text-center font-black text-[12px]">{quantity}</span>
               <button
                 onClick={() => updateQuantity(product.id, 1)}
-                className="w-8 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
+                className="w-7 h-full flex items-center justify-center hover:bg-[#005237] transition-colors"
                 aria-label="Increase"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3 h-3" />
               </button>
             </div>
           ) : (
             /* ADD Button — Eco-Emerald green */
             <button
               onClick={handleAdd}
-              className={`flex items-center gap-1 text-[#006C49] border-2 border-[#006C49] bg-white font-black text-[13px] py-1.5 px-3 rounded-[10px] transition-all active:scale-95 btn-ripple hover:bg-[#006C49] hover:text-white ${
+              className={`flex items-center gap-1 text-[#006C49] border-2 border-[#006C49] bg-white font-black text-[12.5px] py-1 px-2.5 rounded-[10px] transition-all active:scale-95 btn-ripple hover:bg-[#006C49] hover:text-white ${
                 adding ? 'scale-95 opacity-80' : ''
               }`}
               aria-label={`Add ${product.name} to cart`}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3 h-3" />
               <span>ADD</span>
             </button>
           )}
