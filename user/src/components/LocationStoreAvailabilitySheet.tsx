@@ -75,64 +75,41 @@ export const LocationStoreAvailabilitySheet: React.FC<LocationStoreAvailabilityS
         </div>
 
         {/* Live Darkstore Availability / Coverage Card */}
-        {isOutOfCoverageRange ? (
-          <div className="bg-gradient-to-br from-rose-950 via-slate-900 to-rose-900 text-white rounded-2xl p-4 space-y-2 border border-rose-500/40 relative overflow-hidden shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="bg-rose-500/20 text-rose-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-rose-400/30 flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                <span>UNSERVICEABLE LOCATION</span>
-              </span>
-              <span className="bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md">
-                NO STORE
-              </span>
-            </div>
+        <div className={`rounded-2xl p-4 space-y-2 border relative overflow-hidden shadow-lg ${
+          isStoreClosed
+            ? 'bg-gradient-to-br from-amber-950 via-slate-900 to-amber-900 border-amber-500/40 text-white'
+            : 'bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 border-emerald-500/40 text-white'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border flex items-center gap-1 ${
+              isStoreClosed
+                ? 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+                : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+            }`}>
+              {isStoreClosed ? (
+                <AlertCircle className="w-3 h-3 text-amber-400" />
+              ) : (
+                <Zap className="w-3 h-3 text-amber-400" />
+              )}
+              <span>{isStoreClosed ? 'Store Offline' : 'Coverage Confirmed'}</span>
+            </span>
+            <span className={`text-white text-[10px] font-black px-2 py-0.5 rounded-md ${
+              isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49] animate-pulse'
+            }`}>
+              {isStoreClosed ? 'CLOSED' : 'LIVE'}
+            </span>
+          </div>
 
-            <div>
-              <div className="text-base font-black text-white flex items-center gap-2">
-                <span>We are not here in your area yet!</span>
-              </div>
-              <div className="text-xs text-rose-200/90 font-medium mt-1">
-                No active darkstore within 5.0 km radius. Select another address or use GPS to check nearby stores.
-              </div>
+          <div>
+            <div className="text-lg font-black text-white flex items-center gap-2">
+              <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ 8 - 10 Mins Delivery'}</span>
+            </div>
+            <div className="text-xs text-slate-300 font-medium mt-0.5 flex items-center gap-1.5">
+              <Store className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Fulfilled by {storeName} ({activeStoreDistanceKm.toFixed(1)} km away)</span>
             </div>
           </div>
-        ) : (
-          <div className={`rounded-2xl p-4 space-y-2 border relative overflow-hidden shadow-lg ${
-            isStoreClosed
-              ? 'bg-gradient-to-br from-amber-950 via-slate-900 to-amber-900 border-amber-500/40 text-white'
-              : 'bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 border-emerald-500/40 text-white'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border flex items-center gap-1 ${
-                isStoreClosed
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-400/30'
-                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
-              }`}>
-                {isStoreClosed ? (
-                  <AlertCircle className="w-3 h-3 text-amber-400" />
-                ) : (
-                  <Zap className="w-3 h-3 text-amber-400" />
-                )}
-                <span>{isStoreClosed ? 'Store Offline' : 'Coverage Confirmed'}</span>
-              </span>
-              <span className={`text-white text-[10px] font-black px-2 py-0.5 rounded-md ${
-                isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49] animate-pulse'
-              }`}>
-                {isStoreClosed ? 'CLOSED' : 'LIVE'}
-              </span>
-            </div>
-
-            <div>
-              <div className="text-lg font-black text-white flex items-center gap-2">
-                <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ 8 - 10 Mins Delivery'}</span>
-              </div>
-              <div className="text-xs text-slate-300 font-medium mt-0.5 flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Fulfilled by {storeName} ({activeStoreDistanceKm.toFixed(1)} km away)</span>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Use Current GPS Location Button */}
         <button

@@ -40,16 +40,6 @@ const MainAppContent: React.FC = () => {
   }
 
   const renderActiveScreen = () => {
-    // If no store is available within 5km delivery range, block product view across ALL storefront tabs
-    if (isOutOfCoverageRange && (activeTab === 'home' || activeTab === 'categories' || activeTab === 'category_detail')) {
-      return (
-        <ComingSoonScreen
-          userLocationAddress={userProfile.address || 'Selected Location (Out of 5km Range)'}
-          onSearchNewAddress={() => checkStoreCoverage()}
-        />
-      );
-    }
-
     switch (activeTab) {
       case 'home':
         return <HomeScreen />;

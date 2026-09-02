@@ -41,10 +41,8 @@ export const Header: React.FC = () => {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1">
-              <span className={`text-[11px] font-black uppercase tracking-wider ${
-                isOutOfCoverageRange ? 'text-rose-600' : 'text-[#006C49]'
-              }`}>
-                Deliver to {activeAddrObj?.label || 'Home'} • {isOutOfCoverageRange ? 'Unserviceable Area' : '8 Mins'}
+              <span className="text-[11px] font-black text-[#006C49] uppercase tracking-wider">
+                Deliver to {activeAddrObj?.label || 'Home'} • 8 Mins
               </span>
             </div>
             <div className="flex items-center gap-1">
@@ -115,44 +113,32 @@ export const Header: React.FC = () => {
         <div 
           onClick={() => setShowLocationSheet(true)}
           className={`flex items-center justify-between p-2 px-3 rounded-xl border transition-all cursor-pointer ${
-            isOutOfCoverageRange
-              ? 'bg-rose-50 border-rose-200 text-rose-900'
-              : isStoreClosed
+            isStoreClosed
               ? 'bg-amber-50 border-amber-300 text-amber-950'
               : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 hover:bg-emerald-500/15'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            {isOutOfCoverageRange ? (
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            ) : isStoreClosed ? (
+            {isStoreClosed ? (
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
             ) : (
               <Zap className="w-4 h-4 text-[#006C49] shrink-0 fill-[#006C49] animate-pulse" />
             )}
             <div className="min-w-0">
               <div className={`text-[11px] font-black leading-none flex items-center gap-1 ${
-                isOutOfCoverageRange ? 'text-rose-700' : isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
+                isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
               }`}>
-                <span>{
-                  isOutOfCoverageRange 
-                    ? '📍 Location Unserviceable' 
-                    : isStoreClosed 
-                    ? '🌙 Store Currently Closed' 
-                    : '⚡ Delivery in 8-10 Mins'
-                }</span>
+                <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ Delivery in 8-10 Mins'}</span>
               </div>
               <div className="text-[10px] text-slate-600 font-medium truncate mt-0.5">
-                {isOutOfCoverageRange 
-                  ? "No darkstore in 5km radius. We're launching soon!"
-                  : `Dispatched from ${activeStore ? activeStore.name : 'Local DarkStore'} • ${isStoreClosed ? 'Closed right now' : '1.2 km away'}`}
+                Dispatched from {activeStore ? activeStore.name : 'Patia DarkStore Hub #3'} • {isStoreClosed ? 'Closed right now' : '1.2 km away'}
               </div>
             </div>
           </div>
           <span className={`text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
-            isOutOfCoverageRange ? 'bg-rose-600' : isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
+            isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
           }`}>
-            {isOutOfCoverageRange ? 'NO STORE' : isStoreClosed ? 'CLOSED' : 'LIVE'}
+            {isStoreClosed ? 'CLOSED' : 'LIVE'}
           </span>
         </div>
       </div>
