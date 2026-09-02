@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
 import { RazorpayCheckoutModal } from '../components/RazorpayCheckoutModal';
+import { record10RsSalePurchase } from '../utils/flashSale';
 
 export const BasketScreen: React.FC = () => {
   const {
@@ -76,7 +77,7 @@ export const BasketScreen: React.FC = () => {
   }, [step]);
 
   const itemTotal = getCartTotal();
-  const deliveryFee = itemTotal >= 199 ? 0 : 25;
+  const deliveryFee = itemTotal >= 99 ? 0 : 25;
   const handlingFee = 5;
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const finalPay = getFinalPayAmount();
@@ -265,6 +266,7 @@ export const BasketScreen: React.FC = () => {
     if (paymentMethod === 'Pay Online' || paymentMethod === 'Razorpay') {
       setShowRazorpayModal(true);
     } else {
+      record10RsSalePurchase();
       placeOrder('Cash on Delivery (COD)', fullAddress, addressData);
     }
   };
@@ -283,6 +285,7 @@ export const BasketScreen: React.FC = () => {
       lat: lat || 12.9141,
       lon: lon || 77.6411
     };
+    record10RsSalePurchase();
     placeOrder(`Razorpay (${method} - ID: ${paymentId})`, fullAddress, addressData);
   };
 

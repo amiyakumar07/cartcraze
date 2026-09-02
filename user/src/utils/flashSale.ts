@@ -1,78 +1,66 @@
 export interface FlashSaleStatus {
-  isActiveNow: boolean;             // Is current time between 9 PM and 10 PM?
-  itemsRemainingThisMonth: number;  // How many ₹1 items can user still buy this month (out of 5)?
-  isQuotaExhausted: boolean;        // Has user bought 5 items at ₹1 this month?
-  currentMonthKey: string;          // e.g. "2026-08"
-  timeRemainingStr: string;         // e.g. "42m 18s"
-  nextResetDateStr: string;         // e.g. "1st of Next Month"
-  itemsUsedThisMonth: number;
+  isActiveNow: boolean;
+  itemsRemainingToday: number;
+  isQuotaExhausted: boolean;
+  timeRemainingStr: string;
+  itemsUsedToday: number;
+  hasOrderedToday: boolean;
 }
 
 export const getFlashSaleStatus = (): FlashSaleStatus => {
   const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
+  const todayKey = now.toDateString();
 
-  // Active everyday between 21:00 (9 PM) and 22:00 (10 PM)
-  const isActiveNow = hours === 21;
+  // Active everyday between 9 PM and 10 PM
+  const isActiveNow = now.getHours() === 21;
 
-  // Current month key: e.g. "2026-08"
-  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  // Check if user has ordered today
+  const lastOrderDate = localStorage.getItem('cartcraze_last_order_date');
+  const hasOrderedToday = lastOrderDate === todayKey;
 
-  // Read user's monthly flash sale purchase count from localStorage
-  const savedUsageRaw = localStorage.getItem('cartcraze_flash_sale_usage');
-  let usedThisMonth = 0;
+  // Usage today (max 5 items quantity)
+  const savedUsageRaw = localStorage.getItem('cartcraze_10rs_sale_usage');
+  let usedToday = 0;
   if (savedUsageRaw) {
     try {
       const parsed = JSON.parse(savedUsageRaw);
-      if (parsed.monthKey === monthKey) {
-        usedThisMonth = parsed.count || 0;
+      if (parsed.todayKey === todayKey) {
+        usedToday = parsed.count || 0;
       }
     } catch {}
   }
 
-  const itemsRemainingThisMonth = Math.max(0, 5 - usedThisMonth);
-  const isQuotaExhausted = itemsRemainingThisMonth <= 0;
+  const itemsRemainingToday = Math.max(0, 5 - usedToday);
+  const isQuotaExhausted = hasOrderedToday || itemsRemainingToday <= 0;
 
   // Time remaining in 9 PM - 10 PM window
   let timeRemainingStr = '00m 00s';
   if (isActiveNow) {
-    const minsLeft = 59 - minutes;
-    const secsLeft = 59 - seconds;
+    const minsLeft = 59 - now.getMinutes();
+    const secsLeft = 59 - now.getSeconds();
     timeRemainingStr = `${minsLeft}m ${secsLeft < 10 ? '0' : ''}${secsLeft}s`;
   }
 
-  // Next reset date string: e.g. "1st of September"
-  const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const nextResetDateStr = `1st of ${nextMonthDate.toLocaleString('default', { month: 'long' })}`;
-
   return {
     isActiveNow,
-    itemsRemainingThisMonth,
+    itemsRemainingToday,
     isQuotaExhausted,
-    currentMonthKey: monthKey,
     timeRemainingStr,
-    nextResetDateStr,
-    itemsUsedThisMonth: usedThisMonth
+    itemsUsedToday: usedToday,
+    hasOrderedToday
   };
 };
 
-export const recordFlashSalePurchase = (itemCount: number) => {
+export const record10RsSalePurchase = (itemCount: number = 1) => {
+  const todayKey = new Date().toDateString();
+  localStorage.setItem('cartcraze_last_order_date', todayKey);
+
   const status = getFlashSaleStatus();
-  const savedUsageRaw = localStorage.getItem('cartcraze_flash_sale_usage');
-  let usedThisMonth = 0;
-  if (savedUsageRaw) {
-    try {
-      const parsed = JSON.parse(savedUsageRaw);
-      if (parsed.monthKey === status.currentMonthKey) {
-        usedThisMonth = parsed.count || 0;
-      }
-    } catch {}
-  }
-  const newCount = usedThisMonth + itemCount;
-  localStorage.setItem('cartcraze_flash_sale_usage', JSON.stringify({
-    monthKey: status.currentMonthKey,
+  const newCount = status.itemsUsedToday + itemCount;
+  localStorage.setItem('cartcraze_10rs_sale_usage', JSON.stringify({
+    todayKey,
     count: newCount
   }));
 };
+
+export const recordFlashSalePurchase = record10RsSalePurchase;
