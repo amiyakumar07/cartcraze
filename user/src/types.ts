@@ -9,6 +9,7 @@ export interface Product {
   originalPrice: number;
   weight: string;
   image: string;
+  images?: string[];
   discountPercentage: number;
   rating: number;
   reviewsCount: number;

@@ -46,10 +46,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {product.deliveryTimeMinutes}m
       </span>
 
-      {/* ── Product Image ── */}
+      {/* ── Product Image Container ── */}
       <div
         onClick={() => setSelectedProduct(product)}
-        className="bg-[#f8f9fb] flex items-center justify-center h-[120px] w-full overflow-hidden"
+        className="bg-slate-50 flex items-center justify-center h-[130px] w-full overflow-hidden relative group/img"
       >
         <img
           src={product.image}
@@ -58,9 +58,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=400&q=80';
           }}
-          className="h-[100px] w-full object-contain p-1 hover:scale-105 transition-transform duration-300"
+          className="h-[110px] w-full object-contain p-2 group-hover/img:scale-110 transition-transform duration-500 drop-shadow-xs"
           loading="lazy"
         />
+        <span className="absolute bottom-1.5 right-1.5 text-[9px] font-black bg-slate-900/80 text-white px-1.5 py-0.5 rounded-md backdrop-blur-xs opacity-80 group-hover/img:opacity-100 transition-opacity">
+          3 Photos 📷
+        </span>
       </div>
 
       {/* ── Horizontal divider ── */}
