@@ -61,9 +61,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="h-[110px] w-full object-contain p-2 group-hover/img:scale-110 transition-transform duration-500 drop-shadow-xs"
           loading="lazy"
         />
-        <span className="absolute bottom-1.5 right-1.5 text-[9px] font-black bg-slate-900/80 text-white px-1.5 py-0.5 rounded-md backdrop-blur-xs opacity-80 group-hover/img:opacity-100 transition-opacity">
-          3 Photos 📷
-        </span>
+        {Array.isArray(product.images) && product.images.length > 1 && (
+          <span className="absolute bottom-1.5 right-1.5 text-[9px] font-black bg-slate-900/80 text-white px-1.5 py-0.5 rounded-md backdrop-blur-xs opacity-80 group-hover/img:opacity-100 transition-opacity">
+            {product.images.length} Photos 📷
+          </span>
+        )}
       </div>
 
       {/* ── Horizontal divider ── */}

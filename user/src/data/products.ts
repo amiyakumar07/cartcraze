@@ -62,6 +62,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 210,
     weight: '4 pcs (approx 500g)',
     image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 30,
     rating: 4.8,
     reviewsCount: 342,
@@ -82,6 +87,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 260,
     weight: '2 pcs (approx 350g)',
     image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1601039641847-7857b994d704?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 27,
     rating: 4.9,
     reviewsCount: 189,
@@ -102,6 +112,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 320,
     weight: '125g Pack',
     image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 31,
     rating: 4.8,
     reviewsCount: 276,
@@ -122,6 +136,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 180,
     weight: '1 kg Pack',
     image: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 28,
     rating: 4.6,
     reviewsCount: 145,
@@ -142,6 +160,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 70,
     weight: '6 pcs (approx 800g)',
     image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1543218024-57a70143c369?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 30,
     rating: 4.9,
     reviewsCount: 512,
@@ -164,6 +187,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 60,
     weight: '2 pcs (approx 400g)',
     image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 35,
     rating: 4.7,
     reviewsCount: 420,
@@ -184,6 +211,9 @@ export const PRODUCTS: Product[] = [
     originalPrice: 65,
     weight: '250g Pack',
     image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 30,
     rating: 4.8,
     reviewsCount: 310,
@@ -204,6 +234,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 50,
     weight: '500g Pack',
     image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1546470427-227c7369a658?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 36,
     rating: 4.7,
     reviewsCount: 680,
@@ -226,6 +261,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 100,
     weight: '1 Litre Pouch',
     image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 34,
     rating: 4.9,
     reviewsCount: 1205,
@@ -246,6 +285,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 110,
     weight: '150g Tub',
     image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1571217865189-d9299d0e199d?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 22,
     rating: 4.9,
     reviewsCount: 650,
@@ -266,6 +310,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 130,
     weight: '6 Eggs Pack',
     image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 26,
     rating: 4.9,
     reviewsCount: 940,
@@ -286,6 +334,9 @@ export const PRODUCTS: Product[] = [
     originalPrice: 140,
     weight: '200g Block',
     image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 18,
     rating: 4.8,
     reviewsCount: 430,
@@ -308,6 +359,11 @@ export const PRODUCTS: Product[] = [
     originalPrice: 70,
     weight: '400g Pack',
     image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 31,
     rating: 4.7,
     reviewsCount: 512,
@@ -328,6 +384,10 @@ export const PRODUCTS: Product[] = [
     originalPrice: 170,
     weight: '2 pcs Pack',
     image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 24,
     rating: 4.9,
     reviewsCount: 380,
@@ -349,78 +409,21 @@ export const PRODUCTS: Product[] = [
     price: 299,
     originalPrice: 420,
     weight: '250g Pouch',
-    image: 'https://images.unsplash.com/photo-1508061252966-dfd30f67ea55?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80'
+    ],
     discountPercentage: 28,
-    rating: 4.9,
-    reviewsCount: 820,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Premium crunch California almonds lightly salted and dry roasted without oil.',
-    shelfLife: '6 Months',
-    origin: 'California, USA',
-    storage: 'Store in cool dry container',
-    nutrition: { calories: '579 kcal', carbs: '21.6g', protein: '21.2g', fat: '49.9g' }
-  },
-  {
-    id: 'p17',
-    name: '70% Dark Belgian Chocolate',
-    category: 'snacks',
-    subCategory: 'Chocolates',
-    price: 175,
-    originalPrice: 220,
-    weight: '100g Bar',
-    image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=600&q=80',
-    discountPercentage: 20,
-    rating: 4.9,
+    rating: 4.8,
     reviewsCount: 710,
     inStock: true,
     deliveryTimeMinutes: 9,
-    description: 'Rich 70% dark chocolate crafted from single-origin Ghanaian cocoa beans. Smooth and antioxidant-rich.',
-    shelfLife: '9 Months',
-    origin: 'Belgium',
-    storage: 'Store below 18°C',
-    nutrition: { calories: '598 kcal', carbs: '45g', protein: '7.8g', fat: '42g' }
-  },
-
-  // BEVERAGES
-  {
-    id: 'p10',
-    name: 'Cold-Pressed Tender Coconut Water',
-    category: 'beverages',
-    subCategory: 'Fresh Juices',
-    price: 59,
-    originalPrice: 80,
-    weight: '200ml Bottle',
-    image: 'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?auto=format&fit=crop&w=600&q=80',
-    discountPercentage: 26,
-    rating: 4.9,
-    reviewsCount: 890,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: '100% natural, raw tender coconut water bottled directly after harvest. Rich in potassium and natural electrolytes.',
-    shelfLife: '3 Days',
-    origin: 'Pollachi, Tamil Nadu',
-    storage: 'Keep chilled below 4°C',
-    nutrition: { calories: '45 kcal', carbs: '11g', protein: '0.5g', fat: '0g' }
-  },
-  {
-    id: 'p18',
-    name: 'Arabica Cold Brew Coffee Concentrate',
-    category: 'beverages',
-    subCategory: 'Tea & Coffee',
-    price: 199,
-    originalPrice: 250,
-    weight: '250ml Glass Bottle',
-    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80',
-    discountPercentage: 20,
-    rating: 4.8,
-    reviewsCount: 390,
-    inStock: true,
-    deliveryTimeMinutes: 9,
-    description: 'Steeped for 18 hours using 100% Chikmagalur Arabica beans. Bold, smooth, low-acidity coffee shot.',
-    shelfLife: '14 Days',
-    origin: 'Chikmagalur, Karnataka',
-    storage: 'Refrigerate immediately',
-    nutrition: { calories: '5 kcal', carbs: '0.9g', protein: '0.3g', fat: '0g' }
+    description: 'Crunchy, lightly salted jumbo California almonds. High in vitamin E, protein, and dietary fiber.',
+    shelfLife: '6 Months',
+    origin: 'USA / California',
+    storage: 'Store in airtight container',
+    nutrition: { calories: '579 kcal', carbs: '21g', protein: '21g', fat: '49g' }
   }
 ];

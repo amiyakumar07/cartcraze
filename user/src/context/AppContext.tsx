@@ -177,10 +177,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           buy2DiscountPercent: 5,
           buy2OfferLabel: "Buy 2+ get 5% OFF",
           image: p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=300&q=80',
-          images: Array.isArray(p.images) && p.images.length >= 3 ? p.images : [
-            p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80'
+          images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [
+            p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'
           ],
           discountPercentage: p.discountPercentage || Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) || 0,
           rating: p.rating || 4.5,

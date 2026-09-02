@@ -12,13 +12,9 @@ export const ProductDetailModal: React.FC = () => {
   const quantity = cartItem ? cartItem.quantity : 0;
 
   // Guarantee at least 3 images for every product
-  const productImages: string[] = Array.isArray(selectedProduct.images) && selectedProduct.images.length >= 3
+  const productImages: string[] = Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0
     ? selectedProduct.images
-    : [
-        selectedProduct.image,
-        'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80'
-      ];
+    : [selectedProduct.image];
 
   const currentImg = productImages[activeImgIdx] || selectedProduct.image;
 
@@ -66,36 +62,42 @@ export const ProductDetailModal: React.FC = () => {
             )}
 
             {/* Prev / Next Carousel Arrow Buttons */}
-            <button
-              onClick={() => setActiveImgIdx((prev) => (prev > 0 ? prev - 1 : productImages.length - 1))}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-md flex items-center justify-center text-slate-700 hover:bg-white transition-all cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setActiveImgIdx((prev) => (prev + 1) % productImages.length)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-md flex items-center justify-center text-slate-700 hover:bg-white transition-all cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {productImages.length > 1 && (
+              <>
+                <button
+                  onClick={() => setActiveImgIdx((prev) => (prev > 0 ? prev - 1 : productImages.length - 1))}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-md flex items-center justify-center text-slate-700 hover:bg-white transition-all cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setActiveImgIdx((prev) => (prev + 1) % productImages.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-md flex items-center justify-center text-slate-700 hover:bg-white transition-all cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </div>
 
-          {/* 3 Horizontal Thumbnail Selectors */}
-          <div className="flex items-center justify-center gap-3 mt-3">
-            {productImages.map((imgUrl, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveImgIdx(idx)}
-                className={`w-14 h-14 rounded-xl border-2 p-1 bg-white overflow-hidden transition-all cursor-pointer ${
-                  activeImgIdx === idx
-                    ? 'border-[#006C49] ring-2 ring-emerald-200 scale-105 shadow-md'
-                    : 'border-slate-200 opacity-60 hover:opacity-100'
-                }`}
-              >
-                <img src={imgUrl} alt={`Thumb ${idx + 1}`} className="w-full h-full object-contain" />
-              </button>
-            ))}
-          </div>
+          {/* Horizontal Thumbnail Selectors */}
+          {productImages.length > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-3">
+              {productImages.map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImgIdx(idx)}
+                  className={`w-14 h-14 rounded-xl border-2 p-1 bg-white overflow-hidden transition-all cursor-pointer ${
+                    activeImgIdx === idx
+                      ? 'border-[#006C49] ring-2 ring-emerald-200 scale-105 shadow-md'
+                      : 'border-slate-200 opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={imgUrl} alt={`Thumb ${idx + 1}`} className="w-full h-full object-contain" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Main Details Section */}
