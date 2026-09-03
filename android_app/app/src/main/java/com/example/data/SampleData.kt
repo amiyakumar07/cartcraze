@@ -10,38 +10,56 @@ object SampleData {
         Category(
             id = "cat_fruits",
             name = "Fruits",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuC9tGfX-AoJttrTllKabR1w9QjDVw1HYWmqPdWlerE5TtaYL-py-uACNbdM1SD6X_P9VJCOhcRedb_X7hV3YmpppB7M1_0Pj2eIET7QPV88dw3ijCyvFo2JYg1kFASodenZ3_FxYTBzo5AY2FM0gbBTVH14-aPQx4xjFUpf-Tl18UoNnHP2AKefdKFyLb8SPrw7rTZkHtIa0FFsw1MHqvOve2g8CToH7Yk6t7CbsmfokjmpGTexLa6v",
+            imageUrl = "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=300&q=80",
             itemCount = 38
         ),
         Category(
-            id = "cat_dairy",
-            name = "Dairy",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuBy9xRYhXcLeon3GDxHcZ2BIFWf6nN-rZwORoccjzi9MZhl-XxF08_9_Ss0umqDMU4f_M5xUApWiji7tu4XaRqFWoNToi5xMngBXeOVm6B6fwxKAwzeh6kDdyDJOimrt8J10N_yo7JtjWDSMQFoqcSdHH67fNwvSUI0cYAAR9L03qsbOOHNTOO7WXt1__KhvZTVFrTKfnCm9UzmyrRjLrhipzuc2cRgDxx0DL9_S5z7AAtINMKVO8I9",
-            itemCount = 42
+            id = "cat_vegetables",
+            name = "Vegetables",
+            imageUrl = "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=300&q=80",
+            itemCount = 44
         ),
         Category(
-            id = "cat_snacks",
-            name = "Snacks",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuBWY9PALk8Qh66wqPpTzFuqv65A4ZDgv3oVtcD35aDzfsVVEbayh2njT3BruIBa1HMVr0uPdeTSmH-Jflx9yOTQy89PjuWPy1nGP2nOjg0SPKApg_pslfYnmzu8kQJJMsnh_jqzSfV6H90o9_KuUrs7ruDyJppyJiJjz1ubtM81LYvFlwNoc2sGomE2y6fBPN9e-wFGSRmauij-xf_Aoo7-WuhmryjhNrg0P53gKw9f2UFhK4x58MPg",
-            itemCount = 56
+            id = "cat_dairy",
+            name = "Dairy & Eggs",
+            imageUrl = "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=300&q=80",
+            itemCount = 42
         ),
         Category(
             id = "cat_bakery",
             name = "Bakery",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuDG3w6C0KVn5vQ60muqi-GenrYXvdvnTO8LEU02hunACEv4aEhe5LfM1gHjkaNHxZ_O8_tmjMHo2_TxPX6WGcJSpDQCdmccPDHWQgNjh3E8GoPKSonwwh_A8ocEjeC8F2BPgP8e3FBgr3E1oNw8P4WUx1xxmx8mqHGVHQGvgQioTqrykcAm_3QFYJrd9bper2QIBdPVR9buHU4wkuJ0QLG9z2sJMTm9bmS9gCnl8o6WMtHX_T3cvbxO",
+            imageUrl = "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80",
             itemCount = 29
+        ),
+        Category(
+            id = "cat_clothes",
+            name = "Clothing & Apparel",
+            imageUrl = "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=300&q=80",
+            itemCount = 32
+        ),
+        Category(
+            id = "cat_meat",
+            name = "Meat, Fish & Eggs",
+            imageUrl = "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=300&q=80",
+            itemCount = 24
+        ),
+        Category(
+            id = "cat_snacks",
+            name = "Snacks",
+            imageUrl = "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&q=80",
+            itemCount = 56
         ),
         Category(
             id = "cat_beverages",
             name = "Beverages",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuBvgszPxJzymv01IHu-WxWNh0ROR40rvG95bYzStVwMZpLdPGSaWD5KHrUIdFshyQfTepMVIzA1zVLn2GV6WhncCLOzRtw_Ug-xYfbSX8XdhHCMXoB4steWhHPf8SNxaCRdWEw6lV5QpSo7iwgCS1X6Ot6kYWPh_RleDo1uSQ9UBoNUWX6QwdrEmuMenU2t5Tz8hIPGHecx84u7DxXJIouy0egten4q2NW8_or9BCOP7TMbUsYJcvGy",
+            imageUrl = "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&q=80",
             itemCount = 45
         ),
         Category(
-            id = "cat_meat",
-            name = "Meat",
-            imageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuBgqvQ_N6WnoaBD_-mzhLzk4XmveCZHq5PD895awJX4_l_9IEfYo_pgfpWKHnAXr1EBrlZugZsWO8iSlCEZsUEddCpIGijFguEDWcuaJgl7ZPXBgyQq29qlU4U-wEAS6uSnn5epC6VdfFEeXuvN1kOIpNpbY9J5AkHCAuqZ1d0LsK6IqGMh3BlKi_XaSWTEKhkwrND4UHluLNi9Sg7CG7emC6A-vzwnaS94iZBHeqzFTJRbLLRhYUa",
-            itemCount = 18
+            id = "cat_pantry",
+            name = "Pantry Staples",
+            imageUrl = "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80",
+            itemCount = 60
         )
     )
 
