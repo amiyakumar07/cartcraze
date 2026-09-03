@@ -1,0 +1,6 @@
+{
+  "name": "CartCraze",
+  "description": "Fast 10-minute grocery delivery app with real-time tracking, product catalog, and smart cart",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

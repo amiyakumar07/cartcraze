@@ -1,0 +1,9 @@
+{
+  "appId": "com.cartcraze.rider",
+  "appName": "CartCraze Rider",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

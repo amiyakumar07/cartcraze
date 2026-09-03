@@ -1,0 +1,9 @@
+{
+  "appId": "com.cartcraze.shop",
+  "appName": "CartCraze Partner",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
