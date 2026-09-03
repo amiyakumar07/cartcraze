@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { CATEGORIES } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
 import { HeroBanner } from '../components/HeroBanner';
+import { CategoryStrip } from '../components/CategoryStrip';
 import { ArrowRight, Zap, Clock } from 'lucide-react';
 
 /* ── Category emoji/icon fallbacks ── */
@@ -109,46 +110,7 @@ export const HomeScreen: React.FC = () => {
       ) : (
         <>
           {/* ════════ CATEGORIES STRIP ════════ */}
-          <div className="bg-white pt-3 pb-3 mb-2">
-            <div className="flex justify-between items-center px-4 mb-2.5">
-              <h2 className="text-[13px] font-black text-gray-900 uppercase tracking-wide">Shop by Category</h2>
-              <button
-                onClick={() => setActiveTab('categories')}
-                className="flex items-center gap-0.5 text-[11px] font-bold text-[#0c831f] hover:underline cursor-pointer"
-              >
-                See All <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-
-            {/* Horizontal pill-style category scroll — exactly like Blinkit */}
-            <div className="flex gap-0 overflow-x-auto no-scrollbar px-3">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setActiveCategory(cat.id);
-                    setSubCategoryFilter('All');
-                    setActiveTab('category_detail');
-                  }}
-                  className="flex flex-col items-center gap-1.5 min-w-[74px] max-w-[74px] focus:outline-none cursor-pointer group px-1"
-                >
-                  <div className="w-[56px] h-[56px] rounded-[16px] overflow-hidden bg-[#f8f9fb] border border-[#ebebeb] group-hover:border-[#0c831f] group-hover:shadow-md transition-all duration-200 relative">
-                    <img
-                      src={cat.iconImage}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-0">
-                      {CAT_EMOJIS[cat.id]}
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-gray-700 group-hover:text-[#0c831f] text-center leading-tight w-full truncate transition-colors">
-                    {cat.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <CategoryStrip />
 
           {/* ════════ HERO BANNERS ════════ */}
           <div className="bg-white py-3 px-3 mb-2">
