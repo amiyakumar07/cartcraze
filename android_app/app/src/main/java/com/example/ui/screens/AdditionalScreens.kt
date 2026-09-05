@@ -96,6 +96,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.widget.Toast
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import coil.compose.AsyncImage
 import com.example.data.SampleData
 import com.example.data.model.Category
@@ -174,7 +177,7 @@ fun CartScreen(
 
     // Frequently added quick-adds not in cart
     val cartProductIds = cartItems.map { it.product.id }.toSet()
-    val liveProducts by productViewModel.products.collectAsState()
+    val liveProducts by productViewModel.allProducts.collectAsState()
     val quickAddItems = liveProducts.filter { it.id !in cartProductIds }.take(6)
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -1389,7 +1392,7 @@ fun OrdersListScreen(
     onTrackOrder: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val displayOrders = orders
+    val displayOrders by orderViewModel.orders.collectAsState(initial = emptyList())
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {

@@ -674,6 +674,8 @@ fun ActiveDeliveryCard(
 @Composable
 fun DeliveryRequestCard(
     request: RiderDeliveryRequest,
+    onAccept: () -> Unit = {},
+    onSkip: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -725,7 +727,7 @@ fun DeliveryRequestCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { /* Reject */ },
+                    onClick = onSkip,
                     modifier = Modifier.weight(1f).height(40.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -735,7 +737,7 @@ fun DeliveryRequestCard(
                     Text("Skip", style = MaterialTheme.typography.labelLarge)
                 }
                 Button(
-                    onClick = { /* Accept */ },
+                    onClick = onAccept,
                     modifier = Modifier.weight(1f).height(40.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimaryContainer)

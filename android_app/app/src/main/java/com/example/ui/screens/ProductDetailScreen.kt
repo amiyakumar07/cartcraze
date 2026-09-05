@@ -82,7 +82,7 @@ fun ProductDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val allProducts by productViewModel.products.collectAsState()
+    val allProducts by productViewModel.allProducts.collectAsState()
     val product = allProducts.find { it.id == productId } ?: allProducts.firstOrNull() ?: Product(
         id = productId,
         name = "CartCraze Item",
