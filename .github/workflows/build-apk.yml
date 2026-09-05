@@ -83,12 +83,25 @@ jobs:
             echo "::error::Gradle build failed with exit code $GRADLE_EXIT"
             {
               echo "### ❌ Gradle Build Failed"
+              echo "#### Key Errors:"
               echo "\`\`\`"
-              tail -n 120 gradle_build.log
+              grep -E "(e: |error:|FAILED|Caused by:)" gradle_build.log | head -n 40 || tail -n 60 gradle_build.log
+              echo "\`\`\`"
+              echo "#### Recent Log Tail:"
+              echo "\`\`\`"
+              tail -n 60 gradle_build.log
               echo "\`\`\`"
             } >> "$GITHUB_STEP_SUMMARY"
             exit $GRADLE_EXIT
           fi
+
+      - name: Upload Gradle Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: android_app/gradle_build.log
+          if-no-files-found: warn
 
       - name: Verify & collect all APKs
         id: collect_apks
