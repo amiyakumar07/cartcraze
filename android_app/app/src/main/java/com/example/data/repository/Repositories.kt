@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.example.data.SampleData
 import com.example.data.local.AddressEntity
@@ -12,9 +13,11 @@ import com.example.data.model.CartItem
 import com.example.data.model.Order
 import com.example.data.model.OrderStatus
 import com.example.data.model.Product
+import com.example.data.remote.CartCrazeApiService
 import com.example.data.remote.FirebaseAuthService
 import com.example.data.remote.LocationIqService
 import com.example.data.remote.RazorpayService
+import com.example.data.remote.SupabaseLiveOrder
 import com.example.data.remote.SupabaseService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,16 +25,57 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ProductRepository {
+class ProductRepository(
+    private val apiService: CartCrazeApiService = CartCrazeApiService(),
+    private val supabaseService: SupabaseService = SupabaseService()
+) {
     private val _products = MutableStateFlow(SampleData.products)
     val products: StateFlow<List<Product>> = _products.asStateFlow()
+
+    init {
+        fetchLiveProducts()
+    }
+
+    fun fetchLiveProducts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiProducts = apiService.fetchProducts()
+                if (apiProducts.isNotEmpty()) {
+                    val mapped = apiProducts.map { api ->
+                        val disc = if (api.originalPrice > api.price && api.originalPrice > 0) {
+                            (((api.originalPrice - api.price) / api.originalPrice) * 100).toInt()
+                        } else null
+                        Product(
+                            id = api.id,
+                            name = api.name,
+                            brand = api.shopName.ifBlank { "CartCraze Fresh" },
+                            weight = api.weight.ifBlank { "1 unit" },
+                            price = api.price,
+                            originalPrice = if (api.originalPrice > 0) api.originalPrice else null,
+                            discountPercent = disc,
+                            deliveryMinutes = 10,
+                            imageUrl = api.image.ifBlank { "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&auto=format&fit=crop&q=60" },
+                            category = api.category.ifBlank { "Groceries" },
+                            rating = 4.8,
+                            reviewCount = 128,
+                            description = api.description,
+                            isBestSeller = disc != null && disc > 15,
+                            isFreshDeal = disc != null
+                        )
+                    }
+                    _products.value = mapped
+                }
+            } catch (e: Exception) {
+                Log.w("ProductRepo", "Fetch live products: ${e.message}")
+            }
+        }
+    }
 
     fun getProductById(id: String): Product? {
         return _products.value.find { it.id == id }
@@ -133,7 +177,8 @@ class AddressRepository(
 class OrderRepository(
     private val database: AppDatabase,
     private val productRepository: ProductRepository,
-    private val supabaseService: SupabaseService
+    private val supabaseService: SupabaseService,
+    private val apiService: CartCrazeApiService = CartCrazeApiService()
 ) {
     val orders: Flow<List<Order>> = database.orderDao().getAllOrders().map { entityList ->
         entityList.map { entity ->
@@ -143,7 +188,7 @@ class OrderRepository(
 
     suspend fun placeOrder(order: Order, userId: String = "usr_active_session") {
         database.orderDao().insertOrder(serializeOrder(order))
-        // Sync order to Supabase backend in background
+        // Sync order to live Supabase and REST backend
         CoroutineScope(Dispatchers.IO).launch {
             supabaseService.insertOrder(order, userId)
         }
@@ -154,8 +199,16 @@ class OrderRepository(
         return entity?.let { parseOrderEntity(it) }
     }
 
-    suspend fun updateStatus(orderId: String, status: OrderStatus) {
+    suspend fun updateStatus(orderId: String, status: OrderStatus, riderName: String? = null) {
         database.orderDao().updateOrderStatus(orderId, status.name)
+        CoroutineScope(Dispatchers.IO).launch {
+            supabaseService.updateOrderStatus(orderId, status.name, riderName)
+            apiService.updateOrderStatus(orderId, status.name)
+        }
+    }
+
+    suspend fun fetchLiveOrdersFromCloud(): List<SupabaseLiveOrder> {
+        return supabaseService.fetchLiveOrders()
     }
 
     private fun serializeOrder(order: Order): OrderEntity {
@@ -260,24 +313,20 @@ class AppContainer(context: Context) {
         "cartcraze_db"
     ).fallbackToDestructiveMigration().build()
 
+    val apiService: CartCrazeApiService = CartCrazeApiService()
     val locationIqService: LocationIqService = LocationIqService()
     val supabaseService: SupabaseService = SupabaseService()
     val firebaseAuthService: FirebaseAuthService = FirebaseAuthService()
     val razorpayService: RazorpayService = RazorpayService()
 
-    val productRepository: ProductRepository = ProductRepository()
+    val productRepository: ProductRepository = ProductRepository(apiService, supabaseService)
     val cartRepository: CartRepository = CartRepository(database, productRepository)
     val addressRepository: AddressRepository = AddressRepository(database)
-    val orderRepository: OrderRepository = OrderRepository(database, productRepository, supabaseService)
+    val orderRepository: OrderRepository = OrderRepository(database, productRepository, supabaseService, apiService)
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             addressRepository.initializeDefaultsIfNeeded()
-            val cartList = database.cartDao().getAllCartItems().first()
-            if (cartList.isEmpty()) {
-                database.cartDao().insertOrUpdate(CartItemEntity("prod_toned_milk", 1))
-            }
         }
     }
 }
-

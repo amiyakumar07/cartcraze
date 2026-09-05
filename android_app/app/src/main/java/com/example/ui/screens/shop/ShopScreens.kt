@@ -154,6 +154,41 @@ fun ShopAppRoot(
 
 @Composable
 fun ShopDashboardScreen(modifier: Modifier = Modifier) {
+    val supabase = remember { com.example.data.remote.SupabaseService() }
+    val apiService = remember { com.example.data.remote.CartCrazeApiService() }
+    var liveOrders by remember { mutableStateOf<List<ShopOrder>>(emptyList()) }
+    var productCount by remember { mutableStateOf(0) }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val orders = supabase.fetchLiveOrders()
+            liveOrders = orders.map { co ->
+                ShopOrder(
+                    orderId = co.orderId,
+                    customerName = "Customer (${co.deliveryAddress.take(18)})",
+                    itemCount = 3,
+                    totalAmount = "₹${co.total.toInt()}",
+                    status = when (co.status.uppercase()) {
+                        "CONFIRMED" -> "NEW"
+                        "PREPARING" -> "PREPARING"
+                        "READY_FOR_PICKUP" -> "READY"
+                        "ON_THE_WAY" -> "READY"
+                        "DELIVERED" -> "DELIVERED"
+                        else -> co.status
+                    },
+                    timeAgo = "Live",
+                    otp = co.orderId.takeLast(4).filter { it.isDigit() }.ifBlank { "4829" }
+                )
+            }
+            val prods = apiService.fetchProducts()
+            productCount = prods.size
+        } catch (_: Exception) {}
+    }
+
+    val totalRevenue = liveOrders.sumOf {
+        it.totalAmount.replace("₹", "").toDoubleOrNull() ?: 0.0
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -163,7 +198,7 @@ fun ShopDashboardScreen(modifier: Modifier = Modifier) {
         item {
             Column {
                 Text(
-                    text = "Fresh Valley Market",
+                    text = "CartCraze Store Hub",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -178,7 +213,7 @@ fun ShopDashboardScreen(modifier: Modifier = Modifier) {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Online • HSR Layout, Bengaluru",
+                        text = "Live Store • Connected to Supabase & Cloud",
                         style = MaterialTheme.typography.bodyMedium,
                         color = EmeraldPrimaryContainer
                     )
@@ -194,15 +229,15 @@ fun ShopDashboardScreen(modifier: Modifier = Modifier) {
             ) {
                 ShopStatCard(
                     icon = Icons.Filled.ShoppingBag,
-                    label = "Orders Today",
-                    value = "24",
+                    label = "Live Orders",
+                    value = "${liveOrders.size}",
                     color = EmeraldPrimaryContainer,
                     modifier = Modifier.weight(1f)
                 )
                 ShopStatCard(
                     icon = Icons.Filled.TrendingUp,
-                    label = "Revenue",
-                    value = "₹18,420",
+                    label = "Live Revenue",
+                    value = "₹${totalRevenue.toInt()}",
                     color = AmberTertiaryContainer,
                     modifier = Modifier.weight(1f)
                 )
@@ -217,14 +252,14 @@ fun ShopDashboardScreen(modifier: Modifier = Modifier) {
                 ShopStatCard(
                     icon = Icons.Filled.Inventory2,
                     label = "Products",
-                    value = "50",
+                    value = if (productCount > 0) "$productCount" else "50+",
                     color = Color(0xFF7C3AED),
                     modifier = Modifier.weight(1f)
                 )
                 ShopStatCard(
                     icon = Icons.Filled.Star,
-                    label = "Rating",
-                    value = "4.8",
+                    label = "Store Rating",
+                    value = "4.9",
                     color = Color(0xFFEC4899),
                     modifier = Modifier.weight(1f)
                 )
@@ -234,46 +269,53 @@ fun ShopDashboardScreen(modifier: Modifier = Modifier) {
         // Recent Orders
         item {
             Text(
-                text = "Recent Orders",
+                text = "Live Orders Feed",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
 
-        items(sampleShopOrders.take(5)) { order ->
-            ShopOrderCard(order = order)
-        }
-
-        // Inventory Alerts
-        item {
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "⚠️ Low Stock Alerts",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.error
+        if (liveOrders.isEmpty()) {
+            item {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    listOf(
-                        "Farm Fresh A2 Cow Milk — 3 left",
-                        "Organic Shimla Apples — 5 left",
-                        "Fresh Tender Coconut Water — 2 left"
-                    ).forEach { alert ->
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingBag,
+                            contentDescription = null,
+                            tint = EmeraldPrimaryContainer,
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "• $alert",
+                            text = "No Live Orders Right Now",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "When customers place orders, they will instantly appear here for preparation.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.padding(vertical = 2.dp)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }
+            }
+        } else {
+            items(liveOrders.take(5)) { order ->
+                ShopOrderCard(order = order)
             }
         }
     }
@@ -332,6 +374,33 @@ fun ShopStatCard(
 fun ShopOrdersScreen(modifier: Modifier = Modifier) {
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "New", "Preparing", "Ready", "Delivered")
+    var ordersList by remember { mutableStateOf<List<ShopOrder>>(emptyList()) }
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+    val supabase = remember { com.example.data.remote.SupabaseService() }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val cloudOrders = supabase.fetchLiveOrders()
+            ordersList = cloudOrders.map { co ->
+                ShopOrder(
+                    orderId = co.orderId,
+                    customerName = "Customer (${co.deliveryAddress.take(18)})",
+                    itemCount = 3,
+                    totalAmount = "₹${co.total.toInt()}",
+                    status = when (co.status.uppercase()) {
+                        "CONFIRMED" -> "NEW"
+                        "PREPARING" -> "PREPARING"
+                        "READY_FOR_PICKUP" -> "READY"
+                        "ON_THE_WAY" -> "READY"
+                        "DELIVERED" -> "DELIVERED"
+                        else -> co.status
+                    },
+                    timeAgo = "Live",
+                    otp = co.orderId.takeLast(4).filter { it.isDigit() }.ifBlank { "4829" }
+                )
+            }
+        } catch (_: Exception) {}
+    }
 
     Column(
         modifier = modifier
@@ -376,12 +445,57 @@ fun ShopOrdersScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            val filteredOrders = if (selectedFilter == "All") sampleShopOrders
-            else sampleShopOrders.filter { it.status.equals(selectedFilter, ignoreCase = true) }
+        val filteredOrders = if (selectedFilter == "All") ordersList
+        else ordersList.filter { it.status.equals(selectedFilter, ignoreCase = true) }
 
-            items(filteredOrders) { order ->
-                ShopOrderCard(order = order, showActions = true)
+        if (filteredOrders.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ShoppingBag,
+                        contentDescription = null,
+                        tint = EmeraldPrimaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = if (selectedFilter == "All") "No Live Orders" else "No $selectedFilter Orders",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Orders placed by customers will update in real time.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(filteredOrders) { order ->
+                    ShopOrderCard(
+                        order = order,
+                        showActions = true,
+                        onStatusChange = { newStatus ->
+                            ordersList = ordersList.map {
+                                if (it.orderId == order.orderId) it.copy(status = newStatus) else it
+                            }
+                            coroutineScope.launch {
+                                supabase.updateOrderStatus(order.orderId, newStatus)
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -391,6 +505,7 @@ fun ShopOrdersScreen(modifier: Modifier = Modifier) {
 fun ShopOrderCard(
     order: ShopOrder,
     showActions: Boolean = false,
+    onStatusChange: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val statusColor = when (order.status.uppercase()) {
@@ -459,16 +574,16 @@ fun ShopOrderCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val nextStatus = when (order.status.uppercase()) {
-                        "NEW" -> "Accept & Prepare"
-                        "PREPARING" -> "Mark Ready"
-                        "READY" -> "Hand to Rider"
-                        else -> null
+                    val (nextActionLabel, targetStatus) = when (order.status.uppercase()) {
+                        "NEW" -> Pair("Accept & Prepare", "PREPARING")
+                        "PREPARING" -> Pair("Mark Ready", "READY")
+                        "READY" -> Pair("Hand to Rider", "DELIVERED")
+                        else -> Pair(null, null)
                     }
 
-                    if (nextStatus != null) {
+                    if (nextActionLabel != null && targetStatus != null) {
                         Button(
-                            onClick = { /* Update status */ },
+                            onClick = { onStatusChange(targetStatus) },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(40.dp),
@@ -476,7 +591,7 @@ fun ShopOrderCard(
                             colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimaryContainer)
                         ) {
                             Text(
-                                text = nextStatus,
+                                text = nextActionLabel,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = Color.White
                             )
@@ -518,6 +633,26 @@ fun ShopOrderCard(
 fun ShopInventoryScreen(modifier: Modifier = Modifier) {
     var selectedCategory by remember { mutableStateOf("All") }
     val categories = listOf("All", "Fruits", "Vegetables", "Dairy & Eggs", "Bakery", "Snacks", "Beverages")
+    var productsList by remember { mutableStateOf<List<ShopProduct>>(emptyList()) }
+    val apiService = remember { com.example.data.remote.CartCrazeApiService() }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val apiProducts = apiService.fetchProducts()
+            if (apiProducts.isNotEmpty()) {
+                productsList = apiProducts.map { p ->
+                    ShopProduct(
+                        id = p.id,
+                        name = p.name,
+                        category = p.category.ifBlank { "General" },
+                        price = "₹${p.price.toInt()}",
+                        stock = p.stockCount.coerceAtLeast(12),
+                        imageUrl = p.image
+                    )
+                }
+            }
+        } catch (_: Exception) {}
+    }
 
     Column(
         modifier = modifier
@@ -580,14 +715,50 @@ fun ShopInventoryScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Products Grid
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(sampleShopProducts) { product ->
-                ShopProductCard(product = product)
+        val filteredProducts = if (selectedCategory == "All") productsList
+        else productsList.filter { it.category.contains(selectedCategory, ignoreCase = true) }
+
+        if (filteredProducts.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Inventory2,
+                        contentDescription = null,
+                        tint = EmeraldPrimaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Loading Live Inventory...",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Connecting to live store cloud catalog",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else {
+            // Products Grid
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredProducts) { product ->
+                    ShopProductCard(product = product)
+                }
             }
         }
     }
@@ -699,12 +870,12 @@ fun ShopProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Fresh Valley Market",
+            text = "CartCraze Live Store Hub",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "HSR Layout, Bengaluru • Since 2024",
+            text = "Connected Store • Since 2025",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -715,9 +886,9 @@ fun ShopProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ShopProfileStat("1,240", "Orders")
-            ShopProfileStat("4.8", "Rating")
-            ShopProfileStat("₹2.4L", "Revenue")
+            ShopProfileStat("Live", "Mode")
+            ShopProfileStat("4.9", "Rating")
+            ShopProfileStat("100%", "Uptime")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -780,27 +951,3 @@ private fun ShopProfileStat(value: String, label: String) {
         )
     }
 }
-
-// Sample data
-private val sampleShopOrders = listOf(
-    ShopOrder("#CC849201", "Amiya Sahoo", 5, "₹642", "New", "2 min ago", "4829"),
-    ShopOrder("#CC849202", "Rahul Sharma", 3, "₹389", "Preparing", "8 min ago", "1234"),
-    ShopOrder("#CC849203", "Priya Patel", 8, "₹1,240", "Ready", "15 min ago", "5678"),
-    ShopOrder("#CC849204", "Sneha Gupta", 2, "₹180", "Delivered", "25 min ago", ""),
-    ShopOrder("#CC849205", "Mohit Singh", 6, "₹890", "New", "1 min ago", "9012"),
-    ShopOrder("#CC849206", "Kavya Nair", 4, "₹520", "Preparing", "12 min ago", "3456"),
-    ShopOrder("#CC849207", "Arjun Das", 7, "₹1,100", "Delivered", "45 min ago", "")
-)
-
-private val sampleShopProducts = listOf(
-    ShopProduct("p1", "Organic Shimla Apples", "Fruits", "₹149", 5, ""),
-    ShopProduct("p2", "Fresh Cavendish Bananas", "Fruits", "₹49", 45, ""),
-    ShopProduct("p3", "Farm Fresh A2 Cow Milk", "Dairy & Eggs", "₹66", 3, ""),
-    ShopProduct("p4", "Hybrid Tomato", "Vegetables", "₹28", 32, ""),
-    ShopProduct("p5", "Artisanal Wheat Bread", "Bakery", "₹48", 18, ""),
-    ShopProduct("p6", "Classic Salted Chips", "Snacks", "₹20", 60, ""),
-    ShopProduct("p7", "Orange Juice", "Beverages", "₹99", 12, ""),
-    ShopProduct("p8", "Basmati Rice", "Pantry", "₹149", 25, ""),
-    ShopProduct("p9", "Fresh Paneer Block", "Dairy & Eggs", "₹89", 8, ""),
-    ShopProduct("p10", "Table Eggs", "Dairy & Eggs", "₹55", 22, "")
-)

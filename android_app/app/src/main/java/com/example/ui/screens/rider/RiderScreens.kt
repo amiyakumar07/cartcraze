@@ -174,21 +174,32 @@ fun RiderDashboardScreen(
     onSwitchToCustomer: () -> Unit = {}
 ) {
     var isOnline by remember { mutableStateOf(true) }
-    var activeDelivery by remember {
-        mutableStateOf(
-            RiderDeliveryRequest(
-                orderId = "#CC849201",
-                storeName = "Fresh Valley Market",
-                storeDistance = "0.8 km",
-                customerName = "Amiya Sahoo",
-                customerAddress = "KIIT Road, Patia, Bhubaneswar",
-                deliveryDistance = "2.1 km",
-                estimatedTime = "8 min",
-                earningAmount = "₹42",
-                itemCount = 5,
-                otp = "4829"
-            )
-        )
+    var activeDelivery by remember { mutableStateOf<RiderDeliveryRequest?>(null) }
+    var requestList by remember { mutableStateOf<List<RiderDeliveryRequest>>(emptyList()) }
+    var completedCount by remember { mutableStateOf(0) }
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+    val supabase = remember { com.example.data.remote.SupabaseService() }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val liveOrders = supabase.fetchLiveOrders()
+            val available = liveOrders.filter { it.status.uppercase() in listOf("CONFIRMED", "PREPARING", "READY", "READY_FOR_PICKUP") }
+            requestList = available.map { ord ->
+                RiderDeliveryRequest(
+                    orderId = ord.orderId,
+                    storeName = "CartCraze DarkStore Hub",
+                    storeDistance = "0.7 km",
+                    customerName = "Customer",
+                    customerAddress = ord.deliveryAddress,
+                    deliveryDistance = "1.8 km",
+                    estimatedTime = "${ord.etaMinutes} min",
+                    earningAmount = "₹55",
+                    itemCount = 3,
+                    otp = ord.orderId.takeLast(4).filter { it.isDigit() }.ifBlank { "4829" }
+                )
+            }
+            completedCount = liveOrders.count { it.status.uppercase() == "DELIVERED" }
+        } catch (_: Exception) {}
     }
 
     LazyColumn(
@@ -212,7 +223,7 @@ fun RiderDashboardScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (isOnline) "You're online — ready for deliveries" else "You're offline",
+                        text = if (isOnline) "You're online — ready for live orders" else "You're offline",
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (isOnline) EmeraldPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -251,17 +262,17 @@ fun RiderDashboardScreen(
             ) {
                 RiderStatCard(
                     icon = Icons.Filled.DeliveryDining,
-                    label = "Today",
-                    value = "7",
-                    sublabel = "deliveries",
+                    label = "Deliveries",
+                    value = "$completedCount",
+                    sublabel = "completed",
                     color = EmeraldPrimaryContainer,
                     modifier = Modifier.weight(1f)
                 )
                 RiderStatCard(
                     icon = Icons.Filled.AccountBalanceWallet,
                     label = "Earned",
-                    value = "₹580",
-                    sublabel = "today",
+                    value = "₹${completedCount * 55}",
+                    sublabel = "live",
                     color = AmberTertiaryContainer,
                     modifier = Modifier.weight(1f)
                 )
@@ -279,7 +290,18 @@ fun RiderDashboardScreen(
         // Active Delivery Card
         if (isOnline && activeDelivery != null) {
             item {
-                ActiveDeliveryCard(delivery = activeDelivery!!)
+                ActiveDeliveryCard(
+                    delivery = activeDelivery!!,
+                    onCompleteDelivery = {
+                        val completedId = activeDelivery?.orderId
+                        activeDelivery = null
+                        if (completedId != null) {
+                            coroutineScope.launch {
+                                supabase.updateOrderStatus(completedId, "DELIVERED")
+                            }
+                        }
+                    }
+                )
             }
         }
 
@@ -287,7 +309,7 @@ fun RiderDashboardScreen(
         if (isOnline) {
             item {
                 Text(
-                    text = "New Delivery Requests",
+                    text = "Live Delivery Requests",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -296,8 +318,66 @@ fun RiderDashboardScreen(
                 )
             }
 
-            items(sampleDeliveryRequests) { request ->
-                DeliveryRequestCard(request = request)
+            if (requestList.isEmpty() && activeDelivery == null) {
+                item {
+                    ElevatedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.DirectionsBike,
+                                contentDescription = null,
+                                tint = EmeraldPrimaryContainer,
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "Looking for Live Orders...",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "No pending delivery requests in your zone right now. Waiting for new customer orders.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(requestList) { request ->
+                    DeliveryRequestCard(
+                        request = request,
+                        onAccept = {
+                            activeDelivery = request
+                            requestList = requestList.filter { it.orderId != request.orderId }
+                            coroutineScope.launch {
+                                supabase.updateOrderStatus(request.orderId, "ON_THE_WAY", "Rajesh Kumar")
+                                supabase.updateRiderLocation(
+                                    com.example.data.remote.SupabaseRiderLocation(
+                                        orderId = request.orderId,
+                                        riderId = "rider_rajesh_01",
+                                        latitude = 20.3533,
+                                        longitude = 85.8178,
+                                        speedKmph = 32.0,
+                                        heading = 45f
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -359,6 +439,7 @@ fun RiderStatCard(
 @Composable
 fun ActiveDeliveryCard(
     delivery: RiderDeliveryRequest,
+    onCompleteDelivery: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -566,20 +647,20 @@ fun ActiveDeliveryCard(
                     Text("Call", style = MaterialTheme.typography.titleSmall)
                 }
                 Button(
-                    onClick = { /* Navigate */ },
+                    onClick = onCompleteDelivery,
                     modifier = Modifier.weight(1f).height(48.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimaryContainer)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Navigation,
-                        contentDescription = "Navigate",
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = "Complete",
                         tint = Color.White,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Navigate",
+                        "Complete",
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.White
                     )
@@ -668,7 +749,30 @@ fun DeliveryRequestCard(
 @Composable
 fun RiderDeliveriesScreen(modifier: Modifier = Modifier) {
     var selectedFilter by remember { mutableStateOf("All") }
-    val filters = listOf("All", "Active", "Completed", "Cancelled")
+    val filters = listOf("All", "Completed", "Active")
+    var completedDeliveries by remember { mutableStateOf<List<RiderDeliveryRequest>>(emptyList()) }
+    val supabase = remember { com.example.data.remote.SupabaseService() }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val liveOrders = supabase.fetchLiveOrders()
+            val delivered = liveOrders.filter { it.status.uppercase() == "DELIVERED" }
+            completedDeliveries = delivered.map { ord ->
+                RiderDeliveryRequest(
+                    orderId = ord.orderId,
+                    storeName = "CartCraze DarkStore Hub",
+                    storeDistance = "0.8 km",
+                    customerName = "Customer",
+                    customerAddress = ord.deliveryAddress,
+                    deliveryDistance = "2.1 km",
+                    estimatedTime = "${ord.etaMinutes} min",
+                    earningAmount = "₹55",
+                    itemCount = 3,
+                    otp = ord.orderId.takeLast(4).filter { it.isDigit() }.ifBlank { "4829" }
+                )
+            }
+        } catch (_: Exception) {}
+    }
 
     Column(
         modifier = modifier
@@ -709,9 +813,43 @@ fun RiderDeliveriesScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(sampleCompletedDeliveries) { delivery ->
-                CompletedDeliveryCard(delivery = delivery)
+        if (completedDeliveries.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = EmeraldPrimaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "No Completed Deliveries Yet",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Deliveries you accept and complete will appear here in real time.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(completedDeliveries) { delivery ->
+                    CompletedDeliveryCard(delivery = delivery)
+                }
             }
         }
     }
@@ -778,10 +916,22 @@ fun CompletedDeliveryCard(
 
 @Composable
 fun RiderEarningsScreen(modifier: Modifier = Modifier) {
+    var completedCount by remember { mutableStateOf(0) }
+    val supabase = remember { com.example.data.remote.SupabaseService() }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            val liveOrders = supabase.fetchLiveOrders()
+            completedCount = liveOrders.count { it.status.uppercase() == "DELIVERED" }
+        } catch (_: Exception) {}
+    }
+
+    val totalEarned = completedCount * 55
+
     val earnings = listOf(
-        RiderEarning("Today", "₹580", 7, "+12%"),
-        RiderEarning("This Week", "₹3,240", 38, "+8%"),
-        RiderEarning("This Month", "₹12,890", 142, "+15%")
+        RiderEarning("Live Today", "₹$totalEarned", completedCount, "+100% live"),
+        RiderEarning("This Week", "₹$totalEarned", completedCount, "Active"),
+        RiderEarning("Total Lifetime", "₹$totalEarned", completedCount, "Verified")
     )
 
     Column(
@@ -880,8 +1030,9 @@ fun RiderEarningsScreen(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
+                val progress = (completedCount.toFloat() / 50f).coerceIn(0f, 1f)
                 LinearProgressIndicator(
-                    progress = { 0.76f },
+                    progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
@@ -892,7 +1043,7 @@ fun RiderEarningsScreen(modifier: Modifier = Modifier) {
 
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "38/50 deliveries (76%)",
+                    text = "$completedCount/50 deliveries (${(progress * 100).toInt()}%)",
                     style = MaterialTheme.typography.labelSmall,
                     color = EmeraldPrimaryContainer
                 )
@@ -938,7 +1089,7 @@ fun RiderProfileScreen(
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "KA-05-EV-4829 • Rider since 2025",
+            text = "KA-05-EV-4829 • Live Rider Partner",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -950,9 +1101,9 @@ fun RiderProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ProfileStat("340+", "Deliveries")
+            ProfileStat("Live", "Status")
             ProfileStat("4.9", "Rating")
-            ProfileStat("₹28K", "Total Earned")
+            ProfileStat("100%", "GPS Sync")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -967,8 +1118,8 @@ fun RiderProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .clickable { }
-                    .padding(16.dp),
+                .clickable { }
+                .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -1015,39 +1166,3 @@ private fun ProfileStat(value: String, label: String) {
         )
     }
 }
-
-// Sample data
-private val sampleDeliveryRequests = listOf(
-    RiderDeliveryRequest(
-        orderId = "#CC849203",
-        storeName = "CartCraze Express Hub #2",
-        storeDistance = "0.5 km",
-        customerName = "Rahul Sharma",
-        customerAddress = "27th Main Rd, HSR Layout",
-        deliveryDistance = "1.8 km",
-        estimatedTime = "6 min",
-        earningAmount = "₹38",
-        itemCount = 3,
-        otp = "1234"
-    ),
-    RiderDeliveryRequest(
-        orderId = "#CC849204",
-        storeName = "Fresh Valley Market",
-        storeDistance = "1.2 km",
-        customerName = "Priya Patel",
-        customerAddress = "Sector 4, HSR Layout",
-        deliveryDistance = "3.1 km",
-        estimatedTime = "12 min",
-        earningAmount = "₹55",
-        itemCount = 8,
-        otp = "5678"
-    )
-)
-
-private val sampleCompletedDeliveries = listOf(
-    RiderDeliveryRequest("#CC849195", "Fresh Valley Market", "0.6 km", "Ankit Roy", "KIIT Patia", "1.5 km", "7 min", "₹35", 4, "9012"),
-    RiderDeliveryRequest("#CC849190", "CartCraze Hub #2", "0.8 km", "Sneha Gupta", "Jaydev Vihar", "2.0 km", "9 min", "₹42", 6, "3456"),
-    RiderDeliveryRequest("#CC849185", "CartCraze Hub #1", "1.1 km", "Mohit Singh", "Saheed Nagar", "2.8 km", "11 min", "₹48", 5, "7890"),
-    RiderDeliveryRequest("#CC849180", "Fresh Valley Market", "0.4 km", "Kavya Nair", "Patia Square", "1.2 km", "5 min", "₹30", 2, "2345"),
-    RiderDeliveryRequest("#CC849175", "CartCraze Hub #2", "0.9 km", "Arjun Das", "Nayapalli", "2.5 km", "10 min", "₹45", 7, "6789")
-)

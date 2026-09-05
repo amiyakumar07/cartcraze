@@ -82,12 +82,21 @@ fun ProductDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val product = productViewModel.getProductById(productId) ?: SampleData.products.find { it.id == "prod_organic_milk_detail" } ?: SampleData.products.first()
+    val allProducts by productViewModel.products.collectAsState()
+    val product = allProducts.find { it.id == productId } ?: allProducts.firstOrNull() ?: Product(
+        id = productId,
+        name = "CartCraze Item",
+        brand = "CartCraze Fresh",
+        weight = "1 unit",
+        price = 49.0,
+        imageUrl = "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&auto=format&fit=crop&q=60",
+        category = "General"
+    )
     val cartItems by cartViewModel.cartItems.collectAsState()
     val currentQty = cartItems.find { it.product.id == product.id }?.quantity ?: 0
 
-    // Frequently bought together items
-    val frequentItems = SampleData.products.filter { it.id in listOf("prod_choco_cereal", "prod_butter_cookies") }
+    // Frequently bought together items from live list
+    val frequentItems = allProducts.filter { it.id != product.id }.take(2)
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(

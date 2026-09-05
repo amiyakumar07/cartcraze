@@ -113,21 +113,7 @@ fun CheckoutScreen(
     val isNoContact by cartViewModel.isNoContactDelivery.collectAsState()
     val selectedAddress by addressViewModel.selectedAddress.collectAsState()
 
-    // Fallback if accessed with empty cart for interactive preview
-    val items = if (rawCartItems.isNotEmpty()) {
-        rawCartItems
-    } else {
-        listOf(
-            CartItem(
-                product = SampleData.products.find { it.id == "prod_amul_butter" } ?: SampleData.products[0],
-                quantity = 1
-            ),
-            CartItem(
-                product = SampleData.products.find { it.id == "prod_maggi_noodles" } ?: SampleData.products[1],
-                quantity = 2
-            )
-        )
-    }
+    val items = rawCartItems
 
     val currency = items.firstOrNull()?.product?.unitCurrency ?: "₹"
     val subtotal = items.sumOf { it.product.price * it.quantity }

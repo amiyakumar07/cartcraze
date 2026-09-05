@@ -174,7 +174,8 @@ fun CartScreen(
 
     // Frequently added quick-adds not in cart
     val cartProductIds = cartItems.map { it.product.id }.toSet()
-    val quickAddItems = SampleData.products.filter { it.id !in cartProductIds }.take(6)
+    val liveProducts by productViewModel.products.collectAsState()
+    val quickAddItems = liveProducts.filter { it.id !in cartProductIds }.take(6)
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (cartItems.isEmpty()) {
@@ -1388,31 +1389,7 @@ fun OrdersListScreen(
     onTrackOrder: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val orders by orderViewModel.orders.collectAsState()
-
-    // If no orders yet, display mock sample order from flow
-    val displayOrders = if (orders.isNotEmpty()) {
-        orders
-    } else {
-        listOf(
-            Order(
-                orderId = "#CC98231",
-                timestamp = System.currentTimeMillis() - 3600000,
-                items = listOf(
-                    com.example.data.model.CartItem(SampleData.products[0], 1),
-                    com.example.data.model.CartItem(SampleData.products[1], 2)
-                ),
-                subtotal = 15.99,
-                deliveryFee = 1.99,
-                taxes = 1.44,
-                total = 19.42,
-                address = SampleData.defaultAddresses.first(),
-                paymentMethod = "Credit / Debit Card",
-                status = OrderStatus.PREPARING,
-                etaMinutes = 18
-            )
-        )
-    }
+    val displayOrders = orders
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -1430,14 +1407,56 @@ fun OrdersListScreen(
                 )
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("orders_list"),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 100.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                items(displayOrders) { order ->
+            if (displayOrders.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(EmeraldPrimaryContainer.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ShoppingBag,
+                                contentDescription = null,
+                                tint = EmeraldPrimaryContainer,
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Orders Yet",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "When you place live orders, they will appear here with live tracking.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("orders_list"),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 100.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    items(displayOrders) { order ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

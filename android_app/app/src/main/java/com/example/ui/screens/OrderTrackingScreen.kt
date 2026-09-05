@@ -97,16 +97,16 @@ fun OrderTrackingScreen(
     }
 
     val displayOrder = currentOrder ?: Order(
-        orderId = if (orderId.isNotBlank()) orderId else "#CC98231",
+        orderId = if (orderId.isNotBlank()) orderId else "#CC-LIVE",
         items = emptyList(),
-        subtotal = 15.99,
-        deliveryFee = 1.99,
-        taxes = 1.44,
-        total = 19.42,
-        address = SampleData.defaultAddresses.first(),
-        paymentMethod = "Credit / Debit Card",
-        status = OrderStatus.PREPARING,
-        etaMinutes = 18
+        subtotal = 0.0,
+        deliveryFee = 0.0,
+        taxes = 0.0,
+        total = 0.0,
+        address = Address("addr_curr", "Delivery Address", "Live Delivery Location", "", "City", "+91 9876543210", true),
+        paymentMethod = "Online UPI",
+        status = OrderStatus.CONFIRMED,
+        etaMinutes = 10
     )
 
     val infiniteTransition = rememberInfiniteTransition(label = "rider_pulse")
