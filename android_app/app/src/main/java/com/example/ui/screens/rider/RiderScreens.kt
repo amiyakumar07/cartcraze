@@ -1,6 +1,7 @@
 package com.example.ui.screens.rider
 
 import androidx.compose.animation.AnimatedVisibility
+import kotlinx.coroutines.launch
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState

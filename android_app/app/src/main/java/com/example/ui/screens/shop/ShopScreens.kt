@@ -2,6 +2,7 @@ package com.example.ui.screens.shop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
