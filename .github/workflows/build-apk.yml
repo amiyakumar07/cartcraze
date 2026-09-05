@@ -74,7 +74,21 @@ jobs:
           echo "Temporary debug keystore confirmed at ./debug.keystore."
 
       - name: Build all 3 debug APKs
-        run: gradle :app:assembleDebug --stacktrace --no-daemon
+        run: |
+          set +e
+          gradle :app:assembleDebug --stacktrace --no-daemon > gradle_build.log 2>&1
+          GRADLE_EXIT=$?
+          cat gradle_build.log
+          if [ $GRADLE_EXIT -ne 0 ]; then
+            echo "::error::Gradle build failed with exit code $GRADLE_EXIT"
+            {
+              echo "### ❌ Gradle Build Failed"
+              echo "\`\`\`"
+              tail -n 120 gradle_build.log
+              echo "\`\`\`"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit $GRADLE_EXIT
+          fi
 
       - name: Verify & collect all APKs
         id: collect_apks
