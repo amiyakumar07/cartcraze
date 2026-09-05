@@ -393,6 +393,7 @@ private fun androidx.navigation.NavGraphBuilder.addCustomerRoutes(
         CartScreen(
             cartViewModel = cartViewModel,
             addressViewModel = addressViewModel,
+            productViewModel = productViewModel,
             onNavigateToCheckout = {
                 navController.navigate("checkout")
             },

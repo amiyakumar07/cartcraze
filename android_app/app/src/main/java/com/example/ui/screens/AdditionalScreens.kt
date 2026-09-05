@@ -127,15 +127,13 @@ import com.example.ui.viewmodel.AddressViewModel
 import com.example.ui.viewmodel.CartViewModel
 import com.example.ui.viewmodel.OrderViewModel
 import com.example.ui.viewmodel.ProductViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     cartViewModel: CartViewModel,
     addressViewModel: AddressViewModel,
+    productViewModel: ProductViewModel? = null,
     onNavigateToCheckout: () -> Unit,
     onNavigateToProduct: (String) -> Unit,
     onNavigateToHome: () -> Unit,
@@ -177,7 +175,7 @@ fun CartScreen(
 
     // Frequently added quick-adds not in cart
     val cartProductIds = cartItems.map { it.product.id }.toSet()
-    val liveProducts by productViewModel.allProducts.collectAsState()
+    val liveProducts = productViewModel?.allProducts?.collectAsState()?.value ?: emptyList()
     val quickAddItems = liveProducts.filter { it.id !in cartProductIds }.take(6)
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -1697,7 +1695,7 @@ fun AccountScreen(
 }
 
 @Composable
-private fun AccountNavRow(
+fun AccountNavRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
