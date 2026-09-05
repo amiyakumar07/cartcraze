@@ -142,7 +142,15 @@ fun CheckoutScreen(
     var isPlacingOrder by remember { mutableStateOf(false) }
     var showRazorpaySheet by remember { mutableStateOf(false) }
 
-    val currentAddress = selectedAddress ?: SampleData.defaultAddresses.first()
+    val currentAddress = selectedAddress ?: Address(
+        id = "addr_user_current",
+        tag = "Home",
+        line1 = "Patia, Bhubaneswar",
+        line2 = "Odisha",
+        cityStateZip = "Bhubaneswar, 751024",
+        phone = "+91 98765 43210",
+        isDefault = true
+    )
 
     if (showRazorpaySheet) {
         RazorpayCheckoutSheet(

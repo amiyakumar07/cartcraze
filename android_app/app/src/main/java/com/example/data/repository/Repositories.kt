@@ -35,7 +35,7 @@ class ProductRepository(
     private val apiService: CartCrazeApiService = CartCrazeApiService(),
     private val supabaseService: SupabaseService = SupabaseService()
 ) {
-    private val _products = MutableStateFlow(SampleData.products)
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
     val products: StateFlow<List<Product>> = _products.asStateFlow()
 
     init {
@@ -165,12 +165,7 @@ class AddressRepository(
     }
 
     suspend fun initializeDefaultsIfNeeded() {
-        val current = database.addressDao().getAllAddresses().first()
-        if (current.isEmpty()) {
-            SampleData.defaultAddresses.forEach {
-                database.addressDao().insertAddress(AddressEntity.fromAddress(it))
-            }
-        }
+        // Live mode: only store user-added or GPS addresses
     }
 }
 
@@ -276,7 +271,7 @@ class OrderRepository(
                 isDefault = obj.optBoolean("isDefault", true)
             )
         } catch (_: Exception) {
-            SampleData.defaultAddresses.first()
+            Address(id = "addr_fallback", tag = "Delivery Address", line1 = "Address", line2 = "", cityStateZip = "Bhubaneswar", phone = "", isDefault = true)
         }
 
         val status = try {

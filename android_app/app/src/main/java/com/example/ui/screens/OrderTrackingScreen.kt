@@ -63,7 +63,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.data.SampleData
+import com.example.data.model.Address
 import com.example.data.model.Order
 import com.example.data.model.OrderStatus
 import com.example.ui.theme.AmberTertiaryContainer

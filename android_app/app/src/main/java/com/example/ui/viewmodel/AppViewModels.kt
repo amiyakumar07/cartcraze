@@ -158,7 +158,7 @@ class AddressViewModel(
     val addresses: StateFlow<List<Address>> = addressRepository.addresses.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SampleData.defaultAddresses
+        initialValue = emptyList()
     )
 
     val selectedAddress: StateFlow<Address?> = addresses.combine(MutableStateFlow(0)) { list, _ ->
@@ -166,7 +166,7 @@ class AddressViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SampleData.defaultAddresses.firstOrNull()
+        initialValue = null
     )
 
     fun addAddress(tag: String, line1: String, line2: String, phone: String, isDefault: Boolean) {
