@@ -120,10 +120,11 @@ fun RiderAppRoot(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = Color(0xFF0B1121),
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                modifier = Modifier.shadow(8.dp)
+                containerColor = Color(0xFF0B1121),
+                modifier = Modifier.shadow(12.dp)
             ) {
                 tabs.forEachIndexed { index, title ->
                     NavigationBarItem(
@@ -145,9 +146,11 @@ fun RiderAppRoot(
                             )
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = EmeraldPrimary,
-                            selectedTextColor = EmeraldPrimary,
-                            indicatorColor = EmeraldPrimaryContainer.copy(alpha = 0.12f)
+                            selectedIconColor = Color(0xFFF59E0B),
+                            selectedTextColor = Color(0xFFF59E0B),
+                            unselectedIconColor = Color(0xFF94A3B8),
+                            unselectedTextColor = Color(0xFF94A3B8),
+                            indicatorColor = Color(0xFFF59E0B).copy(alpha = 0.16f)
                         )
                     )
                 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { RiderProfile } from '../App';
+import type { RiderProfile } from '../types';
 import { supabase } from '../services/supabase';
 import { signInWithGoogle } from '../services/firebase';
 import { FreshCartOnboarding } from '../components/FreshCartOnboarding';
@@ -28,14 +28,11 @@ export const LoginScreen: React.FC<Props> = ({ setRiderProfile }) => {
           password: pass.trim(),
         });
         if (signInErr) {
-          await supabase.auth.signUp({
-            email: email.trim(),
-            password: pass.trim(),
-          });
+          await supabase.auth.signUp({ email: email.trim(), password: pass.trim() });
         }
       }
 
-      setRiderProfile((prev) => ({
+      setRiderProfile(prev => ({
         ...prev,
         id: `rider-${Date.now()}`,
         name: email.split('@')[0] || 'Delivery Partner',
@@ -43,7 +40,7 @@ export const LoginScreen: React.FC<Props> = ({ setRiderProfile }) => {
         isLoggedIn: true
       }));
     } catch {
-      setRiderProfile((prev) => ({
+      setRiderProfile(prev => ({
         ...prev,
         id: `rider-${Date.now()}`,
         name: email.split('@')[0] || 'Delivery Partner',
@@ -57,7 +54,7 @@ export const LoginScreen: React.FC<Props> = ({ setRiderProfile }) => {
     try {
       const { user } = await signInWithGoogle();
       if (user) {
-        setRiderProfile((prev) => ({
+        setRiderProfile(prev => ({
           ...prev,
           id: user.uid || `rider-${Date.now()}`,
           name: user.displayName || 'Delivery Partner',
@@ -66,10 +63,9 @@ export const LoginScreen: React.FC<Props> = ({ setRiderProfile }) => {
         }));
         return;
       }
-    } catch {
-      // Fallback
-    }
-    setRiderProfile((prev) => ({
+    } catch { /* fallback */ }
+
+    setRiderProfile(prev => ({
       ...prev,
       id: `rider-${Date.now()}`,
       name: 'Google Rider Partner',
@@ -79,12 +75,7 @@ export const LoginScreen: React.FC<Props> = ({ setRiderProfile }) => {
   };
 
   if (view === 'landing') {
-    return (
-      <FreshCartOnboarding
-        onJoin={() => setView('auth')}
-        onSignIn={() => setView('auth')}
-      />
-    );
+    return <FreshCartOnboarding onJoin={() => setView('auth')} onSignIn={() => setView('auth')} />;
   }
 
   return (

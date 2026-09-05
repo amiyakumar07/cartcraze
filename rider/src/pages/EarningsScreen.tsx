@@ -1,943 +1,151 @@
 import React from "react";
-import type { RiderProfile } from "../App";
+import { TrendingUp, Clock, Package, ArrowUpRight, Wallet } from 'lucide-react';
+import { Card } from "../components/ui/Card";
+import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
+import { useCountUp } from "../hooks/useCountUp";
+import type { RiderProfile, EarningsBreakdown } from "../types";
 
 interface Props {
   riderProfile?: RiderProfile;
 }
 
+const weeklyData: EarningsBreakdown[] = [
+  { day: 'M', amount: 68, deliveries: 6, isToday: false },
+  { day: 'T', amount: 112, deliveries: 9, isToday: false },
+  { day: 'W', amount: 95, deliveries: 8, isToday: false },
+  { day: 'T', amount: 148, deliveries: 12, isToday: true },
+  { day: 'F', amount: 42, deliveries: 4, isToday: false },
+  { day: 'S', amount: 125, deliveries: 10, isToday: false },
+  { day: 'S', amount: 58, deliveries: 5, isToday: false },
+];
+
+const recentDeliveries = [
+  { id: '#4920', time: '2:15 PM', distance: '3.2 mi', amount: 12.50, status: 'completed' as const },
+  { id: '#4919', time: '1:30 PM', distance: '1.5 mi', amount: 8.00, status: 'completed' as const },
+  { id: '#4915', time: '11:45 AM', distance: '4.1 mi', amount: 15.75, status: 'completed' as const },
+];
+
 export const EarningsScreen: React.FC<Props> = ({ riderProfile }) => {
-  const mobileProfileImage =
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDCXmAPVy5OWQBDr1Me3-jR2n-lvYVs5iFzzL7p2CfIgNYmFjtHAG3NNg39sU14t_k3DzNyc_2hUtCM7xWwiEnPz8-LRlz56mTQ-Mn_8lOV9J1MAAggjUpP_9s6f2r16LLlJeWQLOnZvj9TPBRTwG4OHldQtPMw-JtwYSng4Ri0dcWq3BjxiLl_A41E1dpUkGa_wHE8sz9rzNUT-6wZHYT9hXfch78yU4HHKEs3m8TImAnrfVDv2xw5";
+  const weeklyTotal = weeklyData.reduce((sum, d) => sum + d.amount, 0);
+  const weeklyCount = useCountUp(Math.round(weeklyTotal), 1000);
+  const todayCount = useCountUp(riderProfile?.todayEarnings || 0, 800);
+  const deliveryCount = useCountUp(42, 800);
 
-  const handleMenuClick = () => {
-    console.log("Menu clicked");
-  };
-
-  const handleCashOut = () => {
-    console.log("Cash Out clicked");
-  };
-
-  const handleViewHistory = () => {
-    console.log("View all history clicked");
-  };
-
-  const weeklyEarningsAmount = riderProfile
-    ? `₹${(riderProfile.todayEarnings * 4.5).toFixed(2)}`
-    : "₹482.50";
+  const maxAmount = Math.max(...weeklyData.map(d => d.amount));
 
   return (
-    <>
-      {/* Google Fonts */}
-      <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-      />
-
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossOrigin="anonymous"
-      />
-
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
-        rel="stylesheet"
-      />
-
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
-
-      <style>{`
-        :root {
-          --surface-container-lowest: #ffffff;
-          --secondary: #5e5e5e;
-          --inverse-on-surface: #f0f1f2;
-          --surface-variant: #e1e3e4;
-          --error-container: #ffdad6;
-          --primary-fixed-dim: #f5bf00;
-          --on-tertiary: #ffffff;
-          --secondary-fixed-dim: #c6c6c6;
-          --surface-container-highest: #e1e3e4;
-          --surface-container: #edeeef;
-          --on-tertiary-container: #006633;
-          --tertiary-container: #6ae792;
-          --primary: #765b00;
-          --on-surface-variant: #4f4632;
-          --primary-fixed: #ffdf94;
-          --on-primary-container: #6e5400;
-          --on-tertiary-fixed-variant: #005228;
-          --surface-container-low: #f3f4f5;
-          --on-secondary-fixed: #1b1b1b;
-          --tertiary: #006d37;
-          --on-primary: #ffffff;
-          --background: #f8f9fa;
-          --surface-bright: #f8f9fa;
-          --error: #ba1a1a;
-          --surface: #f8f9fa;
-          --inverse-primary: #f5bf00;
-          --on-secondary-fixed-variant: #474747;
-          --surface-dim: #d9dadb;
-          --surface-container-high: #e7e8e9;
-          --on-error-container: #93000a;
-          --secondary-fixed: #e2e2e2;
-          --on-tertiary-fixed: #00210c;
-          --on-background: #191c1d;
-          --on-surface: #191c1d;
-          --surface-tint: #765b00;
-          --on-secondary-container: #646464;
-          --outline: #81765f;
-          --tertiary-fixed-dim: #61de8a;
-          --tertiary-fixed: #7efba4;
-          --secondary-container: #e2e2e2;
-          --on-error: #ffffff;
-          --primary-container: #ffc700;
-          --outline-variant: #d2c5ab;
-          --on-primary-fixed-variant: #594400;
-          --on-secondary: #ffffff;
-          --on-primary-fixed: #251a00;
-          --inverse-surface: #2e3132;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-
-        html {
-          min-height: 100%;
-        }
-
-        body {
-          margin: 0;
-          min-height: 100vh;
-          background-color: var(--background);
-          color: var(--on-background);
-          font-family: "Inter", sans-serif;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        button,
-        a {
-          font: inherit;
-        }
-
-        button {
-          border: 0;
-        }
-
-        .material-symbols-outlined {
-          font-family: "Material Symbols Outlined";
-          font-weight: normal;
-          font-style: normal;
-          font-size: 24px;
-          line-height: 1;
-          letter-spacing: normal;
-          text-transform: none;
-          display: inline-block;
-          white-space: nowrap;
-          word-wrap: normal;
-          direction: ltr;
-          -webkit-font-feature-settings: "liga";
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* Main page */
-        .earnings-page {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          background: var(--background);
-          color: var(--on-background);
-          padding-bottom: 96px;
-        }
-
-        /* Mobile top bar */
-        .mobile-top-bar {
-          height: 64px;
-          width: 100%;
-          position: sticky;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 50;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 20px;
-          background: var(--surface);
-          box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.04);
-        }
-
-        .menu-button {
-          width: 40px;
-          height: 40px;
-          padding: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 9999px;
-          background: transparent;
-          color: var(--primary);
-          cursor: pointer;
-          transition:
-            transform 0.2s ease,
-            background-color 0.2s ease;
-        }
-
-        .menu-button:hover {
-          background: var(--surface-container-high);
-        }
-
-        .menu-button:active {
-          transform: scale(0.95);
-        }
-
-        .mobile-logo {
-          margin: 0;
-          color: var(--primary);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 28px;
-          line-height: 36px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-        }
-
-        .mobile-profile {
-          width: 32px;
-          height: 32px;
-          overflow: hidden;
-          border-radius: 50%;
-          background: var(--surface-container-high);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .mobile-profile img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        /* Desktop sidebar */
-        .sidebar {
-          display: none;
-        }
-
-        /* Main content */
-        .main-content {
-          flex: 1;
-          width: 100%;
-          max-width: 1024px;
-          margin: 0 auto;
-          padding:
-            20px 20px 32px;
-        }
-
-        .page-header {
-          margin-bottom: 32px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .page-title {
-          margin: 0;
-          color: var(--on-background);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 28px;
-          line-height: 36px;
-          font-weight: 700;
-        }
-
-        .page-subtitle {
-          margin: 4px 0 0;
-          color: var(--secondary);
-          font-family: "Inter", sans-serif;
-          font-size: 16px;
-          line-height: 24px;
-          font-weight: 400;
-        }
-
-        .cash-out-button {
-          min-height: 48px;
-          padding: 12px 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          border-radius: 9999px;
-          background: var(--primary-container);
-          color: var(--on-primary-container);
-          font-family: "Inter", sans-serif;
-          font-size: 14px;
-          line-height: 20px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow:
-            0 6px 15px rgba(255, 199, 0, 0.15);
-          transition:
-            opacity 0.2s ease,
-            transform 0.2s ease;
-        }
-
-        .cash-out-button:hover {
-          opacity: 0.9;
-        }
-
-        .cash-out-button:active {
-          transform: scale(0.95);
-        }
-
-        .cash-out-button .material-symbols-outlined {
-          font-variation-settings: "FILL" 1;
-        }
-
-        /* Bento layout */
-        .bento-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-
-        .hero-stat {
-          min-height: 240px;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          border-radius: 12px;
-          background: var(--surface-container-lowest);
-          box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.04);
-        }
-
-        .section-label {
-          margin: 0;
-          color: var(--secondary);
-          font-family: "Inter", sans-serif;
-          font-size: 16px;
-          line-height: 24px;
-          font-weight: 400;
-        }
-
-        .weekly-value {
-          margin: 8px 0 0;
-          color: var(--on-background);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 32px;
-          line-height: 40px;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-        }
-
-        /* Chart */
-        .chart {
-          height: 128px;
-          margin-top: 16px;
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          gap: 8px;
-        }
-
-        .chart-column {
-          height: 100%;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 4px;
-        }
-
-        .chart-bar-wrapper {
-          width: 100%;
-          flex: 1;
-          display: flex;
-          align-items: flex-end;
-        }
-
-        .chart-bar {
-          width: 100%;
-          border-radius: 4px 4px 0 0;
-          background: var(--surface-container);
-        }
-
-        .chart-bar.active {
-          background: var(--primary-container);
-          box-shadow:
-            0 6px 15px rgba(255, 199, 0, 0.15);
-        }
-
-        .chart-day {
-          color: var(--secondary);
-          font-family: "Inter", sans-serif;
-          font-size: 12px;
-          line-height: 16px;
-          font-weight: 500;
-        }
-
-        .chart-day.active {
-          color: var(--on-background);
-          font-weight: 700;
-        }
-
-        /* Chart heights */
-        .bar-m {
-          height: 48px;
-        }
-
-        .bar-t {
-          height: 80px;
-        }
-
-        .bar-w {
-          height: 64px;
-        }
-
-        .bar-th {
-          height: 112px;
-        }
-
-        .bar-f {
-          height: 32px;
-        }
-
-        .bar-sat {
-          height: 96px;
-        }
-
-        .bar-sun {
-          height: 40px;
-        }
-
-        /* Stats */
-        .stats-column {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .small-stat {
-          flex: 1;
-          min-height: 112px;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          border-radius: 12px;
-          background: var(--surface-container-lowest);
-          box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.04);
-        }
-
-        .small-stat-value {
-          margin: 4px 0 0;
-          color: var(--on-background);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 24px;
-          line-height: 32px;
-          font-weight: 700;
-        }
-
-        .trend-text {
-          margin: 8px 0 0;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: var(--tertiary);
-          font-family: "Inter", sans-serif;
-          font-size: 12px;
-          line-height: 16px;
-          font-weight: 500;
-        }
-
-        .trend-text .material-symbols-outlined {
-          font-size: 16px;
-        }
-
-        /* Recent deliveries */
-        .recent-section {
-          width: 100%;
-        }
-
-        .recent-title {
-          margin: 0 0 16px;
-          color: var(--on-background);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 24px;
-          line-height: 32px;
-          font-weight: 700;
-        }
-
-        .delivery-list {
-          overflow: hidden;
-          border-radius: 12px;
-          background: var(--surface-container-lowest);
-          box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.04);
-        }
-
-        .delivery-item {
-          min-height: 76px;
-          padding: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          border-bottom: 1px solid var(--surface-variant);
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-
-        .delivery-item:last-child {
-          border-bottom: 0;
-        }
-
-        .delivery-item:hover {
-          background: var(--surface-bright);
-        }
-
-        .delivery-left {
-          min-width: 0;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .delivery-icon {
-          width: 40px;
-          height: 40px;
-          flex-shrink: 0;
-          border-radius: 50%;
-          background: var(--surface-container);
-          color: var(--secondary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .delivery-info {
-          min-width: 0;
-        }
-
-        .delivery-order {
-          margin: 0;
-          color: var(--on-background);
-          font-family: "Inter", sans-serif;
-          font-size: 18px;
-          line-height: 28px;
-          font-weight: 500;
-        }
-
-        .delivery-meta {
-          margin: 2px 0 0;
-          color: var(--secondary);
-          font-family: "Inter", sans-serif;
-          font-size: 12px;
-          line-height: 16px;
-          font-weight: 500;
-        }
-
-        .delivery-right {
-          flex-shrink: 0;
-          text-align: right;
-        }
-
-        .delivery-amount {
-          margin: 0;
-          color: var(--on-background);
-          font-family: "Inter", sans-serif;
-          font-size: 18px;
-          line-height: 28px;
-          font-weight: 500;
-        }
-
-        .completed-badge {
-          display: inline-block;
-          margin-top: 4px;
-          padding: 2px 8px;
-          border-radius: 9999px;
-          background: rgba(106, 231, 146, 0.3);
-          color: var(--on-tertiary-container);
-          font-family: "Inter", sans-serif;
-          font-size: 12px;
-          line-height: 16px;
-          font-weight: 500;
-        }
-
-        .history-button {
-          width: 100%;
-          margin-top: 16px;
-          padding: 12px;
-          border: 1.5px solid var(--on-background);
-          border-radius: 9999px;
-          background: transparent;
-          color: var(--on-background);
-          font-family: "Inter", sans-serif;
-          font-size: 14px;
-          line-height: 20px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-
-        .history-button:hover {
-          background: var(--surface-variant);
-        }
-
-        /* Desktop */
-        @media (min-width: 768px) {
-          .earnings-page {
-            padding-bottom: 0;
-          }
-
-          .mobile-top-bar {
-            display: flex;
-          }
-
-          .page-header {
-            flex-direction: row;
-            align-items: flex-end;
-            justify-content: space-between;
-          }
-
-          .page-title {
-            font-size: 32px;
-            line-height: 40px;
-            letter-spacing: -0.01em;
-          }
-
-          .bento-grid {
-            grid-template-columns:
-              repeat(3, minmax(0, 1fr));
-          }
-
-          .hero-stat {
-            grid-column: span 2;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .delivery-item {
-            gap: 8px;
-          }
-
-          .delivery-left {
-            gap: 10px;
-          }
-
-          .delivery-order,
-          .delivery-amount {
-            font-size: 16px;
-            line-height: 24px;
-          }
-
-          .delivery-meta {
-            font-size: 11px;
-          }
-
-          .delivery-icon {
-            width: 36px;
-            height: 36px;
-          }
-
-          .weekly-value {
-            font-size: 28px;
-          }
-        }
-      `}</style>
-
-      <div className="earnings-page">
-        {/* Mobile Top App Bar */}
-        <header className="mobile-top-bar">
-          <button
-            type="button"
-            className="menu-button"
-            onClick={handleMenuClick}
-            aria-label="Open menu"
-          >
-            <span className="material-symbols-outlined">
-              menu
-            </span>
-          </button>
-
-          <h1 className="mobile-logo">
-            CartCraze
-          </h1>
-
-          <div className="mobile-profile">
-            <img
-              src={mobileProfileImage}
-              alt="Rider profile"
-            />
+    <div className="min-h-full bg-fleet-950 text-fleet-50 pb-24 animate-fade-in">
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-fleet-950/95 backdrop-blur-xl border-b border-fleet-800/50 px-5 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-display font-bold text-white">Earnings</h1>
+            <p className="text-[10px] text-fleet-500 font-bold tracking-wider uppercase mt-0.5">Oct 16 - Oct 22, 2026</p>
           </div>
-        </header>
+          <Button variant="primary" size="sm" leftIcon={<Wallet className="w-4 h-4" />}>
+            Cash Out
+          </Button>
+        </div>
+      </header>
 
-        {/* Main Content */}
-        <main className="main-content">
-          {/* Page Header */}
-          <header className="page-header">
-            <div>
-              <h2 className="page-title">
-                Earnings Overview
-              </h2>
+      <div className="px-5 pt-5 space-y-5">
+        {/* Hero Stat */}
+        <Card variant="elevated" className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl -mr-10 -mt-10" />
+          <div className="relative">
+            <p className="text-xs text-fleet-500 font-bold uppercase tracking-wider mb-1">Weekly Earnings</p>
+            <p className="text-4xl font-display font-bold text-white">₹{weeklyCount}</p>
 
-              <p className="page-subtitle">
-                Oct 16 - Oct 22, 2026
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className="cash-out-button"
-              onClick={handleCashOut}
-            >
-              <span className="material-symbols-outlined">
-                account_balance_wallet
-              </span>
-
-              Cash Out
-            </button>
-          </header>
-
-          {/* Bento Grid */}
-          <div className="bento-grid">
-            {/* Hero Stat */}
-            <div className="hero-stat">
-              <div>
-                <h3 className="section-label">
-                  Weekly Earnings
-                </h3>
-
-                <p className="weekly-value">
-                  {weeklyEarningsAmount}
-                </p>
-              </div>
-
-              {/* Bar Chart */}
-              <div className="chart">
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-m" />
+            {/* Bar Chart */}
+            <div className="flex items-end justify-between gap-2 mt-6 h-28">
+              {weeklyData.map((d, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full flex items-end justify-center" style={{ height: `${(d.amount / maxAmount) * 100}%` }}>
+                    <div 
+                      className={cn(
+                        "w-full rounded-t-lg transition-all duration-500 min-h-[4px]",
+                        d.isToday ? "bg-amber-500 shadow-lg shadow-amber-500/20" : "bg-fleet-700 hover:bg-fleet-600"
+                      )} 
+                    />
                   </div>
-
-                  <span className="chart-day">
-                    M
-                  </span>
+                  <span className={cn(
+                    "text-[10px] font-bold",
+                    d.isToday ? "text-amber-400" : "text-fleet-600"
+                  )}>{d.day}</span>
                 </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-t" />
-                  </div>
-
-                  <span className="chart-day">
-                    T
-                  </span>
-                </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-w" />
-                  </div>
-
-                  <span className="chart-day">
-                    W
-                  </span>
-                </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar active bar-th" />
-                  </div>
-
-                  <span className="chart-day active">
-                    T
-                  </span>
-                </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-f" />
-                  </div>
-
-                  <span className="chart-day">
-                    F
-                  </span>
-                </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-sat" />
-                  </div>
-
-                  <span className="chart-day">
-                    S
-                  </span>
-                </div>
-
-                <div className="chart-column">
-                  <div className="chart-bar-wrapper">
-                    <div className="chart-bar bar-sun" />
-                  </div>
-
-                  <span className="chart-day">
-                    S
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats Column */}
-            <div className="stats-column">
-              {/* Deliveries */}
-              <div className="small-stat">
-                <h3 className="section-label">
-                  Deliveries
-                </h3>
-
-                <p className="small-stat-value">
-                  42
-                </p>
-
-                <p className="trend-text">
-                  <span className="material-symbols-outlined">
-                    trending_up
-                  </span>
-
-                  +12% vs last week
-                </p>
-              </div>
-
-              {/* Time Online */}
-              <div className="small-stat">
-                <h3 className="section-label">
-                  Time Online
-                </h3>
-
-                <p className="small-stat-value">
-                  28h 15m
-                </p>
-              </div>
+              ))}
             </div>
           </div>
+        </Card>
 
-          {/* Recent Deliveries */}
-          <section className="recent-section">
-            <h3 className="recent-title">
-              Recent Deliveries
-            </h3>
-
-            <div className="delivery-list">
-              {/* Order #4920 */}
-              <div className="delivery-item">
-                <div className="delivery-left">
-                  <div className="delivery-icon">
-                    <span className="material-symbols-outlined">
-                      local_mall
-                    </span>
-                  </div>
-
-                  <div className="delivery-info">
-                    <p className="delivery-order">
-                      Order #4920
-                    </p>
-
-                    <p className="delivery-meta">
-                      Today, 2:15 PM • 3.2 mi
-                    </p>
-                  </div>
-                </div>
-
-                <div className="delivery-right">
-                  <p className="delivery-amount">
-                    ₹12.50
-                  </p>
-
-                  <span className="completed-badge">
-                    Completed
-                  </span>
-                </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="touch-feedback">
+            <div className="flex justify-between items-start mb-3">
+              <div className="p-2 bg-emerald-500/10 rounded-xl">
+                <Package className="w-4 h-4 text-emerald-400" />
               </div>
+              <Badge variant="success" size="sm" dot>+12%</Badge>
+            </div>
+            <p className="text-[10px] text-fleet-500 font-medium">Deliveries</p>
+            <p className="text-2xl font-display font-bold text-fleet-100">{deliveryCount}</p>
+          </Card>
 
-              {/* Order #4919 */}
-              <div className="delivery-item">
-                <div className="delivery-left">
-                  <div className="delivery-icon">
-                    <span className="material-symbols-outlined">
-                      local_mall
-                    </span>
-                  </div>
-
-                  <div className="delivery-info">
-                    <p className="delivery-order">
-                      Order #4919
-                    </p>
-
-                    <p className="delivery-meta">
-                      Today, 1:30 PM • 1.5 mi
-                    </p>
-                  </div>
-                </div>
-
-                <div className="delivery-right">
-                  <p className="delivery-amount">
-                    ₹8.00
-                  </p>
-
-                  <span className="completed-badge">
-                    Completed
-                  </span>
-                </div>
-              </div>
-
-              {/* Order #4915 */}
-              <div className="delivery-item">
-                <div className="delivery-left">
-                  <div className="delivery-icon">
-                    <span className="material-symbols-outlined">
-                      local_mall
-                    </span>
-                  </div>
-
-                  <div className="delivery-info">
-                    <p className="delivery-order">
-                      Order #4915
-                    </p>
-
-                    <p className="delivery-meta">
-                      Today, 11:45 AM • 4.1 mi
-                    </p>
-                  </div>
-                </div>
-
-                <div className="delivery-right">
-                  <p className="delivery-amount">
-                    ₹15.75
-                  </p>
-
-                  <span className="completed-badge">
-                    Completed
-                  </span>
-                </div>
+          <Card className="touch-feedback">
+            <div className="flex justify-between items-start mb-3">
+              <div className="p-2 bg-purple-500/10 rounded-xl">
+                <Clock className="w-4 h-4 text-purple-400" />
               </div>
             </div>
+            <p className="text-[10px] text-fleet-500 font-medium">Time Online</p>
+            <p className="text-2xl font-display font-bold text-fleet-100">28h 15m</p>
+          </Card>
+        </div>
 
-            <button
-              type="button"
-              className="history-button"
-              onClick={handleViewHistory}
-            >
-              View All History
+        {/* Today's Earnings */}
+        <Card variant="glass" className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-fleet-500 font-bold uppercase tracking-wider">Today</p>
+            <p className="text-2xl font-display font-bold text-amber-400">₹{todayCount}</p>
+          </div>
+          <div className="p-3 bg-amber-500/10 rounded-2xl">
+            <TrendingUp className="w-6 h-6 text-amber-400" />
+          </div>
+        </Card>
+
+        {/* Recent Deliveries */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-fleet-100">Recent Deliveries</h3>
+            <button className="text-xs font-bold text-amber-400 hover:text-amber-300 transition cursor-pointer">
+              View All <ArrowUpRight className="w-3 h-3 inline" />
             </button>
-          </section>
-        </main>
+          </div>
+
+          <div className="space-y-2">
+            {recentDeliveries.map((d) => (
+              <Card key={d.id} variant="default" className="flex items-center justify-between touch-feedback cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-fleet-800 flex items-center justify-center border border-fleet-700">
+                    <Package className="w-5 h-5 text-fleet-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-fleet-100">Order {d.id}</p>
+                    <p className="text-[11px] text-fleet-500">{d.time} • {d.distance}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-fleet-100">₹{d.amount.toFixed(2)}</p>
+                  <Badge variant="success" size="sm">Completed</Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
+
+import { cn } from "../utils/cn";

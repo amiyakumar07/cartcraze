@@ -1,28 +1,12 @@
-import React, { useState } from 'react';
-import type { RiderProfile, AppTab } from '../App';
+import React from 'react';
 import { 
-  Award, 
-  Bike, 
-  CreditCard, 
-  BarChart3, 
-  LogOut, 
-  ChevronRight, 
-  Star, 
-  CheckCircle2, 
-  Radio, 
-  Sparkles,
-  MapPin,
-  Zap,
-  PhoneCall,
-  Bell,
-  Settings,
-  ShieldCheck,
-  Compass,
-  ArrowUpRight,
-  TrendingUp,
-  SlidersHorizontal,
-  Wallet
+  Bike, CreditCard, BarChart3, LogOut, ChevronRight, Star, 
+  CheckCircle2, MapPin, Zap, PhoneCall, Bell, Settings, ShieldCheck, Sparkles, Wallet
 } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { cn } from '../utils/cn';
+import type { RiderProfile, AppTab } from '../types';
 
 interface Props {
   riderProfile: RiderProfile;
@@ -37,298 +21,157 @@ export const ProfileScreen: React.FC<Props> = ({
   setActiveTab,
   onReRegister,
 }) => {
-  const [isOnline, setIsOnline] = useState(true);
-
   const handleLogout = () => {
-    setRiderProfile((prev) => ({
-      ...prev,
-      isLoggedIn: false,
-    }));
+    setRiderProfile(prev => ({ ...prev, isLoggedIn: false }));
   };
 
-  const riderPhotoUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80";
+  const menuItems = [
+    { icon: Bike, label: 'Vehicle & License', value: 'DL Verified', color: 'text-amber-400', bg: 'bg-amber-500/10', onClick: () => {} },
+    { icon: CreditCard, label: 'Payout & Bank', value: 'UPI Linked', color: 'text-emerald-400', bg: 'bg-emerald-500/10', onClick: () => setActiveTab('earnings') },
+    { icon: BarChart3, label: 'Performance', value: 'Top 5%', color: 'text-blue-400', bg: 'bg-blue-500/10', onClick: () => setActiveTab('ratings') },
+    { icon: MapPin, label: 'GPS Telemetry', value: 'Live', color: 'text-purple-400', bg: 'bg-purple-500/10', onClick: () => {} },
+    { icon: PhoneCall, label: 'Emergency Helpline', value: '24/7', color: 'text-rose-400', bg: 'bg-rose-500/10', onClick: () => {} },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] text-slate-900 font-sans pb-32 animate-fadeIn selection:bg-amber-200">
-      
-      {/* 1. ULTRA-PREMIUM GOLDEN HERO CURVED HEADER */}
-      <div className="relative bg-gradient-to-b from-[#FFC700] via-[#FFB800] to-[#F5A600] pt-6 pb-20 px-5 rounded-b-[40px] shadow-lg overflow-hidden">
-        {/* Ambient Decorative Shapes */}
-        <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-white/20 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-12 -mb-12 w-48 h-48 bg-amber-700/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="min-h-full bg-fleet-950 text-fleet-50 pb-32 animate-fade-in">
+      {/* Hero Header */}
+      <div className="relative bg-gradient-to-b from-fleet-800 to-fleet-950 pt-6 pb-12 px-5 rounded-b-[32px] border-b border-fleet-800/50">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
 
-        {/* Top Header Actions */}
-        <div className="relative z-10 flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center font-black text-sm shadow-xl">
+        <div className="relative flex justify-between items-start mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center font-black text-fleet-950 text-sm shadow-lg shadow-amber-500/20">
               CC
             </div>
             <div>
-              <span className="text-[10px] font-black tracking-widest text-[#423100] uppercase block">CartCraze Rider</span>
-              <h1 className="text-lg font-black text-slate-950 tracking-tight leading-none">Partner Profile</h1>
+              <p className="text-[10px] font-black text-fleet-500 tracking-widest uppercase">Rider Partner</p>
+              <h1 className="text-lg font-display font-bold text-fleet-100">Profile</h1>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button 
-              type="button"
-              className="p-2.5 rounded-2xl bg-white/40 hover:bg-white/60 backdrop-blur-md text-slate-950 transition cursor-pointer border border-white/40 relative shadow-sm"
-            >
-              <Bell className="w-5 h-5 text-slate-950" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-600 rounded-full ring-2 ring-white" />
+          <div className="flex gap-2">
+            <button className="p-2.5 rounded-xl bg-fleet-800/80 hover:bg-fleet-700 text-fleet-400 transition cursor-pointer border border-fleet-700/50">
+              <Bell className="w-5 h-5" />
             </button>
-            <button 
-              type="button"
-              className="p-2.5 rounded-2xl bg-white/40 hover:bg-white/60 backdrop-blur-md text-slate-950 transition cursor-pointer border border-white/40 shadow-sm"
-            >
-              <SlidersHorizontal className="w-5 h-5 text-slate-950" />
+            <button className="p-2.5 rounded-xl bg-fleet-800/80 hover:bg-fleet-700 text-fleet-400 transition cursor-pointer border border-fleet-700/50">
+              <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Profile Info Bar Inside Hero */}
-        <div className="relative z-10 flex items-center gap-4">
+        <div className="relative flex items-center gap-4">
           <div className="relative shrink-0">
-            <div className="w-20 h-20 rounded-3xl p-1 bg-white shadow-2xl overflow-hidden">
+            <div className="w-20 h-20 rounded-3xl p-1 bg-gradient-to-br from-amber-400 to-amber-600 shadow-xl">
               <img
-                src={riderPhotoUrl}
-                alt={riderProfile.name || 'Rider Partner'}
-                className="w-full h-full object-cover rounded-[20px]"
+                src={riderProfile.photo || `https://ui-avatars.com/api/?name=${riderProfile.name}&background=random`}
+                alt={riderProfile.name}
+                className="w-full h-full object-cover rounded-[20px] bg-fleet-800"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1.5 rounded-full border-2 border-white shadow-md">
-              <CheckCircle2 className="w-4 h-4 stroke-[3]" />
+            <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full border-2 border-fleet-900 shadow-md">
+              <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
           </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-slate-950 tracking-tight">{riderProfile.name || 'Rider Partner'}</h2>
-              <span className="bg-slate-950 text-amber-400 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Gold Tier</span>
-              </span>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xl font-display font-bold text-white">{riderProfile.name || 'Rider'}</h2>
+              <Badge variant="amber" size="sm" className="flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Gold
+              </Badge>
             </div>
-
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#423100]">
-              <Bike className="w-4 h-4 text-slate-950 shrink-0" />
-              <span>{riderProfile.vehicleNumber || 'Electric Scooter • Active'}</span>
-            </div>
-
-            <p className="text-xs text-[#523d00] font-mono font-medium">
-              Phone: <strong className="text-slate-950 font-extrabold">{riderProfile.phone || '+91 98123 45678'}</strong>
+            <p className="text-xs text-fleet-400 flex items-center gap-1.5">
+              <Bike className="w-3.5 h-3.5" /> {riderProfile.vehicleNumber || 'Active Vehicle'}
             </p>
+            <p className="text-xs text-fleet-500 font-mono mt-1">{riderProfile.phone}</p>
           </div>
         </div>
       </div>
 
-      {/* 2. FLOATING OVERLAY CONTAINER */}
-      <div className="px-4 -mt-10 space-y-4 max-w-md mx-auto relative z-20">
-
-        {/* DUTY STATUS TELEMETRY CARD */}
-        <div className="bg-white rounded-[24px] p-4 border border-slate-200/80 shadow-xl flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-              <Radio className="w-5 h-5 text-emerald-600 animate-pulse" />
-            </div>
-            <div>
-              <span className="text-xs font-black text-slate-900 block">LocationIQ GPS Telemetry</span>
-              <span className="text-[11px] text-slate-500 font-mono">2.5 km Zone • Live Tracking</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className={`text-[11px] font-black tracking-wide ${isOnline ? 'text-emerald-600' : 'text-slate-400'}`}>
-              {isOnline ? 'ONLINE' : 'OFFLINE'}
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsOnline(!isOnline)}
-              className={`w-12 h-6.5 rounded-full p-0.5 transition-colors cursor-pointer shadow-inner ${isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`}
-            >
-              <div className={`w-5.5 h-5.5 rounded-full bg-white transition-transform shadow-md ${isOnline ? 'translate-x-5.5' : 'translate-x-0'}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* 3 BENTO METRIC STAT CARDS */}
+      <div className="px-5 -mt-6 space-y-4 relative z-10">
+        {/* Stats Bento */}
         <div className="grid grid-cols-3 gap-3">
-          {/* Earnings Card */}
-          <div 
-            onClick={() => setActiveTab('earnings')}
-            className="bg-white border border-slate-200/80 hover:border-amber-400 rounded-[22px] p-3.5 space-y-2 shadow-sm cursor-pointer transition-all hover:scale-[1.02] group"
-          >
-            <div className="flex justify-between items-center">
-              <div className="p-2 bg-amber-50 rounded-xl text-[#765B00] group-hover:bg-[#FFC700] transition">
-                <Wallet className="w-4 h-4" />
-              </div>
-              <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Today</span>
+          <Card className="touch-feedback cursor-pointer" onClick={() => setActiveTab('earnings')}>
+            <div className="p-2 bg-amber-500/10 rounded-xl w-fit mb-2">
+              <Wallet className="w-4 h-4 text-amber-400" />
             </div>
-            <div>
-              <p className="text-[10px] text-slate-500 font-medium">Earnings</p>
-              <p className="text-base font-black text-slate-900 tracking-tight mt-0.5">
-                ₹{riderProfile.todayEarnings.toLocaleString()}
-              </p>
+            <p className="text-[10px] text-fleet-500">Earnings</p>
+            <p className="text-base font-display font-bold text-fleet-100">₹{riderProfile.todayEarnings}</p>
+          </Card>
+          <Card className="touch-feedback cursor-pointer" onClick={() => setActiveTab('orders')}>
+            <div className="p-2 bg-blue-500/10 rounded-xl w-fit mb-2">
+              <Zap className="w-4 h-4 text-blue-400" />
             </div>
-          </div>
-
-          {/* Deliveries Card */}
-          <div 
-            onClick={() => setActiveTab('orders')}
-            className="bg-white border border-slate-200/80 hover:border-blue-400 rounded-[22px] p-3.5 space-y-2 shadow-sm cursor-pointer transition-all hover:scale-[1.02] group"
-          >
-            <div className="flex justify-between items-center">
-              <div className="p-2 bg-blue-50 rounded-xl text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition">
-                <Zap className="w-4 h-4" />
-              </div>
-              <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Total</span>
+            <p className="text-[10px] text-fleet-500">Orders</p>
+            <p className="text-base font-display font-bold text-fleet-100">{riderProfile.todayDeliveries}</p>
+          </Card>
+          <Card className="touch-feedback cursor-pointer" onClick={() => setActiveTab('ratings')}>
+            <div className="p-2 bg-emerald-500/10 rounded-xl w-fit mb-2">
+              <Star className="w-4 h-4 text-emerald-400 fill-emerald-400" />
             </div>
-            <div>
-              <p className="text-[10px] text-slate-500 font-medium">Orders</p>
-              <p className="text-base font-black text-slate-900 tracking-tight mt-0.5">
-                {riderProfile.todayDeliveries} Orders
-              </p>
-            </div>
-          </div>
-
-          {/* Rating Card */}
-          <div 
-            onClick={() => setActiveTab('ratings')}
-            className="bg-white border border-slate-200/80 hover:border-emerald-400 rounded-[22px] p-3.5 space-y-2 shadow-sm cursor-pointer transition-all hover:scale-[1.02] group"
-          >
-            <div className="flex justify-between items-center">
-              <div className="p-2 bg-emerald-50 rounded-xl text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition">
-                <Star className="w-4 h-4 fill-emerald-500 text-emerald-500 group-hover:fill-white group-hover:text-white" />
-              </div>
-              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">Top 5%</span>
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-500 font-medium">Rating</p>
-              <p className="text-base font-black text-slate-900 tracking-tight mt-0.5 flex items-center gap-1">
-                {riderProfile.rating} <span className="text-xs text-amber-500">★</span>
-              </p>
-            </div>
-          </div>
+            <p className="text-[10px] text-fleet-500">Rating</p>
+            <p className="text-base font-display font-bold text-fleet-100 flex items-center gap-1">
+              {riderProfile.rating} <span className="text-amber-400 text-xs">★</span>
+            </p>
+          </Card>
         </div>
 
-        {/* GROUPED NAVIGATION LIST */}
-        <div className="bg-white border border-slate-200/80 rounded-[28px] overflow-hidden shadow-sm divide-y divide-slate-100">
-          {/* Vehicle Info */}
-          <div className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer group">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-amber-50 rounded-2xl text-[#765B00] group-hover:bg-[#FFC700] transition">
-                <Bike className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-900">Vehicle &amp; Driving License</h4>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">DL-BLR-2026-9901 • Verified Active</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition" />
-          </div>
-
-          {/* Payout & Bank Account */}
-          <div 
-            onClick={() => setActiveTab('earnings')}
-            className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer group"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white transition">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-900">Payout &amp; Bank Account</h4>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">UPI Transfer • Daily Instant Credit</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition" />
-          </div>
-
-          {/* Performance SLA Insights */}
-          <div 
-            onClick={() => setActiveTab('ratings')}
-            className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer group"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-blue-50 rounded-2xl text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-900">Performance SLA Insights</h4>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">7.4 min Delivery Speed • 100% SLA</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition" />
-          </div>
-
-          {/* LocationIQ GPS Telemetry */}
-          <div className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer group">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-purple-50 rounded-2xl text-purple-600 group-hover:bg-purple-500 group-hover:text-white transition">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-900">LocationIQ GPS Telemetry</h4>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">HSR Layout Sector 1 • 2.5 km Radius</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition" />
-          </div>
-
-          {/* Emergency Helpline */}
-          <div className="p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer group">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-amber-50 rounded-2xl text-[#765B00] group-hover:bg-[#FFC700] transition">
-                <PhoneCall className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-900">24/7 Rider Emergency Helpline</h4>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">Instant Support &amp; Accident Protection</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition" />
-          </div>
-
-          {/* Submit New Rider Application */}
-          {onReRegister && (
-            <div 
-              onClick={() => {
-                localStorage.removeItem('cartcraze_rider_data');
-                onReRegister();
-              }}
-              className="p-4 flex items-center justify-between hover:bg-amber-50 transition cursor-pointer group border-b border-slate-100"
+        {/* Menu List */}
+        <Card variant="glass" className="divide-y divide-fleet-700/50">
+          {menuItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={item.onClick}
+              className="w-full flex items-center justify-between p-4 hover:bg-fleet-800/50 transition cursor-pointer text-left first:rounded-t-2xl last:rounded-b-2xl"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 bg-amber-100 rounded-2xl text-amber-900 group-hover:bg-amber-400 group-hover:text-black transition font-bold">
-                  📝
+                <div className={cn('p-2.5 rounded-xl', item.bg, item.color)}>
+                  <item.icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-amber-900">Submit New Rider License &amp; ID Proof</h4>
-                  <p className="text-[11px] text-slate-500 font-mono mt-0.5">Upload DL &amp; ID Documents for Admin Approval</p>
+                  <h4 className="text-sm font-bold text-fleet-100">{item.label}</h4>
+                  <p className="text-[11px] text-fleet-500">{item.value}</p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-amber-600" />
-            </div>
-          )}
+              <ChevronRight className="w-4 h-4 text-fleet-600" />
+            </button>
+          ))}
+        </Card>
 
-          {/* Logout Button */}
-          <div 
-            onClick={handleLogout}
-            className="p-4 flex items-center justify-between hover:bg-rose-50 transition cursor-pointer group"
+        {/* Re-register */}
+        {onReRegister && (
+          <button
+            onClick={() => { localStorage.removeItem('cartcraze_rider_data'); onReRegister(); }}
+            className="w-full flex items-center justify-between p-4 bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/20 rounded-2xl transition cursor-pointer text-left"
           >
             <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-rose-50 rounded-2xl text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition">
-                <LogOut className="w-5 h-5" />
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-black text-rose-600">Sign Out of Partner App</h4>
-                <p className="text-[11px] text-slate-400 font-mono mt-0.5">End shift &amp; close rider session</p>
+                <h4 className="text-sm font-bold text-amber-400">Submit New Documents</h4>
+                <p className="text-[11px] text-fleet-500">Update license & ID proof</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-rose-500" />
-          </div>
-        </div>
+            <ChevronRight className="w-4 h-4 text-amber-500" />
+          </button>
+        )}
 
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-between p-4 bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/20 rounded-2xl transition cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-rose-500/10 text-rose-400">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-rose-400">Sign Out</h4>
+              <p className="text-[11px] text-fleet-500">End session</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-500" />
+        </button>
       </div>
     </div>
   );

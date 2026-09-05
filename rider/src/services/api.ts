@@ -1,5 +1,4 @@
-const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-const API_BASE = import.meta.env.VITE_API_BASE_URL || (hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://cartcraze-95gt.onrender.com/api');
+import { API_BASE } from '../config/api';
 
 export async function fetchAvailableOrdersApi() {
   const res = await fetch(`${API_BASE}/orders`);
@@ -9,7 +8,7 @@ export async function fetchAvailableOrdersApi() {
 
 export const fetchAssignedOrdersApi = fetchAvailableOrdersApi;
 
-export async function updateOrderStatusApi(orderId: string, status: string, driverData?: any) {
+export async function updateOrderStatusApi(orderId: string, status: string, driverData?: Record<string, unknown>) {
   const res = await fetch(`${API_BASE}/orders/${orderId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },

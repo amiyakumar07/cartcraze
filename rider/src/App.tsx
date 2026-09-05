@@ -1,68 +1,45 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchAssignedOrdersApi, updateOrderStatusApi } from './services/api';
-import type { RiderOrder, DutyStatus } from './types';
+import type { RiderOrder, RiderProfile, AppTab, RiderApprovalData } from './types';
+import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { useRiderLocation } from './hooks/useRiderLocation';
+import { API_BASE, RIDER_STORAGE_KEY, RIDER_SESSION_KEY, SESSION_DURATION_MS } from './config/api';
 import { LoginScreen } from './pages/LoginScreen';
 import { HomeScreen } from './pages/HomeScreen';
 import { ActiveDeliveryScreen } from './pages/ActiveDeliveryScreen';
 import { EarningsScreen } from './pages/EarningsScreen';
 import { RatingsScreen } from './pages/RatingsScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
-import { MobileFrame } from './components/MobileFrame';
-import { BottomNav } from './components/BottomNav';
-
+import { MobileFrame } from './components/layout/MobileFrame';
+import { BottomNav } from './components/layout/BottomNav';
 import { RiderApprovalForm } from './pages/RiderApprovalForm';
 import { RiderPendingApprovalScreen } from './pages/RiderPendingApprovalScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 
-const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:4000/api'
-  : 'https://cartcraze-95gt.onrender.com/api';
-
-export type AppTab = 'orders' | 'earnings' | 'ratings' | 'profile' | 'delivery';
-
-export interface RiderProfile {
-  id: string;
-  name: string;
-  phone: string;
-  vehicleNumber: string;
-  rating: number;
-  totalDeliveries: number;
-  todayDeliveries: number;
-  todayEarnings: number;
-  isLoggedIn: boolean;
-  photo: string;
-}
-
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>('orders');
-  const [dutyStatus, setDutyStatus] = useState<DutyStatus>('ON_DUTY');
+  const { dutyStatus, isOnDuty, setDuty } = useOnlineStatus();
   const [activeOrder, setActiveOrder] = useState<RiderOrder | null>(null);
   const [apiError, setApiError] = useState(false);
-  const [riderApprovalData, setRiderApprovalData] = useState<any>(() => {
-    const saved = localStorage.getItem('cartcraze_rider_data');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { return null; }
-    }
-    return null;
+  const [riderApprovalData, setRiderApprovalData] = useState<RiderApprovalData | null>(() => {
+    const saved = localStorage.getItem(RIDER_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
   });
   const [showRiderLocModal, setShowRiderLocModal] = useState(true);
-  const [riderGpsCoords, setRiderGpsCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const { coords: riderGpsCoords } = useRiderLocation({ enabled: isOnDuty });
+
   const [riderProfile, setRiderProfile] = useState<RiderProfile>(() => {
-    const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
-    const savedData = localStorage.getItem('cartcraze_rider_data');
-    let isLogged = false;
-    let savedObj: any = null;
-    if (savedTs && Date.now() - Number(savedTs) <= 72 * 60 * 60 * 1000) {
-      isLogged = true;
-    }
-    if (savedData) {
-      try { savedObj = JSON.parse(savedData); } catch {}
-    }
+    const savedTs = localStorage.getItem(RIDER_SESSION_KEY);
+    const savedData = localStorage.getItem(RIDER_STORAGE_KEY);
+    const isLogged = savedTs ? Date.now() - Number(savedTs) <= SESSION_DURATION_MS : false;
+    let savedObj: Partial<RiderApprovalData> = {};
+    try { if (savedData) savedObj = JSON.parse(savedData); } catch {}
+
     return {
-      id: savedObj?.id || '',
-      name: savedObj?.name || '',
-      phone: savedObj?.phone || '',
-      vehicleNumber: savedObj?.vehicleNumber || '',
+      id: savedObj.id || '',
+      name: savedObj.name || '',
+      phone: savedObj.phone || '',
+      vehicleNumber: savedObj.vehicleNumber || '',
       rating: 5.0,
       totalDeliveries: 0,
       todayDeliveries: 0,
@@ -72,7 +49,7 @@ const App: React.FC = () => {
     };
   });
 
-  // Sync real rider info from riderApprovalData when approved
+  // Sync approved rider data
   useEffect(() => {
     if (riderApprovalData?.status === 'APPROVED' && riderProfile.isLoggedIn) {
       setRiderProfile(prev => ({
@@ -83,166 +60,131 @@ const App: React.FC = () => {
         vehicleNumber: riderApprovalData.vehicleNumber || prev.vehicleNumber,
       }));
     }
-  }, [riderApprovalData?.id, riderApprovalData?.status, riderProfile.isLoggedIn]);
+  }, [riderApprovalData?.status, riderProfile.isLoggedIn]);
 
-  const checkRiderStatus = async () => {
+  // Check rider status
+  const checkRiderStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/riders`);
+      const res = await fetch(`${API_BASE}/riders`);
       const data = await res.json();
-      if (data.riders && data.riders.length > 0) {
-        // Find this specific rider by their saved id/phone/email
-        const currentId = riderApprovalData?.id;
-        const currentPhone = riderApprovalData?.phone;
-        const found = currentId
-          ? data.riders.find((r: any) => r.id === currentId || r.phone === currentPhone)
-          : null;
+      if (data.riders?.length > 0) {
+        const found = data.riders.find((r: any) => 
+          r.id === riderApprovalData?.id || r.phone === riderApprovalData?.phone
+        );
         if (found) {
           setRiderApprovalData(found);
-          localStorage.setItem('cartcraze_rider_data', JSON.stringify(found));
+          localStorage.setItem(RIDER_STORAGE_KEY, JSON.stringify(found));
         }
       }
-    } catch {
-      // silent catch
-    }
-  };
+    } catch { /* silent */ }
+  }, [riderApprovalData?.id, riderApprovalData?.phone]);
 
-  // ─── 72-HOUR RIDER SESSION AUTO-LOGOUT ───────────────────────────────────
-  const SESSION_DURATION_MS = 72 * 60 * 60 * 1000; // 72 Hours (3 Days)
-
-  const handleRiderLogout = () => {
-    localStorage.removeItem('cartcraze_rider_login_timestamp');
-    localStorage.removeItem('cartcraze_rider_data');
-    setRiderProfile((prev) => ({ ...prev, isLoggedIn: false }));
+  // Session management
+  const handleRiderLogout = useCallback(() => {
+    localStorage.removeItem(RIDER_SESSION_KEY);
+    localStorage.removeItem(RIDER_STORAGE_KEY);
+    setRiderProfile(prev => ({ ...prev, isLoggedIn: false }));
     setActiveOrder(null);
-    setDutyStatus('OFF_DUTY');
-  };
+    setDuty('OFF_DUTY');
+  }, [setDuty]);
 
   useEffect(() => {
-    if (riderProfile.isLoggedIn) {
-      const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
-      if (!savedTs) {
-        localStorage.setItem('cartcraze_rider_login_timestamp', Date.now().toString());
-      } else {
-        const elapsed = Date.now() - Number(savedTs);
-        if (elapsed > SESSION_DURATION_MS) {
-          console.log('[Rider App] 72-hour rider session limit reached. Auto logging out.');
-          handleRiderLogout();
-        }
-      }
+    if (!riderProfile.isLoggedIn) return;
+    const savedTs = localStorage.getItem(RIDER_SESSION_KEY);
+    if (!savedTs) {
+      localStorage.setItem(RIDER_SESSION_KEY, Date.now().toString());
+    } else if (Date.now() - Number(savedTs) > SESSION_DURATION_MS) {
+      handleRiderLogout();
     }
-  }, [riderProfile.isLoggedIn]);
+  }, [riderProfile.isLoggedIn, handleRiderLogout]);
 
   useEffect(() => {
     if (!riderProfile.isLoggedIn) return;
     const interval = setInterval(() => {
-      const savedTs = localStorage.getItem('cartcraze_rider_login_timestamp');
+      const savedTs = localStorage.getItem(RIDER_SESSION_KEY);
       if (savedTs && Date.now() - Number(savedTs) > SESSION_DURATION_MS) {
-        console.log('[Rider App] 72-hour rider session expired. Auto logging out.');
         handleRiderLogout();
       }
     }, 60000);
     return () => clearInterval(interval);
-  }, [riderProfile.isLoggedIn]);
+  }, [riderProfile.isLoggedIn, handleRiderLogout]);
 
+  // Poll rider status
   useEffect(() => {
-    if (riderProfile.isLoggedIn) {
-      checkRiderStatus();
-      const interval = setInterval(checkRiderStatus, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [riderProfile.isLoggedIn, riderApprovalData?.id]);
+    if (!riderProfile.isLoggedIn) return;
+    checkRiderStatus();
+    const interval = setInterval(checkRiderStatus, 3000);
+    return () => clearInterval(interval);
+  }, [riderProfile.isLoggedIn, checkRiderStatus]);
 
-  // Real GPS tracking using browser geolocation
+  // GPS location push
   useEffect(() => {
-    if (!riderProfile.isLoggedIn || dutyStatus === 'OFF_DUTY') return;
-    if (!('geolocation' in navigator)) return;
+    if (!riderProfile.isLoggedIn || !isOnDuty || !riderGpsCoords) return;
 
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setRiderGpsCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-      },
-      () => { /* GPS denied — will fall back to null */ },
-      { enableHighAccuracy: true, maximumAge: 5000 }
-    );
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, [riderProfile.isLoggedIn, dutyStatus]);
-
-  // Send real GPS coordinates to server when ON_DUTY
-  useEffect(() => {
-    if (!riderProfile.isLoggedIn || dutyStatus === 'OFF_DUTY') return;
-
-    const sendGpsUpdate = async () => {
-      const currentLat = riderGpsCoords?.lat || riderApprovalData?.lat || 20.2316;
-      const currentLon = riderGpsCoords?.lon || riderApprovalData?.lon || 85.8300;
+    const sendUpdate = async () => {
       try {
-        await fetch(`${API}/locationiq/update-rider-location`, {
+        await fetch(`${API_BASE}/locationiq/update-rider-location`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            riderId: riderProfile.id || riderApprovalData?.id || 'rider-live',
-            riderName: riderProfile.name || riderApprovalData?.name || 'Rider',
-            phone: riderProfile.phone || riderApprovalData?.phone || '',
-            vehicleNumber: riderProfile.vehicleNumber || riderApprovalData?.vehicleNumber || '',
-            lat: currentLat,
-            lon: currentLon,
+            riderId: riderProfile.id || 'rider-live',
+            riderName: riderProfile.name || 'Rider',
+            phone: riderProfile.phone || '',
+            vehicleNumber: riderProfile.vehicleNumber || '',
+            lat: riderGpsCoords.lat,
+            lon: riderGpsCoords.lon,
             status: activeOrder ? 'EN_ROUTE' : 'ONLINE'
           })
         });
-      } catch {
-        // silent catch
-      }
+      } catch { /* silent */ }
     };
 
-    sendGpsUpdate();
-    const interval = setInterval(sendGpsUpdate, 4000);
+    sendUpdate();
+    const interval = setInterval(sendUpdate, 4000);
     return () => clearInterval(interval);
-  }, [riderProfile, riderGpsCoords, dutyStatus, activeOrder, riderApprovalData]);
+  }, [riderProfile, riderGpsCoords, isOnDuty, activeOrder]);
 
-  // Poll live customer orders placed in User App near rider
+  // Fetch live orders
   const fetchLiveOrders = useCallback(async () => {
+    if (!isOnDuty) return;
     try {
-      const res = await fetch(`${API}/orders`);
+      const res = await fetch(`${API_BASE}/orders`);
       const data = await res.json();
       setApiError(false);
 
       if (Array.isArray(data) && data.length > 0) {
-        const activeOrders = data.filter((o: any) => o.status !== 'DELIVERED');
-        if (activeOrders.length > 0) {
-          const latestOrder = activeOrders[0];
-          const formattedOrder: RiderOrder = {
-            id: latestOrder.id,
-            customerName: latestOrder.customerName || 'Customer',
-            customerPhone: latestOrder.customerPhone || '+91 98765 43210',
-            deliveryAddress: latestOrder.deliveryAddress || 'Sector 1, HSR Layout, Bengaluru',
-            customerLat: parseFloat(latestOrder.customerLat) || 12.9141,
-            customerLon: parseFloat(latestOrder.customerLon) || 77.6411,
-            pincode: latestOrder.pincode || '560102',
-            village: latestOrder.village || '',
-            street: latestOrder.street || '',
-            landmark: latestOrder.landmark || '',
-            restaurantName: latestOrder.darkstoreName || 'Fresh Valley Market',
-            restaurantAddress: latestOrder.darkstoreAddress || 'Sector 1, HSR Layout, Bengaluru',
-            itemsCount: latestOrder.items ? latestOrder.items.length : 1,
-            payoutAmount: latestOrder.finalTotal || 75,
-            finalTotal: latestOrder.finalTotal || 75,
-            paymentMethod: latestOrder.paymentMethod || 'UPI',
-            paymentStatus: latestOrder.paymentStatus || 'PAID',
-            otp: latestOrder.otp || '4829',
-            estimatedTime: '12 mins',
-            status: latestOrder.status || 'ASSIGNED',
-            items: (latestOrder.items || []).map((i: any) => ({
-              id: i.id || `i-${Math.random()}`,
-              name: i.name || 'Grocery Item',
-              quantity: i.quantity || 1,
-              price: i.price || 50
-            }))
-          };
+        const latest = data[0];
+        const formatted: RiderOrder = {
+          id: latest.id,
+          customerName: latest.customerName || 'Customer',
+          customerPhone: latest.customerPhone || '+91 98765 43210',
+          deliveryAddress: latest.deliveryAddress || 'Sector 1, HSR Layout, Bengaluru',
+          customerLat: parseFloat(latest.customerLat) || 12.9141,
+          customerLon: parseFloat(latest.customerLon) || 77.6411,
+          pincode: latest.pincode || '560102',
+          village: latest.village || '',
+          street: latest.street || '',
+          landmark: latest.landmark || '',
+          restaurantName: latest.darkstoreName || 'Fresh Valley Market',
+          restaurantAddress: latest.darkstoreAddress || 'Sector 1, HSR Layout, Bengaluru',
+          itemsCount: latest.items?.length || 1,
+          payoutAmount: latest.finalTotal || 75,
+          finalTotal: latest.finalTotal || 75,
+          paymentMethod: latest.paymentMethod || 'UPI',
+          paymentStatus: latest.paymentStatus || 'PAID',
+          otp: latest.otp || '4829',
+          estimatedTime: '12 mins',
+          status: latest.status || 'ASSIGNED',
+          items: (latest.items || []).map((i: any) => ({
+            id: i.id || `i-${Math.random()}`,
+            name: i.name || 'Grocery Item',
+            quantity: i.quantity || 1,
+            price: i.price || 50
+          }))
+        };
 
-          if (!activeOrder || activeOrder.id !== formattedOrder.id || activeOrder.status !== formattedOrder.status) {
-            setActiveOrder(formattedOrder);
-          }
-        } else {
-          setActiveOrder(null);
+        if (!activeOrder || activeOrder.id !== formatted.id) {
+          setActiveOrder(formatted);
         }
       } else {
         setActiveOrder(null);
@@ -250,20 +192,18 @@ const App: React.FC = () => {
     } catch {
       setApiError(true);
     }
-  }, [dutyStatus, activeOrder]);
+  }, [isOnDuty, activeOrder]);
 
   useEffect(() => {
-    if (riderProfile.isLoggedIn) {
-      fetchLiveOrders();
-      const interval = setInterval(fetchLiveOrders, 3000);
-      return () => clearInterval(interval);
-    }
+    if (!riderProfile.isLoggedIn) return;
+    fetchLiveOrders();
+    const interval = setInterval(fetchLiveOrders, 3000);
+    return () => clearInterval(interval);
   }, [riderProfile.isLoggedIn, fetchLiveOrders]);
 
   const handleCompleteDelivery = async (orderId: string) => {
     try {
       await updateOrderStatusApi(orderId, 'DELIVERED');
-      // Calculate earning: 10% of order total, min ₹30
       const earning = activeOrder ? Math.max(30, Math.round((activeOrder.finalTotal || 0) * 0.10)) : 30;
       setActiveOrder(null);
       setRiderProfile(prev => ({
@@ -272,85 +212,47 @@ const App: React.FC = () => {
         todayEarnings: prev.todayEarnings + earning,
         totalDeliveries: prev.totalDeliveries + 1,
       }));
-    } catch {
-      // retry silently
-    }
+    } catch { /* retry silently */ }
   };
 
-  if (!riderProfile.isLoggedIn) {
-    return <LoginScreen setRiderProfile={setRiderProfile} />;
-  }
-
-  // If rider application not submitted yet -> show Rider Registration Approval Form
-  if (!riderApprovalData) {
-    return (
-      <MobileFrame>
-        <LocationPermissionModal isOpen={showRiderLocModal} onClose={() => setShowRiderLocModal(false)} />
-        <RiderApprovalForm onSubmitSuccess={(data) => setRiderApprovalData(data)} />
-      </MobileFrame>
-    );
-  }
-
-  // If rider application is pending approval or rejected -> show Pending Review screen
-  if (riderApprovalData.status === 'PENDING_APPROVAL' || riderApprovalData.status === 'REJECTED') {
-    return (
-      <MobileFrame>
-        <RiderPendingApprovalScreen riderData={riderApprovalData} onRefreshStatus={checkRiderStatus} />
-      </MobileFrame>
-    );
-  }
-
-  if (riderApprovalData.status === 'BLOCKED') {
-    return (
-      <MobileFrame>
-        <div className="p-8 text-center bg-slate-950 text-slate-100 min-h-full flex flex-col justify-center items-center space-y-4 font-sans border border-red-900/50">
-          <div className="w-16 h-16 rounded-3xl bg-red-950 text-red-400 border border-red-800 flex items-center justify-center text-2xl font-black shadow-xl">
-            🚫
-          </div>
-          <h2 className="text-lg font-black text-white">Rider Account Suspended</h2>
-          <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-            Your rider partner account has been suspended by Super Admin. Please contact <strong className="text-amber-400">admin@cartcraze.app</strong> for compliance review.
-          </p>
+  if (!riderProfile.isLoggedIn) return <LoginScreen setRiderProfile={setRiderProfile} />;
+  if (!riderApprovalData) return (
+    <MobileFrame>
+      <LocationPermissionModal isOpen={showRiderLocModal} onClose={() => setShowRiderLocModal(false)} />
+      <RiderApprovalForm onSubmitSuccess={setRiderApprovalData} />
+    </MobileFrame>
+  );
+  if (riderApprovalData.status === 'PENDING_APPROVAL' || riderApprovalData.status === 'REJECTED') return (
+    <MobileFrame>
+      <RiderPendingApprovalScreen riderData={riderApprovalData} onRefreshStatus={checkRiderStatus} />
+    </MobileFrame>
+  );
+  if (riderApprovalData.status === 'BLOCKED') return (
+    <MobileFrame>
+      <div className="p-8 text-center bg-fleet-950 text-fleet-100 min-h-full flex flex-col justify-center items-center space-y-4 border border-rose-900/30">
+        <div className="w-16 h-16 rounded-3xl bg-rose-950 text-rose-400 border border-rose-800 flex items-center justify-center text-2xl font-black shadow-xl">
+          🚫
         </div>
-      </MobileFrame>
-    );
-  }
+        <h2 className="text-lg font-display font-bold text-white">Account Suspended</h2>
+        <p className="text-xs text-fleet-500 max-w-xs leading-relaxed">
+          Contact <strong className="text-amber-400">admin@cartcraze.app</strong> for compliance review
+        </p>
+      </div>
+    </MobileFrame>
+  );
 
   const renderScreen = () => {
     switch (activeTab) {
       case 'orders':
-        return (
-          <HomeScreen
-            riderProfile={riderProfile}
-            dutyStatus={dutyStatus}
-            setDutyStatus={setDutyStatus}
-            apiError={apiError}
-            setActiveTab={setActiveTab}
-            activeOrder={activeOrder}
-            setActiveOrder={setActiveOrder}
-          />
-        );
+        return <HomeScreen riderProfile={riderProfile} dutyStatus={dutyStatus} setDutyStatus={setDuty} apiError={apiError} setActiveTab={setActiveTab} activeOrder={activeOrder} setActiveOrder={setActiveOrder} />;
       case 'delivery':
-        return (
-          <ActiveDeliveryScreen
-            activeOrder={activeOrder}
-            onComplete={handleCompleteDelivery}
-            setActiveTab={setActiveTab}
-          />
-        );
+        return <ActiveDeliveryScreen activeOrder={activeOrder} onComplete={handleCompleteDelivery} setActiveTab={setActiveTab} />;
       case 'earnings':
         return <EarningsScreen riderProfile={riderProfile} />;
       case 'ratings':
         return <RatingsScreen />;
       case 'profile':
-        return (
-          <ProfileScreen
-            riderProfile={riderProfile}
-            setRiderProfile={setRiderProfile}
-            setActiveTab={setActiveTab}
-            onReRegister={() => setRiderApprovalData(null)}
-          />
-        );
+        return <ProfileScreen riderProfile={riderProfile} setRiderProfile={setRiderProfile} setActiveTab={setActiveTab} onReRegister={() => setRiderApprovalData(null)} />;
       default:
         return null;
     }
@@ -358,9 +260,7 @@ const App: React.FC = () => {
 
   return (
     <MobileFrame>
-      <div className="w-full flex-1">
-        {renderScreen()}
-      </div>
+      <div className="w-full flex-1">{renderScreen()}</div>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </MobileFrame>
   );

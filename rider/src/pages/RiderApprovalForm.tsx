@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { reverseGeocodeLocationIQ } from '../services/locationiq';
+import { Upload, MapPin, User, Phone, Mail, Bike, CreditCard, FileText, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { API_BASE, DEFAULT_COORDS } from "../config/api";
+import type { RiderApprovalData, LocationCoords } from "../types";
 
-interface RiderApprovalFormProps {
-  onSubmitSuccess: (riderData: any) => void;
+interface Props {
+  onSubmitSuccess: (riderData: RiderApprovalData) => void;
 }
 
-export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSuccess }) => {
+export const RiderApprovalForm: React.FC<Props> = ({ onSubmitSuccess }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  const [drivingLicenseProof, setDrivingLicenseProof] = useState('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80');
-  const [dlFileName, setDlFileName] = useState('driving_license.jpg');
-  const [dlFileSize, setDlFileSize] = useState('310 KB');
-
+  const [drivingLicenseProof, setDrivingLicenseProof] = useState('');
+  const [dlFileName, setDlFileName] = useState('');
   const [idProofType, setIdProofType] = useState('Aadhaar Card');
   const [idProofNumber, setIdProofNumber] = useState('');
-  const [idProofProof, setIdProofProof] = useState('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80');
-  const [idFileName, setIdFileName] = useState('aadhaar_card.jpg');
-  const [idFileSize, setIdFileSize] = useState('280 KB');
-
-  const [address, setAddress] = useState('Detecting LocationIQ GPS...');
-  const [lat, setLat] = useState(12.9141);
-  const [lon, setLon] = useState(77.6411);
+  const [idProofProof, setIdProofProof] = useState('');
+  const [idFileName, setIdFileName] = useState('');
+  const [address, setAddress] = useState('Detecting GPS location...');
+  const [coords, setCoords] = useState<LocationCoords>(DEFAULT_COORDS);
   const [submitting, setSubmitting] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [step, setStep] = useState(1);
 
   useEffect(() => {
     handleDetectLocation();
@@ -35,75 +36,45 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          setLat(pos.coords.latitude);
-          setLon(pos.coords.longitude);
-          const fullAddress = await reverseGeocodeLocationIQ(pos.coords.latitude, pos.coords.longitude);
-          setAddress(fullAddress);
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          setCoords({ lat, lon, address: '' });
+          // Reverse geocode would go here
+          setAddress(`Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`);
           setGpsLoading(false);
         },
-        async () => {
-          const fullAddress = await reverseGeocodeLocationIQ(12.9141, 77.6411);
-          setAddress(fullAddress);
+        () => {
+          setCoords(DEFAULT_COORDS);
+          setAddress(DEFAULT_COORDS.address);
           setGpsLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        }
       );
     } else {
-      setAddress('HSR Layout, Sector 1, Bengaluru');
+      setAddress(DEFAULT_COORDS.address);
       setGpsLoading(false);
     }
   };
 
-  const handleDlUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setProof: (url: string) => void,
+    setFileName: (name: string) => void
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setDlFileName(file.name);
-    setDlFileSize(`${(file.size / 1024).toFixed(1)} KB`);
+    setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 800;
-        const scaleSize = MAX_WIDTH / img.width;
-        if (scaleSize < 1) {
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-        } else {
-          canvas.width = img.width;
-          canvas.height = img.height;
-        }
+        const scale = MAX_WIDTH / img.width;
+        canvas.width = scale < 1 ? MAX_WIDTH : img.width;
+        canvas.height = scale < 1 ? img.height * scale : img.height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setDrivingLicenseProof(canvas.toDataURL('image/jpeg', 0.75));
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIdFileName(file.name);
-    setIdFileSize(`${(file.size / 1024).toFixed(1)} KB`);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const scaleSize = MAX_WIDTH / img.width;
-        if (scaleSize < 1) {
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-        } else {
-          canvas.width = img.width;
-          canvas.height = img.height;
-        }
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setIdProofProof(canvas.toDataURL('image/jpeg', 0.75));
+        setProof(canvas.toDataURL('image/jpeg', 0.75));
       };
       img.src = event.target?.result as string;
     };
@@ -113,480 +84,178 @@ export const RiderApprovalForm: React.FC<RiderApprovalFormProps> = ({ onSubmitSu
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone || !vehicleNumber || !idProofNumber) {
-      alert('Please fill out all required rider details');
+      alert('Please fill all required fields');
       return;
     }
 
     setSubmitting(true);
     try {
-      const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:4000/api'
-        : 'https://cartcraze-95gt.onrender.com/api';
-      const res = await fetch(`${API}/riders/register`, {
+      const res = await fetch(`${API_BASE}/riders/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
-          email,
-          phone,
-          vehicleNumber,
-          drivingLicenseProof,
-          idProofType,
-          idProofNumber,
-          idProofProof,
-          lat,
-          lon
+          name, email, phone, vehicleNumber,
+          drivingLicenseProof, idProofType, idProofNumber, idProofProof,
+          lat: coords.lat, lon: coords.lon
         })
       });
       const data = await res.json();
-      setSubmitting(false);
       if (data.success) {
         onSubmitSuccess(data.rider);
       } else {
-        alert(data.error || 'Failed to submit rider registration');
+        alert(data.error || 'Registration failed');
       }
     } catch {
-      setSubmitting(false);
+      // Fallback for demo
       onSubmitSuccess({
         id: `rider-${Date.now()}`,
-        name,
-        email,
-        phone,
-        vehicleNumber,
-        drivingLicenseProof,
-        idProofType,
-        idProofNumber,
-        idProofProof,
+        name, email, phone, vehicleNumber,
+        drivingLicenseProof, idProofType, idProofNumber, idProofProof,
+        lat: coords.lat, lon: coords.lon,
         status: 'PENDING_APPROVAL'
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const inputClass = "w-full bg-fleet-900 border border-fleet-700 rounded-xl px-4 py-3.5 text-sm font-semibold text-fleet-100 placeholder:text-fleet-600 focus:outline-none focus:border-amber-500 transition";
+  const labelClass = "text-xs font-bold text-fleet-400 uppercase tracking-wider mb-2 block flex items-center gap-2";
+
   return (
-    <>
-      <link href="https://fonts.googleapis.com" rel="preconnect" />
-      <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <div className="min-h-full bg-fleet-950 text-fleet-50 pb-8 animate-fade-in">
+      <div className="px-5 pt-6 pb-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
+            <Bike className="w-8 h-8 text-fleet-950" />
+          </div>
+          <h1 className="text-2xl font-display font-bold text-white">Rider Onboarding</h1>
+          <p className="text-sm text-fleet-500 mt-2">Submit your details for verification</p>
+          <Badge variant="amber" size="sm" className="mt-3">Step {step} of 2</Badge>
+        </div>
 
-      <style>{`
-        :root {
-          --surface-container-lowest: #ffffff;
-          --surface-container-low: #f3f4f5;
-          --surface-container: #edeeef;
-          --surface-container-highest: #e1e3e4;
-          --on-surface: #191c1d;
-          --on-surface-variant: #4f4632;
-          --primary-container: #ffc700;
-          --on-primary-container: #6e5400;
-          --primary: #765b00;
-          --background: #f8f9fa;
-          --secondary: #5e5e5e;
-        }
-
-        .reg-page {
-          min-height: 100vh;
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px 16px;
-          background: var(--background);
-          font-family: "Inter", sans-serif;
-        }
-
-        .reg-card {
-          width: 100%;
-          max-width: 28rem;
-          background: var(--surface-container-lowest);
-          border-radius: 28px;
-          padding: 32px 24px;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-          border: 1px solid var(--surface-container-highest);
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .reg-header {
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .logo-circle {
-          width: 64px;
-          height: 64px;
-          background: var(--primary-container);
-          border-radius: 9999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 12px;
-          box-shadow: 0 4px 14px rgba(255, 199, 0, 0.4);
-        }
-
-        .logo-icon {
-          color: var(--on-primary-container);
-          font-size: 36px;
-        }
-
-        .reg-title {
-          margin: 0;
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 24px;
-          font-weight: 800;
-          color: var(--on-surface);
-        }
-
-        .reg-subtitle {
-          margin: 4px 0 0;
-          font-size: 14px;
-          color: var(--secondary);
-          line-height: 1.4;
-        }
-
-        .step-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: #eefbf3;
-          color: #006d37;
-          border: 1px solid #bdf1cf;
-          padding: 4px 12px;
-          border-radius: 999px;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-top: 8px;
-        }
-
-        .location-box {
-          background: #fffdf5;
-          border: 1.5px solid #ffe999;
-          border-radius: 20px;
-          padding: 14px 16px;
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-        }
-
-        .loc-icon {
-          color: #765b00;
-          font-size: 24px;
-          margin-top: 2px;
-        }
-
-        .loc-details {
-          flex: 1;
-        }
-
-        .loc-title {
-          font-size: 11px;
-          font-weight: 800;
-          color: #765b00;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .loc-address {
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--on-surface);
-          margin-top: 2px;
-          line-height: 1.3;
-        }
-
-        .re-detect-btn {
-          background: transparent;
-          border: none;
-          color: #765b00;
-          font-weight: 800;
-          font-size: 11px;
-          cursor: pointer;
-          text-decoration: underline;
-          padding: 0;
-          margin-top: 4px;
-          display: inline-block;
-        }
-
-        .input-group {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .input-label {
-          font-size: 12px;
-          font-weight: 700;
-          color: var(--on-surface);
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .custom-input, .custom-select {
-          width: 100%;
-          padding: 14px 16px;
-          border-radius: 16px;
-          border: 1.5px solid var(--surface-container-highest);
-          background: var(--background);
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--on-surface);
-          outline: none;
-          transition: border-color 0.2s;
-        }
-
-        .custom-input:focus, .custom-select:focus {
-          border-color: var(--primary);
-        }
-
-        .doc-proof-card {
-          background: var(--background);
-          border: 1.5px dashed var(--surface-container-highest);
-          border-radius: 20px;
-          padding: 14px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .doc-thumb {
-          width: 54px;
-          height: 54px;
-          border-radius: 12px;
-          object-fit: cover;
-          border: 2px solid #ffc700;
-        }
-
-        .doc-info {
-          flex: 1;
-        }
-
-        .doc-title {
-          font-size: 13px;
-          font-weight: 700;
-          color: var(--on-surface);
-        }
-
-        .doc-sub {
-          font-size: 11px;
-          color: #006d37;
-          font-weight: 700;
-        }
-
-        .submit-btn {
-          width: 100%;
-          padding: 16px;
-          border: none;
-          border-radius: 18px;
-          background: var(--primary-container);
-          color: var(--on-primary-container);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 16px;
-          font-weight: 800;
-          cursor: pointer;
-          box-shadow: 0 4px 16px rgba(255, 199, 0, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          transition: transform 0.1s;
-        }
-
-        .submit-btn:active {
-          transform: scale(0.98);
-        }
-      `}</style>
-
-      <div className="reg-page">
-        <div className="reg-card">
-          <header className="reg-header">
-            <div className="logo-circle">
-              <span className="material-symbols-outlined logo-icon">badge</span>
+        {/* Location Card */}
+        <Card variant="glass" className="mb-6 border-amber-500/20">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-amber-500/10 rounded-xl shrink-0">
+              <MapPin className="w-5 h-5 text-amber-400" />
             </div>
-            <h1 className="reg-title">Rider Partner Onboarding</h1>
-            <p className="reg-subtitle">Submit your vehicle &amp; government ID details for Super Admin verification</p>
-            <div className="step-badge">
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>verified_user</span>
-              <span>Step 2 of 2: License Details</span>
-            </div>
-          </header>
-
-          {/* LocationIQ GPS Box */}
-          <div className="location-box">
-            <span className="material-symbols-outlined loc-icon">my_location</span>
-            <div className="loc-details">
-              <span className="loc-title">LocationIQ Detected Base Zone</span>
-              <p className="loc-address">
-                {gpsLoading ? 'Fetching exact LocationIQ coordinates...' : address}
-              </p>
-              <button type="button" onClick={handleDetectLocation} className="re-detect-btn">
-                Re-detect GPS Location
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-amber-400 uppercase tracking-wider">Detected Zone</p>
+              <p className="text-sm font-semibold text-fleet-100 mt-1">{gpsLoading ? 'Fetching GPS...' : address}</p>
+              <button 
+                onClick={handleDetectLocation}
+                className="text-xs font-bold text-amber-400 hover:text-amber-300 transition mt-2 cursor-pointer"
+              >
+                Re-detect Location
               </button>
             </div>
           </div>
+        </Card>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>person</span>
-                <span>Rider Full Name</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Alex Mercer"
-                className="custom-input"
-              />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Step 1: Personal Info */}
+          {step === 1 && (
+            <div className="space-y-5 animate-fade-in-up">
+              <div>
+                <label className={labelClass}><User className="w-4 h-4" /> Full Name *</label>
+                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Alex Mercer" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}><Phone className="w-4 h-4" /> Phone *</label>
+                <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 98123 45678" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}><Mail className="w-4 h-4" /> Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="alex@cartcraze.app" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}><Bike className="w-4 h-4" /> Vehicle Number *</label>
+                <input type="text" required value={vehicleNumber} onChange={e => setVehicleNumber(e.target.value)} placeholder="KA-01-EQ-9920" className={inputClass} />
+              </div>
+              <Button variant="primary" fullWidth onClick={() => setStep(2)} type="button" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                Continue
+              </Button>
             </div>
+          )}
 
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>call</span>
-                <span>Phone Number</span>
-              </label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 98123 45678"
-                className="custom-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>mail</span>
-                <span>Email Address</span>
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="alex@cartcraze.app"
-                className="custom-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>two_wheeler</span>
-                <span>Vehicle / Bike Plate Number</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={vehicleNumber}
-                onChange={(e) => setVehicleNumber(e.target.value)}
-                placeholder="e.g. KA-01-EQ-9920"
-                className="custom-input"
-              />
-            </div>
-
-            {/* Government ID Type */}
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>assignment_ind</span>
-                <span>Government ID Proof Type</span>
-              </label>
-              <select
-                value={idProofType}
-                onChange={(e) => setIdProofType(e.target.value)}
-                className="custom-select"
-              >
-                <option value="Aadhaar Card">Aadhaar Card</option>
-                <option value="PAN Card">PAN Card</option>
-                <option value="Voter ID">Voter ID</option>
-              </select>
-            </div>
-
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>numbers</span>
-                <span>ID Proof Document Number</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={idProofNumber}
-                onChange={(e) => setIdProofNumber(e.target.value)}
-                placeholder="e.g. 5491-8820-1920"
-                className="custom-input"
-              />
-            </div>
-
-            {/* Driving License File Upload Dropzone */}
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>upload_file</span>
-                <span>Upload Driving License Proof Document *</span>
-              </label>
-              <div style={{ position: 'relative', border: '1.5px dashed #ffc700', borderRadius: '16px', padding: '14px', background: '#fffdf5', textAlign: 'center', cursor: 'pointer' }}>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleDlUpload}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-                />
-                <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#765b00' }}>cloud_upload</span>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', fontWeight: 700, color: '#191c1d' }}>Click or Drag &amp; Drop Driving License Photo</p>
-                <p style={{ margin: 0, fontSize: '10px', color: '#5e5e5e' }}>Visible in Admin Approval Dashboard</p>
+          {/* Step 2: Documents */}
+          {step === 2 && (
+            <div className="space-y-5 animate-fade-in-up">
+              <div>
+                <label className={labelClass}><CreditCard className="w-4 h-4" /> ID Proof Type</label>
+                <select value={idProofType} onChange={e => setIdProofType(e.target.value)} className={inputClass}>
+                  <option value="Aadhaar Card">Aadhaar Card</option>
+                  <option value="PAN Card">PAN Card</option>
+                  <option value="Voter ID">Voter ID</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}><FileText className="w-4 h-4" /> ID Number *</label>
+                <input type="text" required value={idProofNumber} onChange={e => setIdProofNumber(e.target.value)} placeholder="5491-8820-1920" className={inputClass} />
               </div>
 
-              {drivingLicenseProof && (
-                <div className="doc-proof-card">
-                  <img src={drivingLicenseProof} alt="Driving License Proof" className="doc-thumb" />
-                  <div className="doc-info">
-                    <span className="doc-title">{dlFileName}</span>
-                    <span className="doc-sub">✓ Driving License Attached ({dlFileSize})</span>
-                  </div>
+              {/* DL Upload */}
+              <div>
+                <label className={labelClass}><Upload className="w-4 h-4" /> Driving License *</label>
+                <div className="relative border-2 border-dashed border-fleet-700 rounded-xl p-6 text-center hover:border-amber-500/50 transition cursor-pointer bg-fleet-900/50">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={e => handleFileUpload(e, setDrivingLicenseProof, setDlFileName)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Upload className="w-8 h-8 text-fleet-600 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-fleet-300">Click or drop license photo</p>
+                  <p className="text-xs text-fleet-600 mt-1">JPG, PNG up to 5MB</p>
                 </div>
-              )}
-            </div>
-
-            {/* Government ID Photo File Upload Dropzone */}
-            <div className="input-group">
-              <label className="input-label">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>id_card</span>
-                <span>Upload {idProofType} Photo Proof *</span>
-              </label>
-              <div style={{ position: 'relative', border: '1.5px dashed #765b00', borderRadius: '16px', padding: '14px', background: '#f8f9fa', textAlign: 'center', cursor: 'pointer' }}>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleIdUpload}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-                />
-                <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#765b00' }}>add_photo_alternate</span>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', fontWeight: 700, color: '#191c1d' }}>Click or Drag &amp; Drop {idProofType} Photo</p>
-                <p style={{ margin: 0, fontSize: '10px', color: '#5e5e5e' }}>Visible in Admin Approval Dashboard</p>
+                {drivingLicenseProof && (
+                  <div className="mt-2 flex items-center gap-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-fleet-100">{dlFileName}</p>
+                      <p className="text-[10px] text-emerald-400">License uploaded</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {idProofProof && (
-                <div className="doc-proof-card">
-                  <img src={idProofProof} alt="ID Proof" className="doc-thumb" />
-                  <div className="doc-info">
-                    <span className="doc-title">{idFileName}</span>
-                    <span className="doc-sub">✓ {idProofType} Attached ({idFileSize})</span>
-                  </div>
+              {/* ID Upload */}
+              <div>
+                <label className={labelClass}><Upload className="w-4 h-4" /> {idProofType} Photo *</label>
+                <div className="relative border-2 border-dashed border-fleet-700 rounded-xl p-6 text-center hover:border-amber-500/50 transition cursor-pointer bg-fleet-900/50">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={e => handleFileUpload(e, setIdProofProof, setIdFileName)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Upload className="w-8 h-8 text-fleet-600 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-fleet-300">Click or drop ID photo</p>
+                  <p className="text-xs text-fleet-600 mt-1">JPG, PNG up to 5MB</p>
                 </div>
-              )}
-            </div>
+                {idProofProof && (
+                  <div className="mt-2 flex items-center gap-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-fleet-100">{idFileName}</p>
+                      <p className="text-[10px] text-emerald-400">ID proof uploaded</p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            <button type="submit" disabled={submitting} className="submit-btn">
-              <span>{submitting ? 'Submitting Application...' : 'Submit Application for Admin Approval'}</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </form>
-        </div>
+              <div className="flex gap-3">
+                <Button variant="secondary" fullWidth onClick={() => setStep(1)} type="button">Back</Button>
+                <Button variant="primary" fullWidth isLoading={submitting} type="submit" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                  Submit
+                </Button>
+              </div>
+            </div>
+          )}
+        </form>
       </div>
-    </>
+    </div>
   );
 };
