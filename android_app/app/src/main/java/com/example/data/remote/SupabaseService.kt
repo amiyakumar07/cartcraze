@@ -2,7 +2,10 @@ package com.example.data.remote
 
 import android.util.Log
 import com.example.BuildConfig
+import com.example.data.model.Address
+import com.example.data.model.CartItem
 import com.example.data.model.Order
+import com.example.data.model.OrderStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,18 +36,33 @@ data class SupabaseRiderLocation(
     val updatedAt: Long = System.currentTimeMillis()
 )
 
+data class SupabaseLiveOrder(
+    val orderId: String,
+    val userId: String,
+    val status: String,
+    val subtotal: Double,
+    val deliveryFee: Double,
+    val total: Double,
+    val paymentMethod: String,
+    val deliveryAddress: String,
+    val etaMinutes: Int,
+    val riderName: String,
+    val createdAt: Long
+)
+
 class SupabaseService(
     private val supabaseUrl: String = BuildConfig.SUPABASE_URL,
     private val anonKey: String = BuildConfig.SUPABASE_ANON_KEY
 ) {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(12, TimeUnit.SECONDS)
+        .readTimeout(12, TimeUnit.SECONDS)
+        .writeTimeout(12, TimeUnit.SECONDS)
         .build()
 
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
-    private val isConfigured: Boolean
+    val isConfigured: Boolean
         get() = supabaseUrl.isNotBlank() &&
                 supabaseUrl != "https://your-supabase-project.supabase.co" &&
                 anonKey.isNotBlank() &&
@@ -101,11 +119,11 @@ class SupabaseService(
     }
 
     /**
-     * Sync and insert an order into Supabase backend
+     * Insert customer order into live Supabase database
      */
     suspend fun insertOrder(order: Order, userId: String = "guest_user"): Boolean = withContext(Dispatchers.IO) {
         if (!isConfigured) {
-            Log.d("SupabaseService", "Supabase mock mode: Order ${order.orderId} saved locally and queued for cloud sync")
+            Log.d("SupabaseService", "Mock mode: Order ${order.orderId} recorded locally")
             return@withContext true
         }
 
@@ -143,6 +161,82 @@ class SupabaseService(
     }
 
     /**
+     * Fetch all live orders for Store App fulfillment and Rider dispatch
+     */
+    suspend fun fetchLiveOrders(): List<SupabaseLiveOrder> = withContext(Dispatchers.IO) {
+        if (!isConfigured) return@withContext emptyList()
+
+        try {
+            val url = "$supabaseUrl/rest/v1/orders?select=*&order=created_at.desc&limit=50"
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("apikey", anonKey)
+                .addHeader("Authorization", "Bearer $anonKey")
+                .build()
+
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: ""
+                val array = JSONArray(body)
+                val list = mutableListOf<SupabaseLiveOrder>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(
+                        SupabaseLiveOrder(
+                            orderId = obj.optString("order_id", ""),
+                            userId = obj.optString("user_id", "guest"),
+                            status = obj.optString("status", "CONFIRMED"),
+                            subtotal = obj.optDouble("subtotal", 0.0),
+                            deliveryFee = obj.optDouble("delivery_fee", 0.0),
+                            total = obj.optDouble("total", 0.0),
+                            paymentMethod = obj.optString("payment_method", "UPI"),
+                            deliveryAddress = obj.optString("delivery_address", "Delivery Address"),
+                            etaMinutes = obj.optInt("eta_minutes", 10),
+                            riderName = obj.optString("rider_name", "Assigned Rider"),
+                            createdAt = obj.optLong("created_at", System.currentTimeMillis())
+                        )
+                    )
+                }
+                return@withContext list
+            }
+        } catch (e: Exception) {
+            Log.w("SupabaseService", "Fetch live orders failed: ${e.message}")
+        }
+        emptyList()
+    }
+
+    /**
+     * Update order status in Supabase (e.g. from Store or Rider action)
+     */
+    suspend fun updateOrderStatus(orderId: String, status: String, riderName: String? = null): Boolean = withContext(Dispatchers.IO) {
+        if (!isConfigured) return@withContext true
+
+        try {
+            val url = "$supabaseUrl/rest/v1/orders?order_id=eq.$orderId"
+            val json = JSONObject().apply {
+                put("status", status)
+                if (riderName != null) {
+                    put("rider_name", riderName)
+                }
+            }
+
+            val body = json.toString().toRequestBody(jsonMediaType)
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("apikey", anonKey)
+                .addHeader("Authorization", "Bearer $anonKey")
+                .patch(body)
+                .build()
+
+            val response = client.newCall(request).execute()
+            return@withContext response.isSuccessful
+        } catch (e: Exception) {
+            Log.w("SupabaseService", "Update order status failed: ${e.message}")
+            return@withContext false
+        }
+    }
+
+    /**
      * Push real-time rider location coordinates to Supabase table
      */
     suspend fun updateRiderLocation(update: SupabaseRiderLocation): Boolean = withContext(Dispatchers.IO) {
@@ -175,5 +269,42 @@ class SupabaseService(
             Log.w("SupabaseService", "Rider tracking update error: ${e.message}")
             return@withContext false
         }
+    }
+
+    /**
+     * Fetch latest real-time rider position for Customer App live tracking
+     */
+    suspend fun fetchRiderLocation(orderId: String): SupabaseRiderLocation? = withContext(Dispatchers.IO) {
+        if (!isConfigured) return@withContext null
+
+        try {
+            val url = "$supabaseUrl/rest/v1/rider_locations?order_id=eq.$orderId&order=updated_at.desc&limit=1"
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("apikey", anonKey)
+                .addHeader("Authorization", "Bearer $anonKey")
+                .build()
+
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: ""
+                val array = JSONArray(body)
+                if (array.length() > 0) {
+                    val obj = array.getJSONObject(0)
+                    return@withContext SupabaseRiderLocation(
+                        orderId = obj.optString("order_id", orderId),
+                        riderId = obj.optString("rider_id", "rider_1"),
+                        latitude = obj.optDouble("latitude", 20.3533),
+                        longitude = obj.optDouble("longitude", 85.8178),
+                        speedKmph = obj.optDouble("speed_kmph", 28.0),
+                        heading = obj.optDouble("heading", 45.0).toFloat(),
+                        updatedAt = obj.optLong("updated_at", System.currentTimeMillis())
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.w("SupabaseService", "Fetch rider location failed: ${e.message}")
+        }
+        null
     }
 }

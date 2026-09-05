@@ -139,8 +139,16 @@ fun CartCrazeApp(
             ) {
                 SplashScreen(
                     onSplashComplete = {
-                        navController.navigate("onboarding") {
-                            popUpTo("splash") { inclusive = true }
+                        when (BuildConfig.FLAVOR.lowercase()) {
+                            "rider" -> navController.navigate("rider_app") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            "store" -> navController.navigate("shop_app") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            else -> navController.navigate("onboarding") {
+                                popUpTo("splash") { inclusive = true }
+                            }
                         }
                     }
                 )
@@ -156,7 +164,12 @@ fun CartCrazeApp(
             ) {
                 OnboardingScreen(
                     onGetStarted = {
-                        navController.navigate("role_selection") {
+                        val destination = when (BuildConfig.FLAVOR.lowercase()) {
+                            "rider" -> "rider_app"
+                            "store" -> "shop_app"
+                            else -> "home"
+                        }
+                        navController.navigate(destination) {
                             popUpTo("onboarding") { inclusive = true }
                         }
                     }

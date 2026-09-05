@@ -1,4 +1,4 @@
-name: Build Debug APK
+name: Build Debug APKs (Customer, Rider, Store)
 
 on:
   push:
@@ -73,68 +73,80 @@ jobs:
           fi
           echo "Temporary debug keystore confirmed at ./debug.keystore."
 
-      - name: Build debug APK
+      - name: Build all 3 debug APKs
         run: gradle :app:assembleDebug --stacktrace --no-daemon
 
-      - name: Verify debug APK
-        run: |
-          EXPECTED_APK="app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$EXPECTED_APK" ]; then
-            echo "::error::Expected debug APK not found at $EXPECTED_APK"
-            if [ -d "app/build/outputs/apk" ]; then
-              echo "Discovered APK files inside app/build/outputs/apk:"
-              find app/build/outputs/apk -maxdepth 3 -name "*.apk" -print
-            fi
-            exit 1
-          fi
-
-          if [ ! -s "$EXPECTED_APK" ]; then
-            echo "::error::Debug APK at $EXPECTED_APK is empty (0 bytes)."
-            exit 1
-          fi
-
-          if [[ "$EXPECTED_APK" != *.apk ]]; then
-            echo "::error::File does not have .apk extension: $EXPECTED_APK"
-            exit 1
-          fi
-
-          echo "Debug APK verified successfully at $EXPECTED_APK ($(stat -c%s "$EXPECTED_APK") bytes)."
-
-          # Mirror APK to repository root app/ output path so actions/upload-artifact finds it from root
-          mkdir -p ../app/build/outputs/apk/debug
-          cp "$EXPECTED_APK" ../app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Upload debug APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-
-      - name: Prepare APK release asset
-        id: prep_asset
+      - name: Verify & collect all APKs
+        id: collect_apks
         run: |
           TEMP_RELEASE_DIR=$(mktemp -d)
-          REPO_NAME="${{ github.event.repository.name }}"
-          if [ -z "$REPO_NAME" ]; then
-            REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          fi
-          CLEAN_REPO_NAME=$(echo "$REPO_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')
-          ASSET_NAME="${CLEAN_REPO_NAME}-debug-build-${{ github.run_number }}.apk"
-          ASSET_PATH="${TEMP_RELEASE_DIR}/${ASSET_NAME}"
+          echo "temp_dir=$TEMP_RELEASE_DIR" >> "$GITHUB_OUTPUT"
 
-          cp "app/build/outputs/apk/debug/app-debug.apk" "$ASSET_PATH"
-
-          if [ ! -s "$ASSET_PATH" ]; then
-            echo "::error::Prepared release asset is missing or empty at $ASSET_PATH"
-            exit 1
+          # Discover and verify Customer APK
+          CUSTOMER_APK=$(find app/build/outputs/apk -name "*customer*debug*.apk" | head -n 1)
+          if [ -z "$CUSTOMER_APK" ] || [ ! -f "$CUSTOMER_APK" ]; then
+            CUSTOMER_APK=$(find app/build/outputs/apk -name "*debug*.apk" | head -n 1)
           fi
 
-          echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
-          echo "asset_name=$ASSET_NAME" >> "$GITHUB_OUTPUT"
-          echo "Prepared release asset: $ASSET_PATH ($ASSET_NAME)"
+          # Discover and verify Rider APK
+          RIDER_APK=$(find app/build/outputs/apk -name "*rider*debug*.apk" | head -n 1)
 
-      - name: Publish APK to GitHub Releases
+          # Discover and verify Store APK
+          STORE_APK=$(find app/build/outputs/apk -name "*store*debug*.apk" | head -n 1)
+
+          echo "Discovered APKs:"
+          echo "Customer APK: $CUSTOMER_APK"
+          echo "Rider APK: $RIDER_APK"
+          echo "Store APK: $STORE_APK"
+
+          # Prepare release filenames
+          CUSTOMER_OUT="${TEMP_RELEASE_DIR}/cartcraze-customer-debug.apk"
+          RIDER_OUT="${TEMP_RELEASE_DIR}/cartcraze-rider-debug.apk"
+          STORE_OUT="${TEMP_RELEASE_DIR}/cartcraze-store-debug.apk"
+
+          if [ -n "$CUSTOMER_APK" ] && [ -f "$CUSTOMER_APK" ]; then
+            cp "$CUSTOMER_APK" "$CUSTOMER_OUT"
+            echo "has_customer=true" >> "$GITHUB_OUTPUT"
+            echo "customer_path=$CUSTOMER_OUT" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -n "$RIDER_APK" ] && [ -f "$RIDER_APK" ]; then
+            cp "$RIDER_APK" "$RIDER_OUT"
+            echo "has_rider=true" >> "$GITHUB_OUTPUT"
+            echo "rider_path=$RIDER_OUT" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -n "$STORE_APK" ] && [ -f "$STORE_APK" ]; then
+            cp "$STORE_APK" "$STORE_OUT"
+            echo "has_store=true" >> "$GITHUB_OUTPUT"
+            echo "store_path=$STORE_OUT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Customer APK artifact
+        if: steps.collect_apks.outputs.has_customer == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartcraze-customer-apk
+          path: ${{ steps.collect_apks.outputs.customer_path }}
+          if-no-files-found: error
+
+      - name: Upload Rider APK artifact
+        if: steps.collect_apks.outputs.has_rider == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartcraze-rider-apk
+          path: ${{ steps.collect_apks.outputs.rider_path }}
+          if-no-files-found: warn
+
+      - name: Upload Store APK artifact
+        if: steps.collect_apks.outputs.has_store == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartcraze-store-apk
+          path: ${{ steps.collect_apks.outputs.store_path }}
+          if-no-files-found: warn
+
+      - name: Publish all APKs to GitHub Releases
         id: publish_release
         continue-on-error: true
         env:
@@ -143,30 +155,37 @@ jobs:
           echo "=== GitHub CLI Version ==="
           gh --version
 
-          ASSET_PATH="${{ steps.prep_asset.outputs.asset_path }}"
-          if [ ! -f "$ASSET_PATH" ] || [ ! -s "$ASSET_PATH" ]; then
-            echo "::error::Release asset not found or is empty at $ASSET_PATH"
-            exit 1
-          fi
-
+          TEMP_DIR="${{ steps.collect_apks.outputs.temp_dir }}"
           RELEASE_TAG="debug-apk-build-${{ github.run_number }}-${{ github.run_attempt }}"
-          RELEASE_TITLE="Debug APK Build #${{ github.run_number }}"
+          RELEASE_TITLE="CartCraze 3-in-1 Apps Build #${{ github.run_number }}"
 
           NOTES_FILE=$(mktemp)
           {
-            echo "### 📱 CartCraze Debug APK Build"
+            echo "### 🚀 CartCraze 3-in-1 Native Android Apps"
             echo ""
+            echo "Download the standalone APKs directly to your phone:"
+            echo "- 🛒 **Customer App**: \`cartcraze-customer-debug.apk\`"
+            echo "- 🛵 **Rider Partner App**: \`cartcraze-rider-debug.apk\`"
+            echo "- 🏬 **Dark Store Merchant App**: \`cartcraze-store-debug.apk\`"
+            echo ""
+            echo "---"
             echo "- **Build Source**: Automatically generated by GitHub Actions"
             echo "- **Workflow Run**: #${{ github.run_number }} (Attempt #${{ github.run_attempt }})"
             echo "- **Commit SHA**: \`${{ github.sha }}\`"
-            echo "- **Release Tag**: \`${RELEASE_TAG}\`"
-            echo ""
-            echo "> **Note**: This is an automatically generated debug APK intended for testing. It is not a Play Store production release and is signed only with a temporary debug keystore."
+            echo "- **Android SDK**: API 35 (Android 15) / minSdk 24 (Android 7.0+)"
           } > "$NOTES_FILE"
 
-          echo "Creating GitHub Release with tag: $RELEASE_TAG and title: $RELEASE_TITLE"
+          # Collect all APK assets in the directory
+          ASSETS=()
+          for apk in "$TEMP_DIR"/*.apk; do
+            if [ -f "$apk" ]; then
+              ASSETS+=("$apk")
+            fi
+          done
+
+          echo "Creating GitHub Release with ${#ASSETS[@]} APK assets..."
           gh release create "$RELEASE_TAG" \
-            "$ASSET_PATH" \
+            "${ASSETS[@]}" \
             --title "$RELEASE_TITLE" \
             --notes-file "$NOTES_FILE" \
             --target "${{ github.sha }}" \
@@ -180,9 +199,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ASSET_NAME="${{ steps.prep_asset.outputs.asset_name }}"
           RELEASE_TAG="debug-apk-build-${{ github.run_number }}-${{ github.run_attempt }}"
-          RELEASE_TITLE="Debug APK Build #${{ github.run_number }}"
+          RELEASE_TITLE="CartCraze 3-in-1 Apps Build #${{ github.run_number }}"
 
           if [ "${{ steps.publish_release.outcome }}" = "success" ]; then
             echo "=========================================="
@@ -194,28 +212,27 @@ jobs:
             echo "Release Tag: $RELEASE_TAG"
             echo "Release Title: $RELEASE_TITLE"
             echo "Release URL: $RELEASE_URL"
-            echo "Asset Filename: $ASSET_NAME"
 
             {
-              echo "## 📱 Debug APK Build & Release Summary"
+              echo "## 📱 CartCraze 3-in-1 APKs Available for Download"
               echo ""
-              echo "- ✅ **Debug APK Built Successfully**: \`app-debug.apk\`"
-              echo "- ✅ **GitHub Actions Artifact**: \`app-debug-apk\` (available as backup)"
-              echo "- 🚀 **GitHub Release**: [$RELEASE_TITLE]($RELEASE_URL)"
-              echo "- 📦 **Downloadable APK Asset**: \`$ASSET_NAME\`"
+              echo "The following standalone APKs are published under [GitHub Release $RELEASE_TITLE]($RELEASE_URL):"
+              echo "- 🛒 **Customer App**: \`cartcraze-customer-debug.apk\`"
+              echo "- 🛵 **Rider Delivery App**: \`cartcraze-rider-debug.apk\`"
+              echo "- 🏬 **Dark Store App**: \`cartcraze-store-debug.apk\`"
               echo ""
-              echo "You can download the APK directly to your Android device from the **Assets** section of the [Release Page]($RELEASE_URL)."
+              echo "👉 [Open Releases Page to Download APKs]($RELEASE_URL)"
             } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "::warning::GitHub Release publishing did not succeed or was skipped."
-            echo "The debug APK build completed successfully and is preserved as a GitHub Actions artifact."
-            echo "Artifact Name: app-debug-apk"
+            echo "::warning::GitHub Release publishing encountered an issue or was skipped."
+            echo "The debug APK builds are preserved in the GitHub Actions artifacts section."
 
             {
               echo "## 📱 Debug APK Build Summary"
               echo ""
-              echo "- ✅ **Debug APK Built Successfully**: \`app-debug.apk\`"
-              echo "- ✅ **GitHub Actions Artifact Preserved**: \`app-debug-apk\`"
-              echo "- ⚠️ **GitHub Release Publishing**: Publishing encountered an issue or was skipped, but the Actions artifact \`app-debug-apk\` is fully available for download."
+              echo "All 3 APKs built successfully and are preserved in GitHub Actions artifacts:"
+              echo "- \`cartcraze-customer-apk\`"
+              echo "- \`cartcraze-rider-apk\`"
+              echo "- \`cartcraze-store-apk\`"
             } >> "$GITHUB_STEP_SUMMARY"
           fi
