@@ -464,8 +464,8 @@ private fun androidx.navigation.NavGraphBuilder.addCustomerRoutes(
             onBack = { navController.popBackStack() },
             onChangeAddress = { navController.navigate("addresses") },
             onOrderPlaced = { order ->
-                val totalStr = order.totalAmount.toString()
-                val eta = order.estimatedDeliveryTime ?: 10
+                val totalStr = order.total.toString()
+                val eta = order.etaMinutes
                 navController.navigate("order_success/${order.orderId}/$totalStr/$eta") {
                     popUpTo("home")
                 }
