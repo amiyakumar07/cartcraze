@@ -103,6 +103,18 @@ jobs:
           path: android_app/gradle_build.log
           if-no-files-found: warn
 
+      - name: Save build log to branch on failure
+        if: failure()
+        run: |
+          cd ..
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-log
+          cp android_app/gradle_build.log last_build_error.txt
+          git add last_build_error.txt
+          git commit -m "build error log from run ${{ github.run_number }}" || true
+          git push -f origin build-log || true
+
       - name: Verify & collect all APKs
         id: collect_apks
         run: |
