@@ -1554,6 +1554,7 @@ fun OrdersListScreen(
         }
     }
 }
+}
 
 @Composable
 fun AccountScreen(
