@@ -38,7 +38,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[99999] bg-black flex items-center justify-center overflow-hidden select-none"
+      className="absolute inset-0 z-50 bg-black flex items-center justify-center overflow-hidden select-none"
       style={{ touchAction: 'none' }}
     >
       <video

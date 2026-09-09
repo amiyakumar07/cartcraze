@@ -16,13 +16,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
     const videoEl = videoRef.current;
     if (videoEl) {
-      // Auto-play immediately with fallback
       const playPromise = videoEl.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
           videoEl.muted = true;
           videoEl.play().catch(() => {
-            // If autoplay is completely blocked by policy, continue safely
             finish();
           });
         });
@@ -41,7 +39,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[99999] bg-black flex items-center justify-center overflow-hidden select-none"
+      className="absolute inset-0 z-50 bg-black flex items-center justify-center overflow-hidden select-none"
       style={{ touchAction: 'none' }}
     >
       <video

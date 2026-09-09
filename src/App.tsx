@@ -45,29 +45,6 @@ const MainAppContent: React.FC = () => {
     }
   };
 
-  // 1. Startup Splash Video: Fullscreen without flashing login or home
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
-  // 2. Onboarding Screen
-  if (activeTab === 'onboarding') {
-    return (
-      <MobileFrame>
-        <OnboardingScreen />
-      </MobileFrame>
-    );
-  }
-
-  // 3. Login Screen
-  if (activeTab === 'login') {
-    return (
-      <MobileFrame>
-        <LoginScreen />
-      </MobileFrame>
-    );
-  }
-
   const renderActiveScreen = () => {
     if (isOutOfCoverageRange && (activeTab === 'home' || activeTab === 'categories' || activeTab === 'category_detail')) {
       return (
@@ -99,16 +76,26 @@ const MainAppContent: React.FC = () => {
 
   return (
     <MobileFrame>
-      <Header />
-      <main className="flex-1">
-        {renderActiveScreen()}
-      </main>
-      <BottomNav />
-      <ProductDetailModal />
-      <LocationPermissionModal
-        isOpen={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-      />
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : activeTab === 'onboarding' ? (
+        <OnboardingScreen />
+      ) : activeTab === 'login' ? (
+        <LoginScreen />
+      ) : (
+        <>
+          <Header />
+          <main className="flex-1 pb-20">
+            {renderActiveScreen()}
+          </main>
+          <BottomNav />
+          <ProductDetailModal />
+          <LocationPermissionModal
+            isOpen={showLocationModal}
+            onClose={() => setShowLocationModal(false)}
+          />
+        </>
+      )}
     </MobileFrame>
   );
 };

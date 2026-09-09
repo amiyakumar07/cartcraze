@@ -14,14 +14,13 @@ import { TrackOrderScreen } from './pages/TrackOrderScreen';
 import { AccountScreen } from './pages/AccountScreen';
 import { LoginScreen } from './pages/LoginScreen';
 import { OnboardingScreen } from './pages/OnboardingScreen';
-import { ComingSoonScreen } from './pages/ComingSoonScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 import { SearchScreen } from './pages/SearchScreen';
 import { OffersScreen } from './pages/OffersScreen';
 import { AddressesScreen } from './pages/AddressesScreen';
 
 const MainAppContent: React.FC = () => {
-  const { activeTab, setActiveTab, getCartCount, getCartTotal, isOutOfCoverageRange, userProfile } = useApp();
+  const { activeTab, setActiveTab, getCartCount, getCartTotal, userProfile } = useApp();
   
   // Track startup opening video splash
   const [showSplash, setShowSplash] = useState<boolean>(() => {
@@ -48,29 +47,6 @@ const MainAppContent: React.FC = () => {
       setActiveTab('login');
     }
   };
-
-  // 1. Startup Splash Video: Fullscreen without flashing login or home
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
-  // 2. Onboarding Screen
-  if (activeTab === 'onboarding') {
-    return (
-      <MobileFrame>
-        <OnboardingScreen />
-      </MobileFrame>
-    );
-  }
-
-  // 3. Login Screen
-  if (activeTab === 'login') {
-    return (
-      <MobileFrame>
-        <LoginScreen />
-      </MobileFrame>
-    );
-  }
 
   const renderActiveScreen = () => {
     switch (activeTab) {
@@ -100,23 +76,33 @@ const MainAppContent: React.FC = () => {
 
   return (
     <MobileFrame>
-      <Header />
-      <main className="flex-1">
-        {renderActiveScreen()}
-      </main>
-      {activeTab !== 'cart' && (
-        <FloatingCartBar
-          itemCount={getCartCount()}
-          subtotal={getCartTotal()}
-          onViewCart={() => setActiveTab('cart')}
-        />
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : activeTab === 'onboarding' ? (
+        <OnboardingScreen />
+      ) : activeTab === 'login' ? (
+        <LoginScreen />
+      ) : (
+        <>
+          <Header />
+          <main className="flex-1 pb-20">
+            {renderActiveScreen()}
+          </main>
+          {activeTab !== 'cart' && (
+            <FloatingCartBar
+              itemCount={getCartCount()}
+              subtotal={getCartTotal()}
+              onViewCart={() => setActiveTab('cart')}
+            />
+          )}
+          <BottomNav />
+          <ProductDetailModal />
+          <LocationPermissionModal
+            isOpen={showLocationModal}
+            onClose={() => setShowLocationModal(false)}
+          />
+        </>
       )}
-      <BottomNav />
-      <ProductDetailModal />
-      <LocationPermissionModal
-        isOpen={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-      />
     </MobileFrame>
   );
 };

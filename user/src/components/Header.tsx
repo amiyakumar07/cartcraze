@@ -42,8 +42,8 @@ export const Header: React.FC = () => {
   const cartCount = getCartCount();
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-[#faf8ff]/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
-      <div className="px-4 py-2 flex flex-col justify-center gap-1.5 max-w-[440px] mx-auto">
+    <header className="fixed top-0 inset-x-0 z-40 bg-[#faf8ff]/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+      <div className="px-4 py-2 flex flex-col justify-center gap-1.5 w-full mx-auto">
         {/* Top Brand & Profile Row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
