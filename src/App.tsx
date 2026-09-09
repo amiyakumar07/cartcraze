@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { MobileFrame } from './components/MobileFrame';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { ProductDetailModal } from './components/ProductDetailModal';
+import { SplashScreen } from './components/SplashScreen';
 import { HomeScreen } from './pages/HomeScreen';
 import { CategoryScreen } from './pages/CategoryScreen';
 import { BasketScreen } from './pages/BasketScreen';
@@ -16,9 +17,40 @@ import { ComingSoonScreen } from './pages/ComingSoonScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
 
 const MainAppContent: React.FC = () => {
-  const { activeTab, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
-  const [showLocationModal, setShowLocationModal] = React.useState(true);
+  const { activeTab, setActiveTab, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
+  
+  // Track startup opening video splash
+  const [showSplash, setShowSplash] = useState<boolean>(() => {
+    try {
+      return !sessionStorage.getItem('cartcraze_splash_shown');
+    } catch {
+      return true;
+    }
+  });
 
+  const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+
+  const handleSplashComplete = () => {
+    try {
+      sessionStorage.setItem('cartcraze_splash_shown', 'true');
+    } catch { /* silent */ }
+    setShowSplash(false);
+
+    // Startup routing after opening video:
+    // If user is already authenticated: navigate to Home; Else: navigate to Login
+    if (userProfile && userProfile.isLoggedIn && userProfile.email && !userProfile.phone?.includes('guest')) {
+      setActiveTab('home');
+    } else {
+      setActiveTab('login');
+    }
+  };
+
+  // 1. Startup Splash Video: Fullscreen without flashing login or home
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  // 2. Onboarding Screen
   if (activeTab === 'onboarding') {
     return (
       <MobileFrame>
@@ -27,6 +59,7 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  // 3. Login Screen
   if (activeTab === 'login') {
     return (
       <MobileFrame>
@@ -36,7 +69,6 @@ const MainAppContent: React.FC = () => {
   }
 
   const renderActiveScreen = () => {
-    // If no store is available within 5km delivery range, block product view across ALL storefront tabs
     if (isOutOfCoverageRange && (activeTab === 'home' || activeTab === 'categories' || activeTab === 'category_detail')) {
       return (
         <ComingSoonScreen

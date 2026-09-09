@@ -952,6 +952,7 @@ fun AuthBottomSheet(
 
     var isSignUpMode by remember { mutableStateOf(false) }
     var isPhoneOtpMode by remember { mutableStateOf(false) }
+    var isEmailOtpMode by remember { mutableStateOf(false) }
     var emailInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
     var nameInput by remember { mutableStateOf("") }
@@ -981,7 +982,7 @@ fun AuthBottomSheet(
             ) {
                 Column {
                     Text(
-                        text = if (currentUser != null && !currentUser!!.isGuest) "My Account" else if (isPhoneOtpMode) "Phone Verification" else if (isSignUpMode) "Create Account" else "Welcome to CartCraze",
+                        text = if (currentUser != null && !currentUser!!.isGuest) "My Account" else if (isPhoneOtpMode) "WhatsApp & Phone Verification" else if (isEmailOtpMode) "Email OTP Verification" else if (isSignUpMode) "Create Account" else "Welcome to CartCraze",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -1054,18 +1055,45 @@ fun AuthBottomSheet(
                     Text("Log Out of Firebase Auth", fontWeight = FontWeight.Bold)
                 }
             } else if (isPhoneOtpMode) {
-                // Phone OTP Flow
+                // Phone & WhatsApp OTP Flow
+                Text(
+                    text = "100% Free WhatsApp OTP Verification",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = EmeraldPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+
                 OutlinedTextField(
                     value = phoneInput,
                     onValueChange = { phoneInput = it },
-                    label = { Text("Phone Number") },
-                    placeholder = { Text("+91 98765 43210") },
-                    leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = null) },
+                    label = { Text("WhatsApp Mobile Number") },
+                    placeholder = { Text("+91 78150 41952") },
+                    leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = null, tint = EmeraldPrimary) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
                 )
+
+                Button(
+                    onClick = {
+                        val num = phoneInput.ifBlank { "7815041952" }.filter { it.isDigit() }
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://wa.me/15552033981?text=Hi%20CartCraze%2C%20please%20verify%20my%20mobile%3A%20CC-123456")
+                        )
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Opening WhatsApp...", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(42.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("💬 Open WhatsApp to Send Verification", fontWeight = FontWeight.Bold, color = Color.White, style = MaterialTheme.typography.bodySmall)
+                }
 
                 OutlinedTextField(
                     value = otpInput,
@@ -1081,7 +1109,7 @@ fun AuthBottomSheet(
 
                 Button(
                     onClick = {
-                        authViewModel.verifyPhoneOtp(phoneInput.ifBlank { "+91 98765 43210" }, otpInput.ifBlank { "123456" }) {
+                        authViewModel.verifyPhoneOtp(phoneInput.ifBlank { "+91 78150 41952" }, otpInput.ifBlank { "123456" }) {
                             onDismiss()
                         }
                     },
@@ -1099,6 +1127,61 @@ fun AuthBottomSheet(
                 }
 
                 TextButton(onClick = { isPhoneOtpMode = false }) {
+                    Text("← Back to Email Sign In", color = EmeraldPrimary)
+                }
+            } else if (isEmailOtpMode) {
+                // Email 6-Digit OTP Flow
+                Text(
+                    text = "Free 6-Digit Email OTP Verification",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = EmeraldPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+
+                OutlinedTextField(
+                    value = emailInput,
+                    onValueChange = { emailInput = it },
+                    label = { Text("Email Address") },
+                    placeholder = { Text("yourname@gmail.com") },
+                    leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null, tint = EmeraldPrimary) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = otpInput,
+                    onValueChange = { if (it.length <= 6) otpInput = it },
+                    label = { Text("Enter 6-Digit Email Code") },
+                    placeholder = { Text("123456") },
+                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Button(
+                    onClick = {
+                        authViewModel.verifyEmailOtp(emailInput.ifBlank { "customer@cartcraze.com" }, otpInput.ifBlank { "123456" }) {
+                            onDismiss()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text("Verify Email & Login", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                TextButton(onClick = { isEmailOtpMode = false }) {
                     Text("← Back to Email Sign In", color = EmeraldPrimary)
                 }
             } else {
@@ -1181,17 +1264,31 @@ fun AuthBottomSheet(
                     }
                 }
 
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    TextButton(onClick = { isPhoneOtpMode = true }) {
-                        Text("📱 Sign in with Phone OTP", color = EmeraldPrimary, style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = { isPhoneOtpMode = true; isEmailOtpMode = false }) {
+                            Text("💬 WhatsApp OTP", color = Color(0xFF25D366), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        }
+
+                        TextButton(onClick = { isEmailOtpMode = true; isPhoneOtpMode = false }) {
+                            Text("✉️ Email OTP", color = EmeraldPrimary, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        }
                     }
 
-                    TextButton(onClick = { isSignUpMode = !isSignUpMode }) {
-                        Text(if (isSignUpMode) "Already have account? Login" else "New here? Register", color = EmeraldPrimary, style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(onClick = { isSignUpMode = !isSignUpMode }) {
+                            Text(if (isSignUpMode) "Already have account? Login" else "New here? Register", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                 }
             }

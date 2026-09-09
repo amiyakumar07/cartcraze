@@ -387,6 +387,24 @@ class AuthViewModel(
         }
     }
 
+    fun verifyEmailOtp(email: String, otp: String, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _authError.value = null
+            when (val result = firebaseAuthService.verifyEmailOtp(email, otp)) {
+                is AuthResult.Success -> {
+                    _currentUser.value = result.user
+                    _isLoading.value = false
+                    onSuccess()
+                }
+                is AuthResult.Error -> {
+                    _authError.value = result.message
+                    _isLoading.value = false
+                }
+            }
+        }
+    }
+
     fun signInWithGoogle(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _isLoading.value = true

@@ -31,17 +31,14 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
   const [liveLocation, setLiveLocation] = useState<LiveRiderLocation | null>(null);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
 
-  // Customer Home Coordinates
   const customerLat = customLat ?? userCoords?.lat ?? 12.9250;
   const customerLon = customLon ?? userCoords?.lon ?? 77.6500;
 
-  // Darkstore Pickup Coordinates (HSR Sector 1)
   const darkstoreLat = 12.9100;
   const darkstoreLon = 77.6400;
 
   const displayAddress = destinationAddress || userProfile?.address || 'Flat 402, Sunshine Apartments, HSR Layout, Bengaluru';
 
-  // Poll live rider location from backend API
   useEffect(() => {
     let isMounted = true;
 
@@ -61,7 +58,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
     };
   }, [orderId]);
 
-  // Trigger movement simulation if toggle enabled
   useEffect(() => {
     if (!isSimulating) return;
 
@@ -81,7 +77,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
     return () => clearInterval(simTimer);
   }, [isSimulating]);
 
-  // Current Rider position or fallback interpolation
   const riderLat = liveLocation?.lat ?? 12.9160;
   const riderLon = liveLocation?.lon ?? 77.6440;
   const speed = liveLocation?.speed ?? 32;
@@ -90,7 +85,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
   const etaMinutes = liveLocation?.etaMinutes ?? 4;
   const riderName = liveLocation?.riderName ?? 'Rahul Kumar';
 
-  // Reverse geocode rider position
   useEffect(() => {
     let isMounted = true;
     reverseGeocodeLocationIQ(riderLat, riderLon).then(res => {
@@ -101,7 +95,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
     return () => { isMounted = false; };
   }, [riderLat, riderLon]);
 
-  // Initialize Leaflet Map
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
@@ -113,14 +106,12 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
         attributionControl: false
       });
 
-      // LocationIQ Vector/Streets Tile Layer
       const tileUrl = `https://a-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${LOCATIONIQ_API_KEY}`;
       L.tileLayer(tileUrl, {
         maxZoom: 19,
         subdomains: 'abc'
       }).addTo(map);
 
-      // 1. Darkstore Pickup Marker (Yellow Store Icon)
       const darkstoreIcon = L.divIcon({
         className: 'custom-map-icon',
         html: `
@@ -135,7 +126,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
         .addTo(map)
         .bindPopup('<b>CartCraze Express Darkstore #04</b><br/>Item packed & ready for delivery');
 
-      // 2. Customer Delivery Destination Marker (Red Pin)
       const customerIcon = L.divIcon({
         className: 'custom-map-icon',
         html: `
@@ -150,7 +140,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
         .addTo(map)
         .bindPopup(`<b>Delivery Address</b><br/>${displayAddress}`);
 
-      // 3. Live Rider Delivery Partner Marker (Pulsing Scooter)
       const riderIcon = L.divIcon({
         className: 'custom-map-icon rider-pulse-icon',
         html: `
@@ -169,7 +158,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
       riderMarker.bindPopup(`<b>${riderName}</b><br/>Speed: ${speed} km/h • EV Scooter`);
       riderMarkerRef.current = riderMarker;
 
-      // 4. Draw Route Line from Darkstore ➔ Rider ➔ Customer
       const routeLine = L.polyline(
         [
           [darkstoreLat, darkstoreLon],
@@ -199,7 +187,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
     };
   }, []);
 
-  // Update Rider Marker position and polyline dynamically when telemetry changes
   useEffect(() => {
     if (riderMarkerRef.current) {
       riderMarkerRef.current.setLatLng([riderLat, riderLon]);
@@ -218,7 +205,6 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
 
   return (
     <div className="bg-white rounded-3xl p-4 shadow-xl border border-gray-100 space-y-3 font-sans relative overflow-hidden">
-      {/* Top Map Status Bar */}
       <div className="flex justify-between items-center text-xs">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -241,11 +227,9 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
         </div>
       </div>
 
-      {/* Leaflet Map Canvas */}
       <div className="relative w-full h-56 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
         <div ref={mapContainerRef} className="w-full h-full z-10" />
 
-        {/* Floating Telemetry Stats Overlay */}
         <div className="absolute top-2 left-2 z-20 bg-slate-950/85 backdrop-blur-md text-white p-2.5 rounded-xl text-[11px] font-mono shadow-lg border border-slate-800 space-y-1">
           <div className="flex items-center justify-between gap-3">
             <span className="text-amber-400 font-bold">Rider Speed:</span>
@@ -261,14 +245,12 @@ export const LocationIQMap: React.FC<LocationIQMapProps> = ({
           </div>
         </div>
 
-        {/* Bottom SLA Countdown Badge */}
         <div className="absolute bottom-2 right-2 z-20 bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-black shadow-lg border border-emerald-400 flex items-center gap-1.5 animate-bounce">
           <Activity className="w-3.5 h-3.5 text-yellow-300" />
           <span>Arriving in ~{etaMinutes} Mins</span>
         </div>
       </div>
 
-      {/* Footer Location Status */}
       <div className="flex justify-between items-center text-[11px] text-gray-500 pt-1">
         <span className="font-bold text-gray-700 truncate max-w-[240px]">
           📍 En route to: {displayAddress}

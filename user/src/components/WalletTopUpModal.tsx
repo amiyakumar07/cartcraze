@@ -21,7 +21,7 @@ export const WalletTopUpModal: React.FC<WalletTopUpModalProps> = ({ isOpen, onCl
     setUserProfile((prev) => ({
       ...prev,
       walletBalance: prev.walletBalance + topUpAmount,
-      freshCoins: prev.freshCoins + Math.floor(topUpAmount * 0.1) // 10% cash back points
+      freshCoins: prev.freshCoins + Math.floor(topUpAmount * 0.1)
     }));
     setSuccessMsg(`Successfully added ₹${topUpAmount} to CartCraze Wallet!`);
     setTimeout(() => {
@@ -90,7 +90,6 @@ export const WalletTopUpModal: React.FC<WalletTopUpModalProps> = ({ isOpen, onCl
             <p>{successMsg}</p>
           </div>
         ) : activeTab === 'topup' ? (
-          /* Top-Up Form */
           <form onSubmit={handleTopUpSubmit} className="space-y-4">
             <div className="bg-gradient-to-r from-gray-900 to-slate-800 text-white rounded-2xl p-4 flex justify-between items-center shadow-md">
               <div>
@@ -143,7 +142,6 @@ export const WalletTopUpModal: React.FC<WalletTopUpModalProps> = ({ isOpen, onCl
             </button>
           </form>
         ) : (
-          /* CartCoins Rewards Center */
           <div className="space-y-3">
             <div className="bg-amber-50 border border-amber-200 text-amber-950 rounded-2xl p-3 flex items-center justify-between">
               <div className="flex items-center gap-2">

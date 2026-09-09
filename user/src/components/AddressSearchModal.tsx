@@ -38,18 +38,17 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const fullAddress = await reverseGeocodeLocationIQ(position.coords.latitude, position.coords.longitude);
+          const res = await reverseGeocodeLocationIQ(position.coords.latitude, position.coords.longitude);
           setGpsLoading(false);
-          onSelectAddress(fullAddress);
+          onSelectAddress(res.address);
           onClose();
         },
         async () => {
-          const fullAddress = await reverseGeocodeLocationIQ(12.9141, 77.6411);
+          const res = await reverseGeocodeLocationIQ(12.9141, 77.6411);
           setGpsLoading(false);
-          onSelectAddress(fullAddress);
+          onSelectAddress(res.address);
           onClose();
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        }
       );
     } else {
       onSelectAddress('HSR Layout, Sector 1, Bengaluru');
@@ -61,7 +60,6 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white max-w-sm w-full rounded-3xl p-5 shadow-2xl space-y-4 border border-gray-100 animate-fadeIn">
-        {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-amber-400 text-black rounded-xl shadow-xs">
@@ -80,7 +78,6 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
           </button>
         </div>
 
-        {/* GPS Live Locate Button */}
         <button
           onClick={handleUseCurrentGps}
           disabled={gpsLoading}
@@ -94,7 +91,6 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
           <span>{gpsLoading ? 'LocationIQ Geocoding GPS...' : 'Use Current Device GPS Location'}</span>
         </button>
 
-        {/* Search Input Box */}
         <div className="relative">
           <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-3.5 py-3 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20 transition">
             <Search className="w-4 h-4 text-gray-400 mr-2 shrink-0" />
@@ -109,7 +105,6 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
           </div>
         </div>
 
-        {/* Search Results List */}
         <div className="space-y-1 max-h-56 overflow-y-auto no-scrollbar">
           {results.length > 0 ? (
             results.map((res) => (

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Home, Grid, ShoppingBag, User } from 'lucide-react';
 import type { ActiveTab } from '../types';
 
 export const BottomNav: React.FC = () => {
@@ -8,70 +7,93 @@ export const BottomNav: React.FC = () => {
   const cartCount = getCartCount();
   const cartTotal = getCartTotal();
 
-  const navItems: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'categories', label: 'Categories', icon: Grid },
-    { id: 'cart', label: 'Cart', icon: ShoppingBag },
-    { id: 'account', label: 'Account', icon: User }
+  const navItems: { id: ActiveTab; label: string; icon: string }[] = [
+    { id: 'home', label: 'Home', icon: 'storefront' },
+    { id: 'categories', label: 'Categories', icon: 'grid_view' },
+    { id: 'home', label: 'Search', icon: 'search' },
+    { id: 'track_order', label: 'Orders', icon: 'receipt_long' },
+    { id: 'account', label: 'Account', icon: 'person' }
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-[440px] mx-auto z-40 bg-white border-t border-gray-100 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] rounded-t-2xl">
-      {/* Floating Mini Cart Notification Bar (if items in cart and not currently on cart/checkout page) */}
+    <div className="fixed bottom-0 left-0 right-0 max-w-[440px] mx-auto z-40">
+      {/* Floating Gradient Cart Bar */}
       {cartCount > 0 && activeTab !== 'cart' && activeTab !== 'order_confirmed' && (
-        <div 
-          onClick={() => setActiveTab('cart')}
-          className="mx-3 -mt-4 mb-1 bg-gray-900 text-white rounded-xl p-2.5 flex justify-between items-center shadow-lg cursor-pointer hover:bg-black transition-all transform hover:-translate-y-0.5"
-        >
-          <div className="flex items-center gap-2">
-            <div className="bg-[#fdee24] text-black text-xs font-black w-6 h-6 rounded-full flex items-center justify-center">
-              {cartCount}
+        <div className="px-3 pb-2">
+          <div 
+            onClick={() => setActiveTab('cart')}
+            className="bg-gradient-to-r from-[#00676d] to-[#00828a] text-white rounded-xl p-2.5 shadow-xl flex flex-col gap-1.5 cursor-pointer transform active:scale-[0.99] transition-transform"
+          >
+            <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-[#fb7800] h-full w-[62%] rounded-full"></div>
             </div>
-            <div>
-              <p className="text-xs font-bold leading-tight">View Basket</p>
-              <p className="text-[10px] text-gray-300">Free delivery applicable</p>
+            <div className="flex items-center justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-white">{cartCount} Items • ₹{cartTotal}</span>
+                  <span className="bg-[#fb7800] text-white text-[9px] px-1.5 py-0.2 rounded font-extrabold">SAVED ₹44</span>
+                </div>
+                <p className="text-[10px] text-[#e2e7ff] truncate">Add items for FREE fast delivery</p>
+              </div>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab('cart');
+                }}
+                className="flex items-center gap-1 bg-white text-[#00676d] text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm"
+              >
+                <span>View Cart</span>
+                <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+              </button>
             </div>
-          </div>
-          <div className="flex items-center gap-1 font-bold text-xs">
-            <span>₹{cartTotal}</span>
-            <span className="text-[#fdee24]">→</span>
           </div>
         </div>
       )}
 
-      {/* Navigation Buttons */}
-      <nav className="flex justify-around items-center py-2 px-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = 
-            activeTab === item.id || 
-            (item.id === 'categories' && activeTab === 'category_detail') ||
-            (item.id === 'cart' && (activeTab === 'track_order' || activeTab === 'order_confirmed'));
+      {/* Navigation Tabs */}
+      <nav className="bg-[#faf8ff]/95 backdrop-blur-xl border-t border-[#dae2fd]/60 shadow-[0_-4px_16px_rgba(15,23,42,0.06)] pb-safe">
+        <div className="flex justify-around items-center h-14 px-1">
+          {navItems.map((item, idx) => {
+            const isSearch = idx === 2;
+            const isActive = 
+              (item.id === activeTab && !isSearch) ||
+              (item.id === 'categories' && activeTab === 'category_detail') ||
+              (item.id === 'track_order' && (activeTab === 'track_order' || activeTab === 'order_confirmed'));
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
-                isActive ? 'text-gray-900 font-bold' : 'text-gray-400 hover:text-gray-600 font-medium'
-              }`}
-            >
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110 text-gray-900' : ''}`} />
-                {item.id === 'cart' && cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
-                    {cartCount}
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (isSearch) {
+                    setActiveTab('home');
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                }}
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] min-h-[44px] transition-colors relative ${
+                  isActive ? 'text-[#00676d] font-bold' : 'text-[#6e797a] hover:text-[#131b2e]'
+                }`}
+              >
+                <div className="relative flex items-center justify-center">
+                  <span className={`material-symbols-outlined text-[22px] ${isActive ? 'scale-105' : ''}`}>
+                    {item.icon}
                   </span>
-                )}
-              </div>
-              <span className="text-[10px]">{item.label}</span>
-              {isActive && (
-                <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-0.5" />
-              )}
-            </button>
-          );
-        })}
+                  {item.id === 'track_order' && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#006a48] ring-2 ring-[#faf8ff] animate-pulse"></span>
+                  )}
+                  {item.id === 'cart' && cartCount > 0 && (
+                    <span className="absolute -top-1 -right-2 px-1 py-0.2 rounded-full bg-[#fb7800] text-white text-[9px] font-bold">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
 };
+

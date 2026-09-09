@@ -47,7 +47,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onCl
               <p className="text-[10px] text-gray-400 font-medium">Update account contact details</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition">
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>

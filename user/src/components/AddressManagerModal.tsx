@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, MapPin, Plus, Check, Home, Briefcase, Navigation, Loader2 } from 'lucide-react';
-import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ } from '../services/locationiq';
 import type { SavedAddress } from '../types';
 
 interface AddressManagerModalProps {
@@ -43,65 +43,52 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          try {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            setUserCoords({ lat, lon });
-            const detailed = await reverseGeocodeDetailedLocationIQ(lat, lon);
-            const gpsAddress = detailed.displayName;
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          setUserCoords({ lat, lon });
+          const res = await reverseGeocodeLocationIQ(lat, lon);
+          
+          const gpsAddress = res.address;
+          const newGpsAddress: SavedAddress = {
+            id: 'addr-' + Date.now(),
+            label: 'Home',
+            flatNo: gpsAddress.split(',')[0] || 'Current GPS Location',
+            area: gpsAddress.split(',').slice(1).join(', ') || 'Detected LocationIQ GPS',
+            fullAddress: gpsAddress,
+            isDefault: true
+          };
 
-            const newGpsAddress: SavedAddress = {
-              id: 'addr-' + Date.now(),
-              label: 'Home',
-              flatNo: detailed.street || 'Current GPS Location',
-              area: `${detailed.village}, ${detailed.city} ${detailed.pincode}`,
-              fullAddress: gpsAddress,
-              isDefault: true
-            };
+          const updatedList = savedAddressesList.map((a) => ({ ...a, isDefault: false }));
+          updatedList.unshift(newGpsAddress);
 
-            const updatedList = savedAddressesList.map((a) => ({ ...a, isDefault: false }));
-            updatedList.unshift(newGpsAddress);
+          setUserProfile((prev) => ({
+            ...prev,
+            address: gpsAddress,
+            savedAddresses: updatedList
+          }));
 
-            setUserProfile((prev) => ({
-              ...prev,
-              address: gpsAddress,
-              pincode: detailed.pincode,
-              village: detailed.village,
-              street: detailed.street,
-              landmark: detailed.landmark,
-              savedAddresses: updatedList
-            }));
-
-            await checkStoreCoverage(lat, lon);
-          } catch (err) {
-            console.warn('GPS location error:', err);
-          } finally {
-            setGpsLoading(false);
-            onClose();
-          }
+          // Check backend coverage — never bypass
+          await checkStoreCoverage(lat, lon);
+          setGpsLoading(false);
+          onClose();
         },
         async () => {
-          try {
-            const fallbackLat = 12.9141;
-            const fallbackLon = 77.6411;
-            setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-            const gpsAddress = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-            setUserProfile((prev) => ({ ...prev, address: gpsAddress }));
-            await checkStoreCoverage(fallbackLat, fallbackLon);
-          } catch (err) {
-            console.warn('GPS location fallback error:', err);
-          } finally {
-            setGpsLoading(false);
-            onClose();
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          // Fallback HSR Layout — still check backend
+          const fallbackLat = 12.9141;
+          const fallbackLon = 77.6411;
+          setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+          const res = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+          setUserProfile((prev) => ({ ...prev, address: res.address }));
+          await checkStoreCoverage(fallbackLat, fallbackLon);
+          setGpsLoading(false);
+          onClose();
+        }
       );
     } else {
       const fallbackLat = 12.9141;
       const fallbackLon = 77.6411;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      checkStoreCoverage(fallbackLat, fallbackLon).finally(() => {
+      checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
         setGpsLoading(false);
         onClose();
       });
@@ -182,10 +169,11 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
                 <div
                   key={addr.id}
                   onClick={() => handleSelectDefault(addr.id)}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${userProfile.address === addr.fullAddress || addr.isDefault
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                    userProfile.address === addr.fullAddress || addr.isDefault
                       ? 'border-yellow-400 bg-yellow-50/50 shadow-2xs'
                       : 'border-gray-100 hover:border-gray-200 bg-gray-50/50'
-                    }`}
+                  }`}
                 >
                   <div className="flex items-start gap-2.5">
                     <div className="p-2 bg-white rounded-xl shadow-2xs text-gray-700 mt-0.5">
@@ -205,8 +193,9 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
                     </div>
                   </div>
 
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${userProfile.address === addr.fullAddress || addr.isDefault ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'
-                    }`}>
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                    userProfile.address === addr.fullAddress || addr.isDefault ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'
+                  }`}>
                     {(userProfile.address === addr.fullAddress || addr.isDefault) && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </div>
                 </div>
@@ -246,10 +235,11 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
                   type="button"
                   key={tag}
                   onClick={() => setLabelTag(tag)}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${labelTag === tag
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    labelTag === tag
                       ? 'bg-gray-900 text-white shadow-2xs'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                  }`}
                 >
                   {tag}
                 </button>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowRight } from 'lucide-react';
+import { AppLogo } from '../components/AppLogo';
 
 export const OnboardingScreen: React.FC = () => {
   const { setActiveTab } = useApp();
@@ -9,9 +10,7 @@ export const OnboardingScreen: React.FC = () => {
     <div className="min-h-full bg-white text-gray-900 flex flex-col justify-between p-6 animate-fadeIn relative">
       {/* Top Header Controls */}
       <div className="flex justify-between items-center pt-2">
-        <span className="bg-[#D4F600] text-black font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
-          CartCraze
-        </span>
+        <AppLogo className="h-8 w-auto object-contain" />
 
         <button
           onClick={() => setActiveTab('home')}

@@ -43,7 +43,6 @@ export const DriverChatModal: React.FC<DriverChatModalProps> = ({
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputText('');
 
-    // Simulate Rider Auto-Reply
     setTimeout(() => {
       let replyText = `Understood! I will follow your instruction.`;
       if (text.toLowerCase().includes('where')) {
@@ -66,7 +65,6 @@ export const DriverChatModal: React.FC<DriverChatModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-white max-w-sm w-full rounded-3xl p-4 shadow-2xl space-y-3 border border-gray-100 relative flex flex-col h-[520px]">
-        {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-3">
             <img
@@ -94,7 +92,6 @@ export const DriverChatModal: React.FC<DriverChatModalProps> = ({
           </div>
         </div>
 
-        {/* Preset Quick Suggestions */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 py-1">
           {['Where are you right now?', 'Please leave at door', 'Call upon arrival', 'Don\'t ring bell'].map((preset) => (
             <button
@@ -107,7 +104,6 @@ export const DriverChatModal: React.FC<DriverChatModalProps> = ({
           ))}
         </div>
 
-        {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
           {messages.map((msg) => (
             <div
@@ -129,7 +125,6 @@ export const DriverChatModal: React.FC<DriverChatModalProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input Box */}
         <form
           onSubmit={(e) => {
             e.preventDefault();

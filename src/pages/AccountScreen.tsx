@@ -1,304 +1,310 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Wallet, Gift, ShoppingBag, MapPin, CreditCard, ChevronRight, LogOut, RefreshCw, FileText, ShieldAlert, Lock, UserCheck, Edit3, Plus } from 'lucide-react';
-import { EditProfileModal } from '../components/EditProfileModal';
-import { AddressManagerModal } from '../components/AddressManagerModal';
-import { WalletTopUpModal } from '../components/WalletTopUpModal';
-import { PolicyModal } from '../components/PolicyModal';
 
 export const AccountScreen: React.FC = () => {
-  const { userProfile, orderHistory, setActiveTab, addToCart, logoutUser } = useApp();
+  const { userProfile, setActiveTab } = useApp();
 
-  const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showAddressManager, setShowAddressManager] = useState(false);
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [activePolicy, setActivePolicy] = useState<'terms' | 'privacy' | 'shipping' | 'cancellation' | null>(null);
-
-  // GUEST MODE (USER NOT LOGGED IN)
-  if (!userProfile.isLoggedIn) {
-    return (
-      <div className="p-4 space-y-4 pb-24 animate-fadeIn">
-        <div className="bg-[#fdee24] border border-yellow-400 text-black rounded-3xl p-6 shadow-md space-y-3 text-center relative overflow-hidden">
-          <div className="w-14 h-14 bg-black text-yellow-300 rounded-full flex items-center justify-center mx-auto text-2xl shadow-sm">
-            👤
-          </div>
-          <div>
-            <h2 className="text-xl font-black text-gray-900 tracking-tight">Login to CartCraze</h2>
-            <p className="text-xs text-gray-800 font-medium max-w-xs mx-auto mt-1 leading-relaxed">
-              Unlock 9-minute express deliveries, wallet balance, saved addresses, and past order history!
-            </p>
-          </div>
-          
-          <button
-            onClick={() => setActiveTab('login')}
-            className="w-full bg-black hover:bg-gray-800 text-yellow-300 font-black text-sm py-3.5 px-6 rounded-2xl shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <UserCheck className="w-4 h-4 text-yellow-300" />
-            <span>LOGIN / SIGNUP NOW</span>
-          </button>
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-2xs">
-          <div className="flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-amber-500" />
-            <div>
-              <span className="font-extrabold text-xs text-gray-900 block">Saved Delivery Addresses</span>
-              <span className="text-[11px] text-gray-400">Login to access your saved home/work locations</span>
-            </div>
-          </div>
-          <button
-            onClick={() => setActiveTab('login')}
-            className="text-xs font-black text-amber-600 hover:underline cursor-pointer"
-          >
-            Login
-          </button>
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 border border-gray-100 space-y-3">
-          <div className="flex items-center gap-2 text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b border-gray-100 pb-2">
-            <FileText className="w-4 h-4 text-amber-500" />
-            <span>App Policies &amp; Legal Terms</span>
-          </div>
-
-          <div className="divide-y divide-gray-100 text-xs">
-            <button
-              onClick={() => setActivePolicy('terms')}
-              className="w-full flex items-center justify-between py-2.5 hover:text-amber-600 transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <FileText className="w-4 h-4 text-gray-400" />
-                <span className="font-semibold text-gray-800">Terms of Service</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => setActivePolicy('privacy')}
-              className="w-full flex items-center justify-between py-2.5 hover:text-amber-600 transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <Lock className="w-4 h-4 text-gray-400" />
-                <span className="font-semibold text-gray-800">Privacy &amp; Data Policy</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => setActivePolicy('shipping')}
-              className="w-full flex items-center justify-between py-2.5 hover:text-amber-600 transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <ShieldAlert className="w-4 h-4 text-gray-400" />
-                <span className="font-semibold text-gray-800">Shipping &amp; Delivery SLA</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </button>
-
-            <button
-              onClick={() => setActivePolicy('cancellation')}
-              className="w-full flex items-center justify-between py-2.5 hover:text-amber-600 transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <RefreshCw className="w-4 h-4 text-gray-400" />
-                <span className="font-semibold text-gray-800">Cancellation &amp; Refund Policy</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-        </div>
-
-        <PolicyModal
-          isOpen={!!activePolicy}
-          onClose={() => setActivePolicy(null)}
-          policyType={activePolicy}
-        />
-      </div>
-    );
-  }
-
-  // LOGGED IN USER MODE
   return (
-    <div className="p-4 space-y-4 pb-24 animate-fadeIn">
-      <div className="bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 text-white rounded-3xl p-5 shadow-lg space-y-3 relative overflow-hidden">
-        <div className="flex items-center justify-between z-10 relative">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-yellow-400 text-black font-black text-xl flex items-center justify-center border-2 border-white shadow-md">
-              {userProfile.name ? userProfile.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'CU'}
-            </div>
-            <div>
-              <h2 className="text-base font-extrabold">{userProfile.name}</h2>
-              <p className="text-xs text-gray-300 font-medium">{userProfile.phone}</p>
-              <p className="text-[11px] text-gray-400">{userProfile.email}</p>
+    <div className="flex flex-col w-full pb-32 px-4 space-y-3 font-sans animate-fadeIn pt-3">
+      {/* 1. User Profile Header Card */}
+      <section className="bg-white p-3.5 rounded-2xl shadow-2xs flex items-center justify-between border border-[#eaedff]">
+        <div className="flex items-center space-x-3 min-w-0">
+          <div className="relative">
+            <img 
+              className="w-12 h-12 rounded-full object-cover shadow-2xs ring-2 ring-[#00676d]/20" 
+              alt="Rahul Sharma" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5NAkgp160fOakijtlBMCZonhczXBKLqk60JWNHchuqnM-GBe8SRO7_4savRssQ_2zUmx4cfIcHEJM_EwJz7tv48QZ_kzdLCOfxBlwD0qQouAe_0jEdqSlezpvImlq7FnI-N_zkgpCIVbHxxlI7EngnS4DGo9MpU7C6CGWX9slKwq48BRYqYd6CZ0M1bn8D1yasrkMtHmMo7t7ikDwmC_ylKf6dZP74IlSCVwc2BifIMT_P1lZDN5Ang" 
+            />
+            <div className="absolute -bottom-1 -right-1 bg-[#00676d] text-white rounded-full w-4 h-4 flex items-center justify-center shadow-xs">
+              <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
             </div>
           </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center space-x-1.5">
+              <h2 className="text-sm font-extrabold text-[#131b2e] truncate">{userProfile.name || 'Rahul Sharma'}</h2>
+              <span className="bg-[#00676d]/15 text-[#00676d] text-[8px] font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
+                PRO
+              </span>
+            </div>
+            <p className="text-[11px] text-[#6e797a] truncate">{userProfile.phone || '+91 98765 43210'}</p>
+          </div>
+        </div>
 
+        <button 
+          aria-label="Edit Profile" 
+          onClick={() => alert('Editing profile info...')}
+          className="bg-[#f2f3ff] hover:bg-[#eaedff] transition-colors w-8 h-8 rounded-full flex items-center justify-center text-[#131b2e] shrink-0"
+        >
+          <span className="material-symbols-outlined text-[16px]">edit</span>
+        </button>
+      </section>
+
+      {/* 2. CartCraze Club Member VIP Banner */}
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#00828a] via-[#006e75] to-[#fb7800] text-white p-3.5 shadow-md">
+        <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+        <div className="flex justify-between items-start mb-2 relative z-10">
+          <div className="flex items-center space-x-1.5">
+            <div className="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <span className="material-symbols-outlined text-[12px] text-amber-300" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+              <span className="text-[8px] font-extrabold tracking-wide uppercase">VIP Club</span>
+            </div>
+            <span className="text-[10px] text-white/90 font-medium">Free Delivery Active</span>
+          </div>
+          <span className="material-symbols-outlined text-[18px] text-white/80">workspace_premium</span>
+        </div>
+        <div className="relative z-10 mb-3">
+          <h3 className="text-sm font-bold leading-tight">CartCraze Club Member</h3>
+          <p className="text-[10px] text-white/90 mt-0.5">Saved ₹2,450 this month with ₹0 delivery fees</p>
+        </div>
+
+        {/* CrazeCoins */}
+        <div className="relative z-10 bg-black/20 backdrop-blur-md rounded-xl p-2 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-7 h-7 rounded-full bg-[#ffdbc8] flex items-center justify-center text-[#994700] shadow-xs">
+              <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>monetization_on</span>
+            </div>
+            <div>
+              <p className="text-[8px] text-white/80 uppercase font-bold">CrazeCoins</p>
+              <p className="text-xs font-black leading-none">840 pts</p>
+            </div>
+          </div>
           <button 
-            onClick={() => setShowEditProfile(true)}
-            className="text-xs font-bold text-yellow-300 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+            onClick={() => alert('840 CrazeCoins redeemed for ₹84 discount voucher!')}
+            className="bg-white text-[#00676d] text-[10px] font-extrabold px-3 py-1 rounded-full shadow hover:bg-white/90 active:scale-95 transition-transform flex items-center space-x-0.5"
           >
-            <Edit3 className="w-3.5 h-3.5" />
-            <span>Edit</span>
+            <span>Redeem</span>
+            <span className="material-symbols-outlined text-[12px]">bolt</span>
           </button>
         </div>
+      </section>
 
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
-          <div 
-            onClick={() => setShowWalletModal(true)}
-            className="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 flex items-center justify-between cursor-pointer hover:bg-white/20 transition"
-          >
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-amber-400 text-black rounded-xl">
-                <Wallet className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-300 block font-medium">CartCraze Wallet</span>
-                <span className="font-black text-sm text-white">₹{userProfile.walletBalance}</span>
+      {/* 3. Orders & Reorders Group */}
+      <section className="bg-white rounded-2xl shadow-2xs p-1.5 space-y-0.5 border border-[#eaedff]">
+        <div className="px-3 pt-2 pb-1">
+          <h4 className="text-[9px] font-extrabold text-[#6e797a] uppercase tracking-wider">Orders &amp; Reorders</h4>
+        </div>
+        <div 
+          onClick={() => setActiveTab('track_order')}
+          className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer"
+        >
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#00676d]/10 flex items-center justify-center text-[#00676d] shrink-0">
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_shipping</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">My Orders</p>
+              <div className="flex items-center space-x-1 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#006a48] animate-ping"></span>
+                <span className="text-[10px] text-[#006a48] font-bold truncate">1 Active Order in transit (ETA 8 mins)</span>
               </div>
             </div>
-            <Plus className="w-4 h-4 text-yellow-300" />
           </div>
-
-          <div 
-            onClick={() => setShowWalletModal(true)}
-            className="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 flex items-center justify-between cursor-pointer hover:bg-white/20 transition"
-          >
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-emerald-400 text-black rounded-xl">
-                <Gift className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-300 block font-medium">CartCoins</span>
-                <span className="font-black text-sm text-white">{userProfile.freshCoins} pts</span>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-emerald-300" />
+          <div className="flex items-center space-x-1 shrink-0 pl-1">
+            <span className="bg-[#006a48] text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full">TRACK</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6e797a]">chevron_right</span>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-2xl p-4 border border-gray-100 space-y-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2 text-xs font-extrabold text-gray-900">
-            <ShoppingBag className="w-4 h-4 text-amber-500" />
-            <span>Past Orders ({orderHistory.length})</span>
+        <div 
+          onClick={() => setActiveTab('home')}
+          className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer"
+        >
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">repeat</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Frequently Ordered</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Amul Taaza, Tata Salt, Alphonso Mangoes</p>
+            </div>
           </div>
-          <span className="text-[10px] text-gray-400 font-semibold">Saved in account</span>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+      </section>
+
+      {/* 4. Wallet & Payments Group */}
+      <section className="bg-white rounded-2xl shadow-2xs p-1.5 space-y-0.5 border border-[#eaedff]">
+        <div className="px-3 pt-2 pb-1">
+          <h4 className="text-[9px] font-extrabold text-[#6e797a] uppercase tracking-wider">Wallet &amp; Payments</h4>
+        </div>
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#fb7800]/10 flex items-center justify-center text-[#fb7800] shrink-0">
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance_wallet</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">CartCraze Wallet</p>
+              <p className="text-[10px] text-[#6e797a]">Balance: <span className="font-bold text-[#131b2e]">₹350.00</span></p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-1 shrink-0">
+            <span className="text-[#fb7800] text-[10px] font-extrabold px-2 py-0.5 bg-[#fb7800]/10 rounded-full">+ Add</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6e797a]">chevron_right</span>
+          </div>
         </div>
 
-        {orderHistory.length > 0 ? (
-          <div className="space-y-3 divide-y divide-gray-100">
-            {orderHistory.map((order) => (
-              <div key={order.id} className="pt-3 first:pt-0 space-y-2">
-                <div className="flex justify-between items-start text-xs">
-                  <div>
-                    <span className="font-bold text-gray-900">Order #{order.id}</span>
-                    <span className="text-gray-400 block text-[10px]">{order.date} • {order.items.length} items</span>
-                  </div>
-                  <span className="font-black text-sm text-gray-900">₹{order.finalTotal}</span>
-                </div>
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">credit_card</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Saved Cards &amp; UPI</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Google Pay • HDFC Bank ••4012</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
 
-                <div className="flex justify-between items-center bg-gray-50 p-2 rounded-xl text-[11px]">
-                  <span className="text-gray-600 truncate max-w-[200px]">
-                    {order.items.map((i) => i.product.name).join(', ')}
-                  </span>
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">currency_exchange</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Refund Status</p>
+              <p className="text-[10px] text-[#006a48] font-semibold truncate">All refunds settled (₹89 to UPI)</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+      </section>
 
-                  <button
-                    onClick={() => {
-                      order.items.forEach((i) => addToCart(i.product));
-                      setActiveTab('cart');
-                    }}
-                    className="flex items-center gap-1 bg-[#fdee24] hover:bg-yellow-400 text-black font-extrabold text-[10px] px-2.5 py-1 rounded-lg transition-transform active:scale-95 shadow-2xs cursor-pointer"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    <span>REORDER</span>
-                  </button>
-                </div>
+      {/* 5. Addresses & Preferences Group */}
+      <section className="bg-white rounded-2xl shadow-2xs p-1.5 space-y-0.5 border border-[#eaedff]">
+        <div className="px-3 pt-2 pb-1">
+          <h4 className="text-[9px] font-extrabold text-[#6e797a] uppercase tracking-wider">Addresses &amp; Settings</h4>
+        </div>
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#00676d]/10 flex items-center justify-center text-[#00676d] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">home_pin</span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center space-x-1">
+                <p className="text-xs font-bold text-[#131b2e]">Saved Addresses</p>
+                <span className="bg-[#f2f3ff] px-1 py-0.2 rounded text-[8px] font-bold text-[#6e797a]">2</span>
               </div>
-            ))}
+              <p className="text-[10px] text-[#6e797a] truncate">Home (Bellandur), Work (Prestige Tech)</p>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-6 text-xs text-gray-500">
-            <p className="font-semibold text-gray-700">No past orders yet</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">Your placed orders will appear here for easy reordering</p>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">room_service</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Delivery Instructions</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Leave at door • Don't ring bell</p>
+            </div>
           </div>
-        )}
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+      </section>
+
+      {/* 6. Perks & Rewards Group */}
+      <section className="bg-white rounded-2xl shadow-2xs p-1.5 space-y-0.5 border border-[#eaedff]">
+        <div className="px-3 pt-2 pb-1">
+          <h4 className="text-[9px] font-extrabold text-[#6e797a] uppercase tracking-wider">Perks &amp; Rewards</h4>
+        </div>
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#fb7800]/10 flex items-center justify-center text-[#fb7800] shrink-0">
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Coupons &amp; Offers</p>
+              <p className="text-[10px] text-[#6e797a] truncate">5 active coupons ready to apply</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-1 shrink-0">
+            <span className="bg-[#fb7800] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-full">5 NEW</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6e797a]">chevron_right</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#00676d]/10 flex items-center justify-center text-[#00676d] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">share</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Refer &amp; Earn ₹150</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Give ₹100 to friends, get ₹150 wallet cash</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+      </section>
+
+      {/* 7. Support & Preferences */}
+      <section className="bg-white rounded-2xl shadow-2xs p-1.5 space-y-0.5 border border-[#eaedff]">
+        <div className="px-3 pt-2 pb-1">
+          <h4 className="text-[9px] font-extrabold text-[#6e797a] uppercase tracking-wider">Help &amp; Preferences</h4>
+        </div>
+        <div 
+          onClick={() => alert('Starting live support chat with CartCraze Desk...')}
+          className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer"
+        >
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">support_agent</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">24x7 Customer Support</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Instant chat with live delivery executive</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">translate</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">App Language</p>
+              <p className="text-[10px] text-[#6e797a]">English</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-1 shrink-0">
+            <span className="text-[10px] text-[#6e797a] font-medium">English</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6e797a]">chevron_right</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between p-2 hover:bg-[#f2f3ff] rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-full bg-[#f2f3ff] flex items-center justify-center text-[#131b2e] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">notifications</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#131b2e] truncate">Notifications</p>
+              <p className="text-[10px] text-[#6e797a] truncate">Order updates, SMS, WhatsApp</p>
+            </div>
+          </div>
+          <span className="material-symbols-outlined text-[16px] text-[#6e797a] shrink-0">chevron_right</span>
+        </div>
+      </section>
+
+      {/* 8. Logout & Version */}
+      <div className="flex flex-col items-center justify-center pt-1 pb-4 space-y-1">
+        <button 
+          onClick={() => alert('Logged out successfully!')}
+          className="flex items-center justify-center space-x-1.5 text-[#ba1a1a] py-2 px-6 hover:bg-[#ffdad6]/40 rounded-full transition-colors active:scale-95 text-xs font-bold"
+        >
+          <span className="material-symbols-outlined text-[16px]">logout</span>
+          <span>Log Out</span>
+        </button>
+        <div className="text-center">
+          <p className="text-[10px] text-[#6e797a]">CartCraze Hyperlocal v2.4.1 (Build 108)</p>
+          <p className="text-[8px] text-[#6e797a]/70 uppercase tracking-widest mt-0.5 font-bold">Crafted for Instant Joy</p>
+        </div>
       </div>
-
-      <div className="bg-white rounded-2xl p-2 border border-gray-100 divide-y divide-gray-100 text-xs">
-        <button 
-          onClick={() => setShowAddressManager(true)}
-          className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-gray-500" />
-            <div>
-              <span className="font-bold text-gray-900 block">Saved Delivery Addresses</span>
-              <span className="text-[11px] text-gray-400 truncate max-w-[220px] block">{userProfile.address}</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
-
-        <button 
-          onClick={() => setShowWalletModal(true)}
-          className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <CreditCard className="w-4 h-4 text-gray-500" />
-            <div>
-              <span className="font-bold text-gray-900 block">Saved Payment &amp; Wallet</span>
-              <span className="text-[11px] text-gray-400">CartCraze Wallet (Bal ₹{userProfile.walletBalance})</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
-
-        <button 
-          onClick={() => setActivePolicy('terms')}
-          className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <FileText className="w-4 h-4 text-gray-500" />
-            <div>
-              <span className="font-bold text-gray-900 block">Terms, Privacy &amp; SLA</span>
-              <span className="text-[11px] text-gray-400">9-Minute Delivery Guarantee &amp; Policies</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
-
-        <button 
-          onClick={logoutUser}
-          className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-xl transition-colors text-red-600 font-bold cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <LogOut className="w-4 h-4 text-red-500" />
-            <span>Log Out</span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
-      </div>
-
-      <EditProfileModal
-        isOpen={showEditProfile}
-        onClose={() => setShowEditProfile(false)}
-      />
-
-      <AddressManagerModal
-        isOpen={showAddressManager}
-        onClose={() => setShowAddressManager(false)}
-      />
-
-      <WalletTopUpModal
-        isOpen={showWalletModal}
-        onClose={() => setShowWalletModal(false)}
-      />
-
-      <PolicyModal
-        isOpen={!!activePolicy}
-        onClose={() => setActivePolicy(null)}
-        policyType={activePolicy}
-      />
     </div>
   );
 };

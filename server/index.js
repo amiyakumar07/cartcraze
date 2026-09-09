@@ -2,6 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 import { reverseGeocodeServer, searchLocationServer } from './services/locationiq.js';
+import { sendWhatsAppOtp, verifyWhatsAppOtp, formatPhoneNumber } from './services/whatsappService.js';
+import { sendEmailOtp, verifyEmailOtp } from './services/emailService.js';
+
+try {
+  process.loadEnvFile?.('.env');
+} catch (e) {
+  // Ignore if .env is missing or already loaded
+}
 
 const app = express();
 const PORT = 4000;
@@ -15,12 +23,123 @@ app.get('/', (req, res) => {
     status: 'online',
     service: 'CartCraze Real-Time Express API Backend Server',
     version: '1.0.0',
-    endpoints: ['/api/products', '/api/orders', '/api/darkstores', '/api/locationiq/all-riders']
+    endpoints: [
+      '/api/products',
+      '/api/orders',
+      '/api/darkstores',
+      '/api/auth/whatsapp/send-otp',
+      '/api/auth/whatsapp/verify-otp',
+      '/api/auth/email/send-otp',
+      '/api/auth/email/verify-otp'
+    ]
   });
 });
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ==========================================
+// WHATSAPP OTP AUTHENTICATION ENDPOINTS
+// ==========================================
+app.post('/api/auth/whatsapp/send-otp', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    const result = await sendWhatsAppOtp(phone);
+    res.json(result);
+  } catch (err) {
+    console.error('Error sending WhatsApp OTP:', err);
+    res.status(500).json({ success: false, message: err.message || 'Failed to send WhatsApp OTP' });
+  }
+});
+
+app.post('/api/auth/whatsapp/verify-otp', async (req, res) => {
+  try {
+    const { phone, otp, name } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, message: 'Phone number and OTP code are required' });
+    }
+
+    const verification = verifyWhatsAppOtp(phone, otp);
+    if (!verification.success) {
+      return res.status(400).json(verification);
+    }
+
+    const cleanPhone = formatPhoneNumber(phone);
+    const userProfile = {
+      uid: `usr_wa_${cleanPhone}`,
+      phone: `+${cleanPhone}`,
+      name: name || `Customer (${cleanPhone.slice(-4)})`,
+      isGuest: false,
+      isPlusMember: true,
+      authProvider: 'whatsapp'
+    };
+
+    res.json({
+      success: true,
+      message: 'Successfully authenticated via WhatsApp',
+      user: userProfile
+    });
+  } catch (err) {
+    console.error('Error verifying WhatsApp OTP:', err);
+    res.status(500).json({ success: false, message: err.message || 'Verification failed' });
+  }
+});
+
+// ==========================================
+// EMAIL OTP AUTHENTICATION ENDPOINTS (100% FREE VIA GMAIL/SMTP)
+// ==========================================
+app.post('/api/auth/email/send-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email address is required' });
+    }
+
+    const result = await sendEmailOtp(email);
+    res.json(result);
+  } catch (err) {
+    console.error('Error sending Email OTP:', err);
+    res.status(500).json({ success: false, message: err.message || 'Failed to send email OTP' });
+  }
+});
+
+app.post('/api/auth/email/verify-otp', async (req, res) => {
+  try {
+    const { email, otp, name } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email address and OTP code are required' });
+    }
+
+    const verification = verifyEmailOtp(email, otp);
+    if (!verification.success) {
+      return res.status(400).json(verification);
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const userProfile = {
+      uid: `usr_email_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      email: cleanEmail,
+      phone: '+91 98765 43210',
+      name: name || cleanEmail.split('@')[0].replace(/\./g, ' '),
+      isGuest: false,
+      isPlusMember: true,
+      authProvider: 'email'
+    };
+
+    res.json({
+      success: true,
+      message: 'Successfully authenticated via Email OTP',
+      user: userProfile
+    });
+  } catch (err) {
+    console.error('Error verifying Email OTP:', err);
+    res.status(500).json({ success: false, message: err.message || 'Email verification failed' });
+  }
 });
 
 // ==========================================

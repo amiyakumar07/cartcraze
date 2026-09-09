@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Search, ChevronDown, Zap, MapPin, AlertCircle, X, Mic, User, Bell } from 'lucide-react';
+import { AppLogo } from './AppLogo';
 import { AddressSearchModal } from './AddressSearchModal';
 import { AddressManagerModal } from './AddressManagerModal';
-import { LocationStoreAvailabilitySheet } from './LocationStoreAvailabilitySheet';
-import { AuthBottomSheet } from './AuthBottomSheet';
 
 export const Header: React.FC = () => {
   const { 
@@ -15,151 +13,168 @@ export const Header: React.FC = () => {
     setActiveTab,
     setUserProfile,
     isOutOfCoverageRange,
-    activeStore,
-    isStoreClosed
+    getCartCount
   } = useApp();
 
   const [showSearchAddress, setShowSearchAddress] = useState(false);
   const [showManagerAddress, setShowManagerAddress] = useState(false);
-  const [showLocationSheet, setShowLocationSheet] = useState(false);
-  const [showAuthSheet, setShowAuthSheet] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderOpacity, setPlaceholderOpacity] = useState(1);
 
-  const activeAddrObj = userProfile.savedAddresses?.find(
-    (a) => a.fullAddress === userProfile.address || a.isDefault
-  );
+  const placeholders = [
+    'Search "Amul butter", "fresh paneer", "avocado"...',
+    'Search "Mother Dairy curd", "maggi noodles"...',
+    'Search "Coca Cola zero", "Alphonso mangoes"...',
+    'Search "Aashirvaad atta", "Tata salt"...'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderOpacity(0);
+      setTimeout(() => {
+        setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        setPlaceholderOpacity(1);
+      }, 300);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const cartCount = getCartCount();
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-emerald-100/60 shadow-xs font-[Inter,sans-serif]">
-      {/* ── Top Bar: Location & Profile/Notification ── */}
-      <div className="flex items-center justify-between px-4 py-2.5">
-        <button
-          onClick={() => setShowLocationSheet(true)}
-          className="flex items-center gap-2 text-left group min-w-0 flex-1 pr-2"
-        >
-          <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#006C49] flex items-center justify-center shrink-0 border border-emerald-200/50">
-            <MapPin className="w-4 h-4 text-[#006C49]" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] font-black text-[#006C49] uppercase tracking-wider">
-                Deliver to {activeAddrObj?.label || 'Home'} • 8 Mins
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <p className="text-xs font-extrabold text-slate-900 truncate max-w-[200px] leading-tight">
-                {userProfile.address
-                  ? userProfile.address.split(',').slice(0, 2).join(', ')
-                  : 'Patia, Bhubaneswar'}
-              </p>
-              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-slate-700 transition-colors" />
-            </div>
-          </div>
-        </button>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            onClick={() => setShowAuthSheet(true)}
-            data-testid="auth_profile_btn"
-            className="w-8 h-8 rounded-full bg-emerald-100/80 text-[#00422B] flex items-center justify-center hover:bg-emerald-200 transition-colors shadow-2xs border border-emerald-200/50"
-          >
-            {userProfile.name ? (
-              <span className="font-extrabold text-xs text-[#00422B]">
-                {userProfile.name.charAt(0).toUpperCase()}
-              </span>
-            ) : (
-              <User className="w-4 h-4 text-[#00422B]" />
-            )}
-          </button>
-          <button
-            data-testid="notification_btn"
-            className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
-          >
-            <Bell className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* ── Search Bar Input Mockup ── */}
-      <div className="px-4 pb-2">
-        <div className="relative flex items-center bg-slate-100/90 rounded-2xl border border-slate-200/80 focus-within:border-emerald-600 focus-within:bg-white transition-all shadow-2xs">
-          <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (activeTab !== 'home' && activeTab !== 'category_detail') {
-                setActiveTab('home');
-              }
-            }}
-            placeholder="Search groceries, milk, fruits..."
-            className="w-full pl-10 pr-9 py-2.5 bg-transparent text-xs text-slate-900 placeholder-slate-400 focus:outline-none font-semibold"
-          />
-          {searchQuery ? (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 text-slate-400 hover:text-slate-700 transition-colors"
+    <header className="fixed top-0 inset-x-0 z-50 bg-[#faf8ff]/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+      <div className="px-4 py-2 flex flex-col justify-center gap-1.5 max-w-[440px] mx-auto">
+        {/* Top Brand & Profile Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div 
+              onClick={() => setActiveTab('home')}
+              className="flex items-center gap-1.5 cursor-pointer"
             >
-              <X className="w-4 h-4" />
-            </button>
-          ) : (
-            <Mic className="absolute right-3.5 w-4 h-4 text-[#006C49] pointer-events-none" />
-          )}
-        </div>
-      </div>
-
-      {/* ── Real-Time Dark Store Availability / Closed Badge ── */}
-      <div className="px-4 pb-2.5">
-        <div 
-          onClick={() => setShowLocationSheet(true)}
-          className={`flex items-center justify-between p-2 px-3 rounded-xl border transition-all cursor-pointer ${
-            isStoreClosed
-              ? 'bg-amber-50 border-amber-300 text-amber-950'
-              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 hover:bg-emerald-500/15'
-          }`}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            {isStoreClosed ? (
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            ) : (
-              <Zap className="w-4 h-4 text-[#006C49] shrink-0 fill-[#006C49] animate-pulse" />
-            )}
-            <div className="min-w-0">
-              <div className={`text-[11px] font-black leading-none flex items-center gap-1 ${
-                isStoreClosed ? 'text-amber-800' : 'text-[#006C49]'
-              }`}>
-                <span>{isStoreClosed ? '🌙 Store Currently Closed' : '⚡ Delivery in 8-10 Mins'}</span>
-              </div>
-              <div className="text-[10px] text-slate-600 font-medium truncate mt-0.5">
-                Dispatched from {activeStore ? activeStore.name : 'Patia DarkStore Hub #3'} • {isStoreClosed ? 'Closed right now' : '1.2 km away'}
-              </div>
+              <AppLogo className="h-7 w-auto object-contain" />
+              <span className="font-extrabold text-lg tracking-tight text-[#00676d]">
+                CartCraze
+              </span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-[#006a48]/10 text-[#006a48] rounded-full text-[10px] font-extrabold shadow-[0_0_10px_rgba(0,106,72,0.18)]">
+              <span className="material-symbols-outlined text-[13px] text-[#006a48]">bolt</span>
+              <span>12 MINS</span>
             </div>
           </div>
-          <span className={`text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
-            isStoreClosed ? 'bg-amber-600' : 'bg-[#006C49]'
-          }`}>
-            {isStoreClosed ? 'CLOSED' : 'LIVE'}
+
+          <div className="flex items-center gap-1.5">
+            <button 
+              aria-label="Notifications" 
+              onClick={() => setActiveTab('account')}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full text-[#131b2e] hover:bg-[#eaedff] transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#fb7800] ring-2 ring-[#faf8ff]"></span>
+            </button>
+
+            <button 
+              aria-label="Quick Cart" 
+              onClick={() => setActiveTab('cart')}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full text-[#131b2e] hover:bg-[#eaedff] transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 px-1.5 py-0.2 rounded-full bg-[#994700] text-white text-[9px] font-extrabold">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('account')}
+              className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-[#00676d]/20 hover:scale-105 transition-transform shrink-0"
+            >
+              <img 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5NAkgp160fOakijtlBMCZonhczXBKLqk60JWNHchuqnM-GBe8SRO7_4savRssQ_2zUmx4cfIcHEJM_EwJz7tv48QZ_kzdLCOfxBlwD0qQouAe_0jEdqSlezpvImlq7FnI-N_zkgpCIVbHxxlI7EngnS4DGo9MpU7C6CGWX9slKwq48BRYqYd6CZ0M1bn8D1yasrkMtHmMo7t7ikDwmC_ylKf6dZP74IlSCVwc2BifIMT_P1lZDN5Ang" 
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Location Row */}
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => setShowManagerAddress(true)}
+            className="flex items-center gap-1 text-left max-w-[85%] group"
+          >
+            <span className="material-symbols-outlined text-[#fb7800] text-[16px] shrink-0">location_on</span>
+            <div className="truncate flex items-center gap-1">
+              <span className="text-[12px] font-bold text-[#131b2e] truncate">
+                {isOutOfCoverageRange ? (
+                  <span className="text-red-500 font-bold">Out of delivery range (5km)</span>
+                ) : (
+                  userProfile.address || 'Delivering to B-402, Green Glen Heights...'
+                )}
+              </span>
+              <span className="material-symbols-outlined text-[14px] text-[#3e494a] align-middle group-hover:translate-y-0.5 transition-transform">
+                expand_more
+              </span>
+            </div>
+          </button>
+          <span className="text-[11px] font-semibold text-[#00676d] bg-[#00676d]/10 px-2 py-0.5 rounded-md">
+            Home
           </span>
         </div>
+
+        {/* Search Input Bar (Visible on Storefront tabs) */}
+        {(activeTab === 'home' || activeTab === 'categories' || activeTab === 'category_detail') && (
+          <div className="pt-0.5">
+            <div className="flex items-center gap-2 bg-[#f2f3ff] px-3.5 py-2 rounded-full shadow-2xs">
+              <span className="material-symbols-outlined text-[#00676d] text-[19px]">search</span>
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (activeTab !== 'home' && activeTab !== 'category_detail') {
+                      setActiveTab('home');
+                    }
+                  }}
+                  placeholder={placeholders[placeholderIndex]}
+                  style={{ opacity: searchQuery ? 1 : placeholderOpacity, transition: 'opacity 0.3s ease' }}
+                  className="w-full bg-transparent text-xs text-[#131b2e] placeholder-[#6e797a] focus:outline-none font-medium"
+                />
+              </div>
+              {searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="w-5 h-5 flex items-center justify-center rounded-full text-xs text-gray-400 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              ) : (
+                <div className="flex items-center gap-1 text-[#3e494a]">
+                  <button aria-label="Voice Search" className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#eaedff] transition-colors">
+                    <span className="material-symbols-outlined text-[18px] text-[#00676d]">mic</span>
+                  </button>
+                  <button aria-label="Barcode Scanner" className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#eaedff] transition-colors">
+                    <span className="material-symbols-outlined text-[18px] text-[#00676d]">barcode_scanner</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Modals & Sheets */}
-      <LocationStoreAvailabilitySheet
-        isOpen={showLocationSheet}
-        onClose={() => setShowLocationSheet(false)}
-        currentAddress={userProfile.address || 'Patia, Bhubaneswar'}
-        activeStoreName={activeStore?.name}
-        onAddressSelect={(newAddr) => setUserProfile((prev) => ({ ...prev, address: newAddr }))}
-      />
-      <AuthBottomSheet
-        isOpen={showAuthSheet}
-        onClose={() => setShowAuthSheet(false)}
-      />
+      {/* Address Search Modal */}
       <AddressSearchModal
         isOpen={showSearchAddress}
         onClose={() => setShowSearchAddress(false)}
-        onSelectAddress={(selected) => setUserProfile((prev) => ({ ...prev, address: selected }))}
+        onSelectAddress={(selected) => {
+          setUserProfile((prev) => ({ ...prev, address: selected }));
+        }}
       />
+
+      {/* Address Manager Modal */}
       <AddressManagerModal
         isOpen={showManagerAddress}
         onClose={() => setShowManagerAddress(false)}
@@ -167,3 +182,4 @@ export const Header: React.FC = () => {
     </header>
   );
 };
+

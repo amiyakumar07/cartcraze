@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Navigation, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { reverseGeocodeLocationIQ, reverseGeocodeDetailedLocationIQ } from '../services/locationiq';
+import { reverseGeocodeLocationIQ } from '../services/locationiq';
 import { useApp } from '../context/AppContext';
 
 interface Props {
@@ -20,54 +20,41 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          try {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            setUserCoords({ lat, lon });
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          setUserCoords({ lat, lon });
 
-            const detailed = await reverseGeocodeDetailedLocationIQ(lat, lon);
-            setDetectedAddress(detailed.displayName);
-            setUserProfile((prev) => ({
-              ...prev,
-              address: detailed.displayName,
-              pincode: detailed.pincode,
-              village: detailed.village,
-              street: detailed.street,
-              landmark: detailed.landmark
-            }));
+          const geo = await reverseGeocodeLocationIQ(lat, lon);
+          setDetectedAddress(geo.address);
+          setUserProfile((prev) => ({ ...prev, address: geo.address }));
 
-            await checkStoreCoverage(lat, lon);
-          } catch (e) {
-            console.warn('Coverage check error:', e);
-          } finally {
-            setLoading(false);
-            setTimeout(() => onClose(), 600);
-          }
+          // Run strict backend coverage check — never assume in-range on error
+          await checkStoreCoverage(lat, lon);
+
+          setLoading(false);
+          setTimeout(() => onClose(), 800);
         },
         async () => {
-          try {
-            const fallbackLat = 12.9141;
-            const fallbackLon = 77.6411;
-            setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-            const addressString = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-            setDetectedAddress(addressString);
-            setUserProfile((prev) => ({ ...prev, address: addressString }));
+          // GPS denied — fallback HSR Layout coords, STILL must check backend
+          const fallbackLat = 12.9141;
+          const fallbackLon = 77.6411;
+          setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+          const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+          setDetectedAddress(geo.address);
+          setUserProfile((prev) => ({ ...prev, address: geo.address }));
 
-            await checkStoreCoverage(fallbackLat, fallbackLon);
-          } catch (e) {
-            console.warn('Coverage check error:', e);
-          } finally {
-            setLoading(false);
-            setTimeout(() => onClose(), 600);
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          await checkStoreCoverage(fallbackLat, fallbackLon);
+
+          setLoading(false);
+          setTimeout(() => onClose(), 800);
+        }
       );
     } else {
+      // No geolocation API — fallback HSR Layout, check backend
       const fallbackLat = 12.9141;
       const fallbackLon = 77.6411;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      checkStoreCoverage(fallbackLat, fallbackLon).finally(() => {
+      checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
         setLoading(false);
         onClose();
       });
@@ -76,19 +63,15 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
   const handleUseDefault = async () => {
     setLoading(true);
-    try {
-      const fallbackLat = 12.9141;
-      const fallbackLon = 77.6411;
-      setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      const addressString = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-      setUserProfile((prev) => ({ ...prev, address: addressString }));
-      await checkStoreCoverage(fallbackLat, fallbackLon);
-    } catch (e) {
-      console.warn('Coverage check error:', e);
-    } finally {
-      setLoading(false);
-      onClose();
-    }
+    const fallbackLat = 12.9141;
+    const fallbackLon = 77.6411;
+    setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+    const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+    setUserProfile((prev) => ({ ...prev, address: geo.address }));
+    // Strictly verify coverage before unlocking — never force-unlock
+    await checkStoreCoverage(fallbackLat, fallbackLon);
+    setLoading(false);
+    onClose();
   };
 
   return (
