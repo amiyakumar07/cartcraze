@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { supabase } from '../services/supabase';
-import { signInWithGoogle } from '../services/firebase';
+import { signInWithGoogle, signInWithFirebaseEmail, signUpWithFirebaseEmail } from '../services/firebase';
 import { AppLogo } from '../components/AppLogo';
 import { PolicyModal } from '../components/PolicyModal';
 
@@ -13,7 +13,7 @@ export const LoginScreen: React.FC = () => {
   const [authTab, setAuthTab] = useState<'phone' | 'email' | 'google'>('phone');
 
   // Phone OTP States
-  const [phone, setPhone] = useState('+91 78150 41952');
+  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [waDeepLink, setWaDeepLink] = useState('');
@@ -50,13 +50,13 @@ export const LoginScreen: React.FC = () => {
       if (res && res.ok) {
         const data = await res.json();
         if (data.whatsappDeepLink) setWaDeepLink(data.whatsappDeepLink);
-        setSuccess(data.message || 'OTP sent successfully!');
+        setSuccess(data.message || 'Verification code sent successfully!');
       } else {
-        setSuccess('Verification code ready! (Demo: enter 123456)');
+        setSuccess('Verification code sent! Please check your phone.');
       }
       setOtpSent(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to send OTP code.');
+      setError(err.message || 'Failed to send verification code.');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export const LoginScreen: React.FC = () => {
 
       if (res && res.ok) {
         const data = await res.json();
-        if (!data.success) throw new Error(data.message || 'Invalid OTP code.');
+        if (!data.success) throw new Error(data.message || 'Invalid verification code.');
       }
 
       setUserProfile((prev) => ({
@@ -98,7 +98,7 @@ export const LoginScreen: React.FC = () => {
     }
   };
 
-  // Email Authentication
+  // Email Authentication via Firebase Auth
   const handleEmailAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
@@ -111,23 +111,28 @@ export const LoginScreen: React.FC = () => {
 
     try {
       if (isRegisterMode) {
-        const { error: signUpErr } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password.trim(),
-        });
-        if (signUpErr && !signUpErr.message.includes('already registered')) {
-          throw signUpErr;
-        }
-      } else {
-        const { error: signInErr } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password.trim(),
-        });
-        if (signInErr) {
-          await supabase.auth.signUp({
+        // Firebase Auth Create User
+        const { user: fbUser, error: fbErr } = await signUpWithFirebaseEmail(email.trim(), password.trim());
+        if (fbErr && !fbErr.includes('email-already-in-use')) {
+          // Fallback to Supabase
+          const { error: sbErr } = await supabase.auth.signUp({
             email: email.trim(),
             password: password.trim(),
           });
+          if (sbErr && !sbErr.message.includes('already registered')) throw sbErr;
+        }
+      } else {
+        // Firebase Auth Sign In
+        const { user: fbUser, error: fbErr } = await signInWithFirebaseEmail(email.trim(), password.trim());
+        if (fbErr) {
+          // If login fails, try Supabase or create user
+          const { error: sbErr } = await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password: password.trim(),
+          });
+          if (sbErr) {
+            throw new Error(fbErr || sbErr.message || 'Invalid credentials');
+          }
         }
       }
 
@@ -136,44 +141,41 @@ export const LoginScreen: React.FC = () => {
         ...prev,
         email: email.trim(),
         name: email.split('@')[0] || 'Customer User',
-        phone: '+91 98765 43210',
+        phone: prev.phone || '',
         isLoggedIn: true
       }));
       setActiveTab('home');
     } catch (err: any) {
       setLoading(false);
-      setError(err.message || 'Authentication failed. Please check credentials.');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     }
   };
 
-  // Google Sign-In
+  // Google Sign-In via Firebase Auth
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
     try {
-      const { user } = await signInWithGoogle();
+      const { user, error: googleErr } = await signInWithGoogle();
       setLoading(false);
+      if (googleErr) {
+        setError(googleErr);
+        return;
+      }
       if (user) {
         setUserProfile((prev) => ({
           ...prev,
           name: user.displayName || 'Customer User',
           email: user.email || '',
-          phone: user.phoneNumber || '+91 98765 43210',
+          phone: user.phoneNumber || prev.phone || '',
           isLoggedIn: true
         }));
         setActiveTab('home');
         return;
       }
-    } catch {
+    } catch (err: any) {
       setLoading(false);
-      setUserProfile((prev) => ({
-        ...prev,
-        name: 'Google Customer User',
-        email: 'customer@gmail.com',
-        phone: '+91 98765 43210',
-        isLoggedIn: true
-      }));
-      setActiveTab('home');
+      setError(err?.message || 'Google Sign-In failed. Please try again.');
     }
   };
 
@@ -183,7 +185,7 @@ export const LoginScreen: React.FC = () => {
       ...prev,
       name: 'Guest Shopper',
       email: 'guest@cartcraze.com',
-      phone: '+91 98765 43210',
+      phone: '',
       isLoggedIn: true
     }));
     setActiveTab('home');
@@ -218,13 +220,6 @@ export const LoginScreen: React.FC = () => {
           <p className="text-xs text-slate-500 font-medium">
             Log in or sign up to experience 8-minute delivery
           </p>
-        </div>
-
-        {/* Demo Credentials Notice */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-center">
-          <span className="text-[10px] font-bold text-slate-500">
-            Demo credentials: <strong className="text-slate-800">+91 78150 41952</strong> • OTP: <strong className="text-slate-800">123456</strong>
-          </span>
         </div>
 
         {/* Auth Method Navigation: Phone | Email | Google */}
@@ -291,7 +286,7 @@ export const LoginScreen: React.FC = () => {
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 78150 41952"
+                placeholder="Enter 10-digit mobile number"
                 className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 outline-none focus:border-[#00676d] transition"
               />
             </div>
@@ -306,7 +301,7 @@ export const LoginScreen: React.FC = () => {
                     required
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    placeholder="123456"
+                    placeholder="Enter 6-digit OTP"
                     className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm font-bold text-center tracking-widest text-slate-900 outline-none focus:border-[#00676d] transition"
                   />
                 </div>

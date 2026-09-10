@@ -1,14 +1,21 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'YOUR_FIREBASE_API_KEY',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'cartcraze-user.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'cartcraze-user',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'cartcraze-user.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '438473527527',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:438473527527:android:3e3c02f5a2f0efef44d242',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-P8T10Z4124'
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA32Q0rN71YkZmRIs9Th3TmajNZbzDwvTQ",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "cartcraze-user.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "cartcraze-user",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "cartcraze-user.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "438473527527",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:438473527527:android:3e3c02f5a2f0efef44d242",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-P8T10Z4124"
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
@@ -19,6 +26,24 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
+  } catch (error: any) {
+    return { user: null, error: error.message };
+  }
+};
+
+export const signInWithFirebaseEmail = async (email: string, pass: string) => {
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    return { user: cred.user, error: null };
+  } catch (error: any) {
+    return { user: null, error: error.message };
+  }
+};
+
+export const signUpWithFirebaseEmail = async (email: string, pass: string) => {
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    return { user: cred.user, error: null };
   } catch (error: any) {
     return { user: null, error: error.message };
   }
