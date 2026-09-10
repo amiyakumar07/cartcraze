@@ -97,7 +97,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   return (
     <div 
       onClick={handleContainerClick}
-      className="absolute inset-0 z-50 bg-[#ECE7DE] flex flex-col items-center justify-center overflow-hidden select-none cursor-pointer"
+      className="absolute inset-0 z-50 bg-[#ece8e2] flex flex-col items-center justify-center overflow-hidden select-none cursor-pointer"
     >
       {/* Top Skip Button */}
       <button
@@ -111,20 +111,18 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         Skip
       </button>
 
-      {/* Video Container - Seamlessly matches the video's #ECE7DE background with natural proportional scaling */}
-      <div className="relative w-full h-full flex items-center justify-center p-3">
-        <video
-          ref={videoRef}
-          src="/splash_video.mp4"
-          autoPlay
-          playsInline
-          disablePictureInPicture
-          controls={false}
-          onEnded={finish}
-          onError={finish}
-          className="w-full h-full max-w-[390px] max-h-[760px] object-contain"
-        />
-      </div>
+      {/* Option 2: object-contain with sampled background */}
+      <video
+        ref={videoRef}
+        src="/splash_video.mp4"
+        autoPlay
+        playsInline
+        disablePictureInPicture
+        controls={false}
+        onEnded={finish}
+        onError={finish}
+        className="w-full h-full object-contain block"
+      />
 
       {/* Floating Sound Toggle Badge - Centered bottom pill */}
       <div className="absolute bottom-6 inset-x-0 flex justify-center z-30 pointer-events-none">
