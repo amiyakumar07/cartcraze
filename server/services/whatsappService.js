@@ -118,7 +118,7 @@ export async function sendWhatsAppOtp(phone) {
       }
 
       if (openwaSessionId) {
-        const messageText = `🛒 *CartCraze Login Verification*\n\n*${otp}* is your verification code for CartCraze.\n\nTap to copy code: \`${otp}\`\n\n🔒 Do not share this OTP with anyone, including CartCraze staff.\n⏱️ Valid for 5 minutes.\n\n_CartCraze • India's Last Minute App (8-Min Delivery)_`;
+        const messageText = `🛒 *CartCraze Login Verification*\n\n*${otp}* is your verification code.\n\nTap to copy code: \`${otp}\`\n\n🔒 For your security, do not share this code.\n⏱️ This code expires in 5 minutes.\n\n_CartCraze • India's Last Minute App (8-Min Delivery)_`;
         const sendUrl = `${openwaUrl}/api/sessions/${openwaSessionId}/messages/send-text`;
 
         const res = await fetch(sendUrl, {
@@ -168,7 +168,7 @@ export async function sendWhatsAppOtp(phone) {
           template: { name: 'hello_world', language: { code: 'en_US' } }
         };
       } else {
-        // Custom WhatsApp OTP Authentication Template
+        // Official Meta WhatsApp Authentication Template (with Copy Code button)
         payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
@@ -180,17 +180,78 @@ export async function sendWhatsAppOtp(phone) {
             components: [
               {
                 type: 'body',
-                parameters: [{ type: 'text', text: otp }]
+                parameters: [
+                  { type: 'text', text: otp }
+                ]
               },
               {
                 type: 'button',
-                sub_type: 'url',
+                sub_type: 'copy_code',
                 index: '0',
-                parameters: [{ type: 'text', text: otp }]
+                parameters: [
+                  { type: 'coupon_code', coupon_code: otp }
+                ]
               }
             ]
           }
         };
+      }
+
+      let res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      let data = await res.json();
+      // If copy_code fails (e.g. template requires 2 parameters or is URL button or body only), fallback attempt
+      if (!res.ok && data?.error) {
+        console.warn('[WhatsApp API] Authentication template attempt 1 failed:', data.error.message);
+        // Retry with body text parameters only ({{1}} = otp, {{2}} = 5)
+        const fallbackPayload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: normalizedPhone,
+          type: 'template',
+          template: {
+            name: templateName,
+            language: { code: process.env.WHATSAPP_TEMPLATE_LANG || 'en_US' },
+            components: [
+              {
+                type: 'body',
+                parameters: [
+                  { type: 'text', text: otp },
+                  { type: 'text', text: '5' }
+                ]
+              },
+              {
+                type: 'button',
+                sub_type: 'copy_code',
+                index: '0',
+                parameters: [
+                  { type: 'coupon_code', coupon_code: otp }
+                ]
+              }
+            ]
+          }
+        };
+
+        const retryRes = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken.trim()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(fallbackPayload)
+        });
+        const retryData = await retryRes.json();
+        if (retryRes.ok && retryData.messages?.[0]?.id) {
+          res = retryRes;
+          data = retryData;
+        }
       }
 
       const res = await fetch(url, {
