@@ -94,16 +94,27 @@ export async function sendWhatsAppOtp(phone) {
 
   if (openwaApiKey && openwaApiKey.trim() !== '' && !openwaApiKey.includes('YOUR_')) {
     try {
-      // If session ID not statically defined, dynamically discover the first ready session
-      if (!openwaSessionId) {
+      // Validate or dynamically discover the active ready session
+      try {
         const sessionRes = await fetch(`${openwaUrl}/api/sessions`, {
           headers: { 'X-API-Key': openwaApiKey.trim() }
         }).catch(() => null);
         if (sessionRes && sessionRes.ok) {
           const sessions = await sessionRes.json();
-          const active = Array.isArray(sessions) ? sessions.find(s => s.status === 'ready') : null;
-          if (active) openwaSessionId = active.id;
+          const list = Array.isArray(sessions) ? sessions : (sessions?.value || []);
+          const matched = list.find(s => (s.id === openwaSessionId || s.name === openwaSessionId || s.name === 'otp-sending1') && s.status === 'ready');
+          if (matched) {
+            openwaSessionId = matched.id;
+          } else {
+            const anyReady = list.find(s => s.status === 'ready');
+            if (anyReady) {
+              openwaSessionId = anyReady.id;
+              console.log(`[WhatsApp API] Auto-detected ready OpenWA session: ${anyReady.name} (${anyReady.id})`);
+            }
+          }
         }
+      } catch (discoveryErr) {
+        console.warn('[WhatsApp API] Session discovery notice:', discoveryErr.message);
       }
 
       if (openwaSessionId) {
