@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { signInWithGoogle, signInWithFirebaseEmail, signUpWithFirebaseEmail } from '../services/firebase';
 import { AppLogo } from '../components/AppLogo';
 import { PolicyModal } from '../components/PolicyModal';
 
-const API_BASE = 'http://localhost:4000';
+// Unified API base URL that resolves correctly across localhost, Render, and Android WebView
+const API_BASE = import.meta.env.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '')
+  : (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'http://localhost:4000'
+      : 'https://cartcraze-95gt.onrender.com');
 
 export const LoginScreen: React.FC = () => {
   const { setUserProfile, setActiveTab } = useApp();
-  const [authTab, setAuthTab] = useState<'phone' | 'email' | 'google'>('phone');
+  const [authTab, setAuthTab] = useState<'whatsapp' | 'email' | 'google'>('whatsapp');
 
-  // Phone OTP States
+  // WhatsApp Phone OTP States
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [waDeepLink, setWaDeepLink] = useState('');
+  const [maskedPhone, setMaskedPhone] = useState('');
+  const [countdown, setCountdown] = useState(0);
 
   // Email States
   const [email, setEmail] = useState('');
@@ -29,11 +36,31 @@ export const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [policyType, setPolicyType] = useState<'terms' | 'privacy' | null>(null);
 
-  // Phone / WhatsApp OTP
-  const handleSendPhoneOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phone.trim()) {
-      setError('Please enter your mobile phone number.');
+  // Countdown timer effect for OTP resend
+  useEffect(() => {
+    let timer: any;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  // Clean and format phone number
+  const handlePhoneChange = (val: string) => {
+    const numeric = val.replace(/\D/g, '');
+    if (numeric.length <= 10) {
+      setPhone(numeric);
+    }
+  };
+
+  // 1. Send WhatsApp OTP
+  const handleSendPhoneOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setError('Please enter a valid 10-digit mobile number.');
       return;
     }
     setError('');
@@ -44,28 +71,33 @@ export const LoginScreen: React.FC = () => {
       const res = await fetch(`${API_BASE}/api/auth/whatsapp/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
-      }).catch(() => null);
+        body: JSON.stringify({ phone: cleanPhone })
+      });
 
-      if (res && res.ok) {
-        const data = await res.json();
-        if (data.whatsappDeepLink) setWaDeepLink(data.whatsappDeepLink);
-        setSuccess(data.message || 'Verification code sent successfully!');
-      } else {
-        setSuccess('Verification code sent! Please check your phone.');
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data || !data.success) {
+        throw new Error(data?.message || 'Failed to send WhatsApp verification code. Please check your network.');
       }
+
+      if (data.whatsappDeepLink) setWaDeepLink(data.whatsappDeepLink);
+      setMaskedPhone(data.maskedPhone || `+91 ${cleanPhone}`);
+      setSuccess(data.message || 'Verification code sent to your WhatsApp!');
       setOtpSent(true);
+      setCountdown(30); // 30 second resend timer
     } catch (err: any) {
-      setError(err.message || 'Failed to send verification code.');
+      setError(err.message || 'Could not connect to WhatsApp authentication service.');
     } finally {
       setLoading(false);
     }
   };
 
+  // 2. Verify WhatsApp OTP
   const handleVerifyPhoneOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otp.trim()) {
-      setError('Please enter the verification code.');
+    const cleanOtp = otp.trim();
+    if (!cleanOtp || cleanOtp.length < 4) {
+      setError('Please enter the 6-digit verification code.');
       return;
     }
     setError('');
@@ -75,27 +107,46 @@ export const LoginScreen: React.FC = () => {
       const res = await fetch(`${API_BASE}/api/auth/whatsapp/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp })
-      }).catch(() => null);
+        body: JSON.stringify({ phone, otp: cleanOtp })
+      });
 
-      if (res && res.ok) {
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message || 'Invalid verification code.');
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data || !data.success) {
+        throw new Error(data?.message || 'Invalid verification code. Please check and try again.');
       }
+
+      const cleanPhone = phone.replace(/\D/g, '');
+      const user = data.user || {
+        uid: `usr_wa_${cleanPhone}`,
+        phone: `+91${cleanPhone}`,
+        name: `Customer (${cleanPhone.slice(-4)})`,
+        email: `${cleanPhone}@cartcraze.com`,
+        isLoggedIn: true
+      };
 
       setUserProfile((prev) => ({
         ...prev,
-        phone: phone.trim(),
-        name: `Customer (${phone.slice(-4)})`,
-        email: `${phone.replace(/\D/g, '')}@cartcraze.com`,
+        ...user,
+        phone: `+91 ${cleanPhone}`,
         isLoggedIn: true
       }));
+
       setActiveTab('home');
     } catch (err: any) {
       setError(err.message || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Reset to phone edit
+  const handleEditPhone = () => {
+    setOtpSent(false);
+    setOtp('');
+    setError('');
+    setSuccess('');
+    setCountdown(0);
   };
 
   // Email Authentication via Firebase Auth
@@ -218,26 +269,26 @@ export const LoginScreen: React.FC = () => {
             India's Last Minute App
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Log in or sign up to experience 8-minute delivery
+            Log in with WhatsApp for instant OTP &amp; 8-minute delivery
           </p>
         </div>
 
-        {/* Auth Method Navigation: Phone | Email | Google */}
+        {/* Auth Method Navigation: WhatsApp OTP | Email | Google */}
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-2xl text-[11px] font-black">
           <button
             type="button"
-            onClick={() => { setAuthTab('phone'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1 transition-all ${
-              authTab === 'phone' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            onClick={() => { setAuthTab('whatsapp'); setError(''); setSuccess(''); }}
+            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              authTab === 'whatsapp' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Phone className="w-3.5 h-3.5 shrink-0" />
-            <span>Phone</span>
+            <MessageCircle className="w-3.5 h-3.5 shrink-0 text-[#25D366]" />
+            <span>WhatsApp</span>
           </button>
           <button
             type="button"
             onClick={() => { setAuthTab('email'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1 transition-all ${
+            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               authTab === 'email' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -247,7 +298,7 @@ export const LoginScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => { setAuthTab('google'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1 transition-all ${
+            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               authTab === 'google' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -262,76 +313,150 @@ export const LoginScreen: React.FC = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 border border-red-200 text-xs p-3 rounded-2xl font-semibold text-center">
+          <div className="bg-red-50 text-red-600 border border-red-200 text-xs p-3 rounded-2xl font-semibold text-center leading-relaxed">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs p-3 rounded-2xl font-semibold text-center">
-            {success}
+          <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs p-3 rounded-2xl font-semibold text-center leading-relaxed flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{success}</span>
           </div>
         )}
 
-        {/* 1. PHONE TAB */}
-        {authTab === 'phone' && (
-          <form onSubmit={otpSent ? handleVerifyPhoneOtp : handleSendPhoneOtp} className="space-y-3.5">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-[#00676d]" />
-                <span>Mobile Number</span>
-              </label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter 10-digit mobile number"
-                className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 outline-none focus:border-[#00676d] transition"
-              />
-            </div>
+        {/* 1. WHATSAPP OTP TAB */}
+        {authTab === 'whatsapp' && (
+          <div className="space-y-3.5">
+            {!otpSent ? (
+              /* Step 1: Enter Mobile Number */
+              <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                      <span>WhatsApp Mobile Number</span>
+                    </span>
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full">
+                      Free OTP
+                    </span>
+                  </label>
 
-            {otpSent && (
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Enter 6-Digit OTP</label>
+                  <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#00676d] transition bg-white">
+                    <div className="px-3.5 py-3 bg-slate-50 border-r border-slate-200 flex items-center gap-1.5 text-xs font-bold text-slate-700 select-none">
+                      <span className="text-base leading-none">🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      autoFocus
+                      value={phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      placeholder="Enter 10-digit mobile number"
+                      className="w-full px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400 placeholder:font-normal"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    We will send a 6-digit verification code directly to your WhatsApp.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || phone.length < 10}
+                  className="w-full bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                >
+                  {loading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <MessageCircle className="w-4 h-4 fill-white" />
+                      <span>Get OTP on WhatsApp</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            ) : (
+              /* Step 2: Enter OTP & Verify */
+              <form onSubmit={handleVerifyPhoneOtp} className="space-y-3.5">
+                {/* Masked destination with Edit Number button */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      OTP Sent To WhatsApp
+                    </span>
+                    <span className="text-xs font-black text-slate-800">
+                      {maskedPhone || `+91 ${phone}`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleEditPhone}
+                    className="flex items-center gap-1 text-[11px] font-bold text-[#00676d] hover:text-emerald-800 px-2.5 py-1 rounded-lg hover:bg-white transition cursor-pointer"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                    <span>Change</span>
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <span>Enter 6-Digit OTP</span>
+                    {countdown > 0 ? (
+                      <span className="text-[11px] text-slate-400 font-semibold">
+                        Resend in <span className="font-bold text-[#00676d]">{countdown}s</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSendPhoneOtp()}
+                        className="text-[11px] text-[#00676d] font-bold hover:underline cursor-pointer"
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </label>
+
                   <input
                     type="text"
                     maxLength={6}
                     required
+                    autoFocus
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter 6-digit OTP"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm font-bold text-center tracking-widest text-slate-900 outline-none focus:border-[#00676d] transition"
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    placeholder="• • • • • •"
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-2xl text-lg font-black text-center tracking-[0.5em] text-slate-900 outline-none focus:border-[#00676d] transition placeholder:tracking-widest placeholder:text-slate-300"
                   />
                 </div>
 
+                {/* Direct WhatsApp App Button */}
                 {waDeepLink && (
                   <a
                     href={waDeepLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs transition"
+                    className="w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] font-bold py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 text-xs transition border border-[#25D366]/30"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Open WhatsApp to Confirm OTP</span>
+                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                    <span>Open WhatsApp App directly</span>
                   </a>
                 )}
-              </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#fb7800] hover:bg-[#e06b00] text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
-            >
-              {loading ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <span>{otpSent ? 'Verify OTP & Continue' : 'Continue'}</span>
-              )}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={loading || otp.length < 4}
+                  className="w-full bg-[#fb7800] hover:bg-[#e06b00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                >
+                  {loading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <span>Verify &amp; Continue</span>
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
         )}
 
         {/* 2. EMAIL TAB */}

@@ -7,14 +7,18 @@ interface AuthBottomSheetProps {
   onClose: () => void;
 }
 
-const API_BASE = 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL 
+  ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') 
+  : (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+      ? 'http://localhost:4000' 
+      : 'https://cartcraze-95gt.onrender.com');
 
 export const AuthBottomSheet: React.FC<AuthBottomSheetProps> = ({ isOpen, onClose }) => {
   const { userProfile, setUserProfile } = useApp();
   const [authMethod, setAuthMethod] = useState<'whatsapp' | 'email'>('whatsapp');
 
   // Input states
-  const [phoneInput, setPhoneInput] = useState(userProfile.phone || '+91 78150 41952');
+  const [phoneInput, setPhoneInput] = useState(userProfile.phone || '');
   const [emailInput, setEmailInput] = useState(userProfile.email || '');
   const [nameInput, setNameInput] = useState(userProfile.name || '');
 
@@ -250,7 +254,7 @@ export const AuthBottomSheet: React.FC<AuthBottomSheetProps> = ({ isOpen, onClos
                       <Phone className="w-4 h-4 text-emerald-600 absolute left-3.5 top-3" />
                       <input
                         type="tel"
-                        placeholder="+91 78150 41952"
+                        placeholder="Enter 10-digit mobile number"
                         value={phoneInput}
                         onChange={(e) => setPhoneInput(e.target.value)}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
