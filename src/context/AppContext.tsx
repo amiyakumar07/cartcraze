@@ -63,7 +63,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       name: '',
       phone: '',
       email: '',
-      address: savedAddress || 'HSR Layout Sector 1, Bengaluru',
+      address: savedAddress || '',
       walletBalance: 0,
       freshCoins: 0,
       savedAddresses: [],
@@ -115,9 +115,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tipAmount, setTipAmount] = useState<number>(20);
 
   const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
-  // Default to TRUE (Coverage OFF / Coming Soon Screen ACTIVE until an approved store within 5km is verified)
-  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(true);
-  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>({ lat: 12.9141, lon: 77.6411 });
+  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(false);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>(() => {
+    const saved = localStorage.getItem('cartcraze_user_coords');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && !isNaN(parsed.lat) && !isNaN(parsed.lon)) return parsed;
+      } catch { /* silent */ }
+    }
+    return { lat: 12.9141, lon: 77.6411 };
+  });
+
+  useEffect(() => {
+    if (userCoords) {
+      localStorage.setItem('cartcraze_user_coords', JSON.stringify(userCoords));
+    }
+  }, [userCoords]);
 
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);

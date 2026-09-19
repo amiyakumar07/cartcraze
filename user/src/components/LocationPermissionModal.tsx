@@ -23,34 +23,43 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           setUserCoords({ lat, lon });
+          localStorage.setItem('cartcraze_location_granted', 'true');
+          localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
 
-          const geo = await reverseGeocodeLocationIQ(lat, lon);
-          setDetectedAddress(geo.address);
-          setUserProfile((prev) => ({ ...prev, address: geo.address }));
+          try {
+            const geo = await reverseGeocodeLocationIQ(lat, lon);
+            const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
+            setDetectedAddress(addr);
+            localStorage.setItem('cartcraze_user_selected_address', addr);
+            setUserProfile((prev) => ({ ...prev, address: addr }));
+          } catch { /* silent */ }
 
-          // Run strict backend coverage check — never assume in-range on error
           await checkStoreCoverage(lat, lon);
-
           setLoading(false);
-          setTimeout(() => onClose(), 800);
+          setTimeout(() => onClose(), 600);
         },
         async () => {
-          // GPS denied — fallback HSR Layout coords, STILL must check backend
+          // GPS denied — save granted flag and fallback
+          localStorage.setItem('cartcraze_location_granted', 'true');
           const fallbackLat = 12.9141;
           const fallbackLon = 77.6411;
           setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-          const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-          setDetectedAddress(geo.address);
-          setUserProfile((prev) => ({ ...prev, address: geo.address }));
+          try {
+            const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+            const addr = geo.address || geo.displayName || 'Current Area';
+            setDetectedAddress(addr);
+            localStorage.setItem('cartcraze_user_selected_address', addr);
+            setUserProfile((prev) => ({ ...prev, address: addr }));
+          } catch { /* silent */ }
 
           await checkStoreCoverage(fallbackLat, fallbackLon);
-
           setLoading(false);
-          setTimeout(() => onClose(), 800);
-        }
+          setTimeout(() => onClose(), 600);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
-      // No geolocation API — fallback HSR Layout, check backend
+      localStorage.setItem('cartcraze_location_granted', 'true');
       const fallbackLat = 12.9141;
       const fallbackLon = 77.6411;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
@@ -63,12 +72,16 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
   const handleUseDefault = async () => {
     setLoading(true);
+    localStorage.setItem('cartcraze_location_granted', 'true');
     const fallbackLat = 12.9141;
     const fallbackLon = 77.6411;
     setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-    const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-    setUserProfile((prev) => ({ ...prev, address: geo.address }));
-    // Strictly verify coverage before unlocking — never force-unlock
+    try {
+      const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
+      const addr = geo.address || geo.displayName || 'Current Area';
+      localStorage.setItem('cartcraze_user_selected_address', addr);
+      setUserProfile((prev) => ({ ...prev, address: addr }));
+    } catch { /* silent */ }
     await checkStoreCoverage(fallbackLat, fallbackLon);
     setLoading(false);
     onClose();
@@ -118,7 +131,7 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
             disabled={loading}
             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs py-3 rounded-2xl transition cursor-pointer disabled:opacity-70"
           >
-            Use Default HSR Layout Location
+            Continue without precise GPS
           </button>
         </div>
 

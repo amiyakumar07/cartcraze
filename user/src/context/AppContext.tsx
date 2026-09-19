@@ -74,7 +74,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       name: '',
       phone: '',
       email: '',
-      address: savedAddress || 'HSR Layout Sector 1, Bengaluru',
+      address: savedAddress || '',
       walletBalance: 0,
       freshCoins: 0,
       savedAddresses: [],
@@ -123,7 +123,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tipAmount, setTipAmount] = useState<number>(0);
 
   const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
-  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(true);
+  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(false);
   const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>(() => {
     const saved = localStorage.getItem('cartcraze_user_coords');
     if (saved) {

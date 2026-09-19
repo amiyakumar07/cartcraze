@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { MobileFrame } from './components/MobileFrame';
 import { Header } from './components/Header';
@@ -15,9 +15,10 @@ import { LoginScreen } from './pages/LoginScreen';
 import { OnboardingScreen } from './pages/OnboardingScreen';
 import { ComingSoonScreen } from './pages/ComingSoonScreen';
 import { LocationPermissionModal } from './components/LocationPermissionModal';
+import { reverseGeocodeLocationIQ } from './services/locationiq';
 
 const MainAppContent: React.FC = () => {
-  const { activeTab, setActiveTab, isOutOfCoverageRange, checkStoreCoverage, userProfile } = useApp();
+  const { activeTab, setActiveTab, isOutOfCoverageRange, checkStoreCoverage, userProfile, setUserCoords, setUserProfile } = useApp();
   
   // Track startup opening video splash
   const [showSplash, setShowSplash] = useState<boolean>(() => {
@@ -29,6 +30,61 @@ const MainAppContent: React.FC = () => {
   });
 
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+
+  // Automatically request location permission from customer on initial load / home
+  useEffect(() => {
+    if (showSplash || activeTab === 'onboarding' || activeTab === 'login') return;
+
+    const locationGranted = localStorage.getItem('cartcraze_location_granted');
+    if (!locationGranted) {
+      setShowLocationModal(true);
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            setUserCoords({ lat, lon });
+            localStorage.setItem('cartcraze_location_granted', 'true');
+            localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
+            
+            try {
+              const geo = await reverseGeocodeLocationIQ(lat, lon);
+              const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
+              localStorage.setItem('cartcraze_user_selected_address', addr);
+              setUserProfile((prev) => ({ ...prev, address: addr }));
+            } catch { /* silent */ }
+
+            await checkStoreCoverage(lat, lon);
+            setShowLocationModal(false);
+          },
+          (err) => {
+            console.log('Location prompt dismissed or denied:', err.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+    } else if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          setUserCoords({ lat, lon });
+          localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
+          if (!userProfile.address) {
+            try {
+              const geo = await reverseGeocodeLocationIQ(lat, lon);
+              const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
+              localStorage.setItem('cartcraze_user_selected_address', addr);
+              setUserProfile((prev) => ({ ...prev, address: addr }));
+            } catch { /* silent */ }
+          }
+          await checkStoreCoverage(lat, lon);
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, [showSplash, activeTab]);
 
   const handleSplashComplete = () => {
     try {

@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
                 {isOutOfCoverageRange ? (
                   <span className="text-red-500 font-bold">Out of delivery range (5km)</span>
                 ) : (
-                  userProfile.address || 'Delivering to B-402, Green Glen Heights...'
+                  userProfile.address || 'Select Delivery Location'
                 )}
               </span>
               <span className="material-symbols-outlined text-[14px] text-[#3e494a] align-middle group-hover:translate-y-0.5 transition-transform">

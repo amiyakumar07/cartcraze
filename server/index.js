@@ -328,11 +328,21 @@ app.post('/api/orders', (req, res) => {
   const customerLat = parseFloat(req.body.customerLat) || 12.9141;
   const customerLon = parseFloat(req.body.customerLon) || 77.6411;
   const approvedShops = registeredShops.filter(s => s.status === 'APPROVED');
-  let nearestShop = approvedShops[0] || { name: 'CartCraze Darkstore', address: 'Bengaluru', lat: 12.9141, lon: 77.6411 };
+  let nearestShop = null;
   let minDist = Infinity;
   for (const shop of approvedShops) {
     const d = getHaversineDistanceKm(customerLat, customerLon, shop.lat, shop.lon);
-    if (d < minDist) { minDist = d; nearestShop = shop; }
+    if (d < minDist && d <= 5.0) { minDist = d; nearestShop = shop; }
+  }
+
+  if (!nearestShop) {
+    nearestShop = {
+      id: 'darkstore-express',
+      name: 'CartCraze Express Darkstore',
+      address: req.body.address || 'CartCraze Express Fulfillment Hub',
+      lat: customerLat + 0.004,
+      lon: customerLon + 0.004
+    };
   }
 
   const newOrder = {
@@ -340,11 +350,11 @@ app.post('/api/orders', (req, res) => {
     orderTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     status: 'NEW',
     otp: generatedOtp,
-    shopId: nearestShop.id || 'shop-auto',
+    shopId: nearestShop.id || 'darkstore-express',
     darkstoreName: nearestShop.name,
-    darkstoreAddress: nearestShop.address || 'HSR Layout, Bengaluru',
-    darkstoreLat: nearestShop.lat || 12.9141,
-    darkstoreLon: nearestShop.lon || 77.6411,
+    darkstoreAddress: nearestShop.address,
+    darkstoreLat: nearestShop.lat,
+    darkstoreLon: nearestShop.lon,
     paymentMethod: req.body.paymentMethod || 'UPI',
     paymentStatus: req.body.paymentMethod === 'COD' ? 'UNPAID' : 'PAID',
     ...req.body
@@ -1224,32 +1234,43 @@ app.get('/api/products/nearby', (req, res) => {
 
   // Find approved shops within maxRadiusKm
   const approvedShops = registeredShops.filter(s => s.status === 'APPROVED');
-  const nearbyShops = approvedShops.filter(s => {
+  let nearbyShops = approvedShops.filter(s => {
     const dist = getHaversineDistanceKm(userLat, userLon, s.lat, s.lon);
     return dist <= maxRadiusKm;
   });
 
-  if (nearbyShops.length === 0) {
-    return res.json({
-      success: true,
-      inCoverageRange: false,
-      userLocation: { lat: userLat, lon: userLon },
-      radiusKm: maxRadiusKm,
-      nearbyShops: [],
-      products: [],
-      message: 'We are coming soon to your neighborhood!'
-    });
+  // If no partner merchant within 5km, CartCraze Express Darkstore dynamically fulfills this customer's zone!
+  const isExpressServing = nearbyShops.length === 0;
+  if (isExpressServing) {
+    const expressDarkstore = {
+      id: 'darkstore-express',
+      name: 'CartCraze Express Darkstore',
+      email: 'express@cartcraze.com',
+      phone: '+91 98000 22222',
+      address: 'CartCraze Express Fulfillment Hub',
+      lat: userLat,
+      lon: userLon,
+      licenseType: 'Express Darkstore License',
+      licenseNumber: 'CC-EXP-DARKSTORE-01',
+      status: 'APPROVED',
+      deliveryEta: '9-12 MINS',
+      distanceKm: 0.8,
+      isExpressHub: true,
+      createdAt: new Date().toISOString()
+    };
+    nearbyShops = [expressDarkstore];
   }
 
   const nearbyShopIds = nearbyShops.map(s => s.id);
   const shopsMap = new Map(nearbyShops.map(s => [s.id, s.name]));
 
-  // Include only items belonging to nearby active shops & attach shopName
+  // Include items: if darkstore-express, all inventory products are deliverable!
   const nearbyProducts = products
-    .filter(p => p.shopId && nearbyShopIds.includes(p.shopId))
+    .filter(p => isExpressServing || !p.shopId || nearbyShopIds.includes(p.shopId))
     .map(p => ({
       ...p,
-      shopName: shopsMap.get(p.shopId) || 'Fresh Valley Market'
+      shopId: isExpressServing ? 'darkstore-express' : (p.shopId || nearbyShops[0]?.id || 'shop-auto'),
+      shopName: isExpressServing ? (nearbyShops[0]?.name || 'CartCraze Express Darkstore') : (shopsMap.get(p.shopId) || nearbyShops[0]?.name || 'Fresh Valley Market')
     }));
 
   res.json({
