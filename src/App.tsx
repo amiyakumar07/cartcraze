@@ -143,7 +143,7 @@ const MainAppContent: React.FC = () => {
       ) : (
         <>
           <Header />
-          <main className="flex-1 pb-20">
+          <main className="flex-1 pb-4">
             {renderActiveScreen()}
           </main>
           <BottomNav />

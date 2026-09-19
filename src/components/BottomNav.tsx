@@ -16,7 +16,7 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full mx-auto z-40">
+    <div className="sticky bottom-0 z-30 w-full mt-auto shrink-0">
       {/* Floating Gradient Cart Bar */}
       {cartCount > 0 && activeTab !== 'cart' && activeTab !== 'order_confirmed' && (
         <div className="px-3 pb-2">

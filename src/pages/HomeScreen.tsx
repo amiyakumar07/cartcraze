@@ -234,7 +234,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full pb-28 pt-2 animate-fadeIn font-sans">
+    <div className="flex flex-col w-full pb-16 pt-2 animate-fadeIn font-sans">
       {/* Search Results Display */}
       {searchQuery ? (
         <section className="px-4 py-2">

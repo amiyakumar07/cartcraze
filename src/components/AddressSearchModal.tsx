@@ -109,26 +109,34 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
 
         <div className="space-y-1 max-h-56 overflow-y-auto no-scrollbar">
           {results.length > 0 ? (
-            results.map((res) => (
-              <button
-                key={res.placeId || res.displayName}
-                onClick={() => {
-                  onSelectAddress(res.displayName);
-                  onClose();
-                }}
-                className="w-full flex items-start gap-2.5 p-3 rounded-2xl hover:bg-amber-50 text-left transition cursor-pointer group border border-transparent hover:border-amber-200"
-              >
-                <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-xs font-bold text-gray-900 block group-hover:text-amber-800 leading-snug">
-                    {res.displayName}
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-mono">
-                    Lat: {res.lat.toFixed(4)}, Lon: {res.lon.toFixed(4)} (LocationIQ)
-                  </span>
-                </div>
-              </button>
-            ))
+            results.map((res: any) => {
+              const placeId = res.place_id || res.placeId || res.display_name || res.displayName;
+              const displayName = res.display_name || res.displayName || '';
+              const latNum = parseFloat(res.lat);
+              const lonNum = parseFloat(res.lon);
+              return (
+                <button
+                  key={placeId}
+                  onClick={() => {
+                    onSelectAddress(displayName);
+                    onClose();
+                  }}
+                  className="w-full flex items-start gap-2.5 p-3 rounded-2xl hover:bg-amber-50 text-left transition cursor-pointer group border border-transparent hover:border-amber-200"
+                >
+                  <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs font-bold text-gray-900 block group-hover:text-amber-800 leading-snug">
+                      {displayName}
+                    </span>
+                    {!isNaN(latNum) && !isNaN(lonNum) && (
+                      <span className="text-[10px] text-gray-400 font-mono">
+                        Lat: {latNum.toFixed(4)}, Lon: {lonNum.toFixed(4)} (LocationIQ)
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })
           ) : query.trim().length >= 2 && !searching ? (
             <p className="text-xs text-center text-gray-400 py-4 font-medium">
               No location matches found. Try "HSR Layout", "Indiranagar", or "Koramangala"

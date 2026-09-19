@@ -6,19 +6,15 @@ interface MobileFrameProps {
 
 export const MobileFrame: React.FC<MobileFrameProps> = ({ children }) => {
   return (
-    <div className="min-h-screen w-full bg-[#0d1117] flex items-center justify-center sm:py-6 font-sans select-none overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#0d1117] flex items-center justify-center sm:py-3 font-sans select-none overflow-x-hidden">
       {/* Device Phone Frame Mockup on Desktop / Tablet */}
       <div
         className={[
-          'relative w-full h-[100dvh] sm:h-[880px] sm:w-[412px] sm:max-w-[412px]',
-          'bg-white sm:rounded-[44px] flex flex-col overflow-hidden',
-          'sm:shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_0_10px_#1f2937,0_0_0_12px_#374151]',
+          'relative w-full h-[100dvh] sm:h-[min(880px,94vh)] sm:w-[420px] sm:max-w-[420px]',
+          'bg-white sm:rounded-[40px] flex flex-col overflow-hidden',
+          'sm:shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_0_8px_#1f2937,0_0_0_10px_#374151]',
           'sm:border sm:border-white/10',
         ].join(' ')}
-        style={{
-          transform: 'translateZ(0)',
-          contain: 'paint'
-        }}
       >
         {/* Dynamic Island Notch (visible on sm+ desktop frames) */}
         <div className="hidden sm:flex absolute top-2 inset-x-0 justify-center z-50 pointer-events-none">
