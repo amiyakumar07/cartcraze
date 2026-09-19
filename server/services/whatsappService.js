@@ -79,13 +79,64 @@ export async function sendWhatsAppOtp(phone) {
   let apiErrorMessage = null;
 
   // -------------------------------------------------------------
-  // Provider Option A: Meta WhatsApp Cloud API
+  // Provider Option 1: OpenWA (Open WhatsApp Gateway)
+  // -------------------------------------------------------------
+  const openwaApiKey = process.env.OPENWA_API_KEY;
+  const openwaUrl = (process.env.OPENWA_API_URL || 'http://localhost:2785').replace(/\/+$/, '');
+  let openwaSessionId = process.env.OPENWA_SESSION_ID;
+
+  if (openwaApiKey && openwaApiKey.trim() !== '' && !openwaApiKey.includes('YOUR_')) {
+    try {
+      // If session ID not statically defined, dynamically discover the first ready session
+      if (!openwaSessionId) {
+        const sessionRes = await fetch(`${openwaUrl}/api/sessions`, {
+          headers: { 'X-API-Key': openwaApiKey.trim() }
+        }).catch(() => null);
+        if (sessionRes && sessionRes.ok) {
+          const sessions = await sessionRes.json();
+          const active = Array.isArray(sessions) ? sessions.find(s => s.status === 'ready') : null;
+          if (active) openwaSessionId = active.id;
+        }
+      }
+
+      if (openwaSessionId) {
+        const messageText = `🛒 *CartCraze Login Verification*\n\nYour 6-digit OTP code is: *${otp}*\n\nValid for 5 minutes. Please do not share this OTP with anyone.\n\n_CartCraze - India's 8-Minute Delivery App_`;
+        const sendUrl = `${openwaUrl}/api/sessions/${openwaSessionId}/messages/send-text`;
+
+        const res = await fetch(sendUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': openwaApiKey.trim()
+          },
+          body: JSON.stringify({
+            chatId: `${normalizedPhone}@c.us`,
+            text: messageText
+          })
+        });
+
+        const data = await res.json().catch(() => null);
+        if (res.ok && (data?.messageId || data?.id)) {
+          directApiSent = true;
+          deliveryMethod = 'openwa';
+          console.log(`[WhatsApp API] Direct OTP sent successfully via OpenWA to +${normalizedPhone} (MsgID: ${data.messageId || data.id})`);
+        } else {
+          console.warn('[WhatsApp API] OpenWA sending returned non-ok response:', res.status, data);
+        }
+      }
+    } catch (openwaErr) {
+      console.warn('[WhatsApp API] OpenWA send request failed:', openwaErr.message);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Provider Option 2: Meta WhatsApp Cloud API
   // -------------------------------------------------------------
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || '1255652084302813';
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
   const templateName = process.env.WHATSAPP_OTP_TEMPLATE_NAME || 'hello_world';
 
-  if (accessToken && accessToken.trim() !== '' && !accessToken.includes('YOUR_')) {
+  if (!directApiSent && accessToken && accessToken.trim() !== '' && !accessToken.includes('YOUR_')) {
     try {
       const url = `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${phoneId}/messages`;
 
