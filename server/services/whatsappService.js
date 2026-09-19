@@ -107,7 +107,7 @@ export async function sendWhatsAppOtp(phone) {
       }
 
       if (openwaSessionId) {
-        const messageText = `🛒 *CartCraze Login Verification*\n\nYour 6-digit OTP code is: *${otp}*\n\nValid for 5 minutes. Please do not share this OTP with anyone.\n\n_CartCraze - India's 8-Minute Delivery App_`;
+        const messageText = `🛒 *CartCraze Login Verification*\n\n*${otp}* is your verification code for CartCraze.\n\nTap to copy code: \`${otp}\`\n\n🔒 Do not share this OTP with anyone, including CartCraze staff.\n⏱️ Valid for 5 minutes.\n\n_CartCraze • India's Last Minute App (8-Min Delivery)_`;
         const sendUrl = `${openwaUrl}/api/sessions/${openwaSessionId}/messages/send-text`;
 
         const res = await fetch(sendUrl, {

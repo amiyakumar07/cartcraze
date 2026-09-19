@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2 } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2, Clipboard, Check } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { signInWithGoogle, signInWithFirebaseEmail, signUpWithFirebaseEmail } from '../services/firebase';
 import { AppLogo } from '../components/AppLogo';
@@ -24,6 +24,25 @@ export const LoginScreen: React.FC = () => {
   const [waDeepLink, setWaDeepLink] = useState('');
   const [maskedPhone, setMaskedPhone] = useState('');
   const [countdown, setCountdown] = useState(0);
+  const [pasteSuccess, setPasteSuccess] = useState(false);
+
+  // Paste OTP from clipboard helper
+  const handlePasteOtp = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const digits = text.replace(/\D/g, '').slice(0, 6);
+      if (digits) {
+        setOtp(digits);
+        setPasteSuccess(true);
+        setTimeout(() => setPasteSuccess(false), 2500);
+        setError('');
+      } else {
+        setError('No 6-digit verification code found in your clipboard.');
+      }
+    } catch {
+      setError('Unable to read clipboard. Please enter or paste the 6-digit code manually.');
+    }
+  };
 
   // Email States
   const [email, setEmail] = useState('');
@@ -400,8 +419,8 @@ export const LoginScreen: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                     <span>Enter 6-Digit OTP</span>
                     {countdown > 0 ? (
                       <span className="text-[11px] text-slate-400 font-semibold">
@@ -416,32 +435,78 @@ export const LoginScreen: React.FC = () => {
                         Resend OTP
                       </button>
                     )}
-                  </label>
+                  </div>
 
-                  <input
-                    type="text"
-                    maxLength={6}
-                    required
-                    autoFocus
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="• • • • • •"
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-2xl text-lg font-black text-center tracking-[0.5em] text-slate-900 outline-none focus:border-[#00676d] transition placeholder:tracking-widest placeholder:text-slate-300"
-                  />
+                  {/* Segmented 6-Box PIN View */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      required
+                      autoFocus
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
+                    />
+                    <div className="grid grid-cols-6 gap-2">
+                      {[0, 1, 2, 3, 4, 5].map((idx) => {
+                        const digit = otp[idx] || '';
+                        const isCurrent = otp.length === idx || (idx === 5 && otp.length === 6);
+                        return (
+                          <div
+                            key={idx}
+                            className={`h-12 flex items-center justify-center text-xl font-black rounded-xl border-2 transition-all duration-150 ${
+                              digit
+                                ? 'border-emerald-600 bg-emerald-50/60 text-slate-900 shadow-xs'
+                                : isCurrent
+                                ? 'border-[#00676d] bg-white ring-2 ring-[#00676d]/20 shadow-xs'
+                                : 'border-slate-200 bg-slate-50 text-slate-400'
+                            }`}
+                          >
+                            {digit ? digit : isCurrent ? <span className="w-1.5 h-4 bg-[#00676d] animate-pulse rounded-full" /> : '•'}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Professional Quick Action Buttons: Paste Code & Open WhatsApp */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handlePasteOtp}
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer active:scale-98"
+                    >
+                      {pasteSuccess ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-700">Pasted!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clipboard className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Paste Code</span>
+                        </>
+                      )}
+                    </button>
+
+                    {waDeepLink ? (
+                      <a
+                        href={waDeepLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] border border-[#25D366]/30 text-xs font-bold transition active:scale-98"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                        <span>Open WhatsApp</span>
+                      </a>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
                 </div>
-
-                {/* Direct WhatsApp App Button */}
-                {waDeepLink && (
-                  <a
-                    href={waDeepLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] font-bold py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 text-xs transition border border-[#25D366]/30"
-                  >
-                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                    <span>Open WhatsApp App directly</span>
-                  </a>
-                )}
 
                 <button
                   type="submit"
