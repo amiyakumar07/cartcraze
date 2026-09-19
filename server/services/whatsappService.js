@@ -1,10 +1,17 @@
 // ============================================================================
 // CartCraze Production WhatsApp OTP Authentication Service
 // Supports:
-// 1. Meta WhatsApp Cloud API (Graph API v20.0 / v21.0)
-// 2. Generic HTTP WhatsApp Gateway (UltraMsg, Twilio, WATI, Fast2SMS, etc.)
-// 3. User-Initiated Click-to-Chat Deep Link (wa.me)
+// 1. OpenWA WhatsApp Gateway (Native live mode)
+// 2. Meta WhatsApp Cloud API (Graph API v20.0 / v21.0)
+// 3. Generic HTTP WhatsApp Gateway (UltraMsg, Twilio, WATI, Fast2SMS, etc.)
+// 4. User-Initiated Click-to-Chat Deep Link (wa.me)
 // ============================================================================
+
+try {
+  process.loadEnvFile?.('.env');
+} catch (e) {
+  // Ignore if already loaded or not found
+}
 
 const WHATSAPP_API_VERSION = 'v20.0';
 
