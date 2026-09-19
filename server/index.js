@@ -12,7 +12,7 @@ try {
 }
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -1328,14 +1328,23 @@ app.post('/api/razorpay/verify-payment', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
+  const isCloud = !!process.env.RENDER || process.env.NODE_ENV === 'production';
+  const liveUrl = process.env.RENDER_EXTERNAL_URL || 'https://cartcraze-95gt.onrender.com';
+  const baseUrl = isCloud ? `${liveUrl}/api` : `http://localhost:${PORT}/api`;
+
   console.log(`\n==================================================`);
   console.log(`⚡ CARTCRAZE CENTRAL REST API + SUPABASE SERVER RUNNING!`);
-  console.log(`🌐 Server Base URL: http://localhost:${PORT}/api`);
+  console.log(`🌐 Server Base URL: ${baseUrl}`);
   console.log(`⚡ Supabase Integration: ACTIVE`);
-  console.log(`🔗 Linked App Nodes:`);
-  console.log(`   📱 User App:    http://localhost:5173/`);
-  console.log(`   🏬 Shop App:    http://localhost:3030/`);
-  console.log(`   🛵 Rider App:   http://localhost:5050/`);
-  console.log(`   🛡️ Admin App:   http://localhost:4040/`);
+  if (isCloud) {
+    console.log(`🚀 Live Cloud Production URL: ${liveUrl}`);
+    console.log(`📱 Customer WhatsApp OTP: ${baseUrl}/auth/whatsapp/send-otp`);
+  } else {
+    console.log(`🔗 Local Development App Nodes:`);
+    console.log(`   📱 User App:    http://localhost:5173/`);
+    console.log(`   🏬 Shop App:    http://localhost:3030/`);
+    console.log(`   🛵 Rider App:   http://localhost:5050/`);
+    console.log(`   🛡️ Admin App:   http://localhost:4040/`);
+  }
   console.log(`==================================================\n`);
 });
