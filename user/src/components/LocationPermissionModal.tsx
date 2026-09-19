@@ -28,7 +28,7 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
 
           try {
             const geo = await reverseGeocodeLocationIQ(lat, lon);
-            const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
+            const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || geo?.displayName || 'Current Location');
             setDetectedAddress(addr);
             localStorage.setItem('cartcraze_user_selected_address', addr);
             setUserProfile((prev) => ({ ...prev, address: addr }));
@@ -41,12 +41,12 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
         async () => {
           // GPS denied — save granted flag and fallback
           localStorage.setItem('cartcraze_location_granted', 'true');
-          const fallbackLat = 12.9141;
-          const fallbackLon = 77.6411;
+          const fallbackLat = 20.2961;
+          const fallbackLon = 85.8245;
           setUserCoords({ lat: fallbackLat, lon: fallbackLon });
           try {
             const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-            const addr = geo.address || geo.displayName || 'Current Area';
+            const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || 'Bhubaneswar, Odisha');
             setDetectedAddress(addr);
             localStorage.setItem('cartcraze_user_selected_address', addr);
             setUserProfile((prev) => ({ ...prev, address: addr }));
@@ -60,8 +60,8 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
       );
     } else {
       localStorage.setItem('cartcraze_location_granted', 'true');
-      const fallbackLat = 12.9141;
-      const fallbackLon = 77.6411;
+      const fallbackLat = 20.2961;
+      const fallbackLon = 85.8245;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
       checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
         setLoading(false);
@@ -73,12 +73,12 @@ export const LocationPermissionModal: React.FC<Props> = ({ isOpen, onClose }) =>
   const handleUseDefault = async () => {
     setLoading(true);
     localStorage.setItem('cartcraze_location_granted', 'true');
-    const fallbackLat = 12.9141;
-    const fallbackLon = 77.6411;
+    const fallbackLat = 20.2961;
+    const fallbackLon = 85.8245;
     setUserCoords({ lat: fallbackLat, lon: fallbackLon });
     try {
       const geo = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-      const addr = geo.address || geo.displayName || 'Current Area';
+      const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || 'Bhubaneswar, Odisha');
       localStorage.setItem('cartcraze_user_selected_address', addr);
       setUserProfile((prev) => ({ ...prev, address: addr }));
     } catch { /* silent */ }

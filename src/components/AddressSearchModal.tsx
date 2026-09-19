@@ -39,19 +39,21 @@ export const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const res = await reverseGeocodeLocationIQ(position.coords.latitude, position.coords.longitude);
+          const addr = typeof res === 'string' ? res : (res?.address || res?.fullAddress || 'Current Location');
           setGpsLoading(false);
-          onSelectAddress(res.address);
+          onSelectAddress(addr);
           onClose();
         },
         async () => {
-          const res = await reverseGeocodeLocationIQ(12.9141, 77.6411);
+          const res = await reverseGeocodeLocationIQ(20.2961, 85.8245);
+          const addr = typeof res === 'string' ? res : (res?.address || res?.fullAddress || 'Bhubaneswar, Odisha');
           setGpsLoading(false);
-          onSelectAddress(res.address);
+          onSelectAddress(addr);
           onClose();
         }
       );
     } else {
-      onSelectAddress('HSR Layout, Sector 1, Bengaluru');
+      onSelectAddress('Bhubaneswar, Odisha');
       setGpsLoading(false);
       onClose();
     }

@@ -65,9 +65,24 @@ export interface DetailedLocationIQResult {
   lon: number;
 }
 
-export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<string> => {
+export const reverseGeocodeLocationIQ = async (lat: number, lon: number): Promise<any> => {
   const detailed = await reverseGeocodeDetailedLocationIQ(lat, lon);
-  return detailed.displayName;
+  const text = detailed.displayName || detailed.fullAddress || 'Current Location';
+  
+  // Create a String wrapper object with attached properties so both string operations and obj.address work
+  const result: any = new String(text);
+  result.address = text;
+  result.fullAddress = text;
+  result.displayName = text;
+  result.display_name = text;
+  result.city = detailed.city;
+  result.street = detailed.street;
+  result.state = detailed.state;
+  result.pincode = detailed.pincode;
+  result.lat = lat;
+  result.lon = lon;
+  
+  return result;
 };
 
 export const reverseGeocodeDetailedLocationIQ = async (lat: number, lon: number): Promise<DetailedLocationIQResult> => {

@@ -49,9 +49,11 @@ const MainAppContent: React.FC = () => {
             
             try {
               const geo = await reverseGeocodeLocationIQ(lat, lon);
-              const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
-              localStorage.setItem('cartcraze_user_selected_address', addr);
-              setUserProfile((prev) => ({ ...prev, address: addr }));
+              const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || geo?.displayName || 'Current Location');
+              if (addr) {
+                localStorage.setItem('cartcraze_user_selected_address', addr);
+                setUserProfile((prev) => ({ ...prev, address: addr }));
+              }
             } catch { /* silent */ }
 
             await checkStoreCoverage(lat, lon);
@@ -70,14 +72,14 @@ const MainAppContent: React.FC = () => {
           const lon = pos.coords.longitude;
           setUserCoords({ lat, lon });
           localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
-          if (!userProfile.address) {
-            try {
-              const geo = await reverseGeocodeLocationIQ(lat, lon);
-              const addr = geo.address || geo.displayName || `${geo.street || 'Current Location'}, ${geo.city || 'India'}`;
+          try {
+            const geo = await reverseGeocodeLocationIQ(lat, lon);
+            const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || geo?.displayName || 'Current Location');
+            if (addr && (!userProfile.address || userProfile.address === 'Select Delivery Location' || userProfile.address === 'Locating delivery address...')) {
               localStorage.setItem('cartcraze_user_selected_address', addr);
               setUserProfile((prev) => ({ ...prev, address: addr }));
-            } catch { /* silent */ }
-          }
+            }
+          } catch { /* silent */ }
           await checkStoreCoverage(lat, lon);
         },
         () => {},

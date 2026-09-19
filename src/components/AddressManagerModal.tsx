@@ -28,12 +28,15 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
       isDefault: a.id === id
     }));
     const selected = updated.find((a) => a.id === id);
+    const chosenAddress = selected ? selected.fullAddress : userProfile.address;
     setUserProfile((prev) => ({
       ...prev,
-      address: selected ? selected.fullAddress : prev.address,
+      address: chosenAddress,
       savedAddresses: updated
     }));
-    // Always verify coverage against backend — use current userCoords as proxy
+    if (chosenAddress) {
+      localStorage.setItem('cartcraze_user_selected_address', chosenAddress);
+    }
     await checkStoreCoverage();
     onClose();
   };
@@ -46,14 +49,17 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           setUserCoords({ lat, lon });
+          localStorage.setItem('cartcraze_location_granted', 'true');
+          localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
           const res = await reverseGeocodeLocationIQ(lat, lon);
           
-          const gpsAddress = res.address;
+          const gpsAddress = (typeof res === 'string' ? res : (res?.address || res?.fullAddress || res?.displayName)) || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+          const parts = gpsAddress.split(',');
           const newGpsAddress: SavedAddress = {
             id: 'addr-' + Date.now(),
             label: 'Home',
-            flatNo: gpsAddress.split(',')[0] || 'Current GPS Location',
-            area: gpsAddress.split(',').slice(1).join(', ') || 'Detected LocationIQ GPS',
+            flatNo: parts[0] || 'Current GPS Location',
+            area: parts.slice(1).join(', ').trim() || 'Detected LocationIQ GPS',
             fullAddress: gpsAddress,
             isDefault: true
           };
@@ -66,6 +72,7 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
             address: gpsAddress,
             savedAddresses: updatedList
           }));
+          localStorage.setItem('cartcraze_user_selected_address', gpsAddress);
 
           // Check backend coverage — never bypass
           await checkStoreCoverage(lat, lon);
@@ -73,21 +80,26 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
           onClose();
         },
         async () => {
-          // Fallback HSR Layout — still check backend
-          const fallbackLat = 12.9141;
-          const fallbackLon = 77.6411;
+          // Fallback to Bhubaneswar
+          const fallbackLat = 20.2961;
+          const fallbackLon = 85.8245;
           setUserCoords({ lat: fallbackLat, lon: fallbackLon });
           const res = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-          setUserProfile((prev) => ({ ...prev, address: res.address }));
+          const fallbackAddress = (typeof res === 'string' ? res : (res?.address || res?.fullAddress)) || 'Bhubaneswar, Odisha';
+          setUserProfile((prev) => ({ ...prev, address: fallbackAddress }));
+          localStorage.setItem('cartcraze_user_selected_address', fallbackAddress);
           await checkStoreCoverage(fallbackLat, fallbackLon);
           setGpsLoading(false);
           onClose();
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
-      const fallbackLat = 12.9141;
-      const fallbackLon = 77.6411;
+      const fallbackLat = 20.2961;
+      const fallbackLon = 85.8245;
       setUserCoords({ lat: fallbackLat, lon: fallbackLon });
+      setUserProfile((prev) => ({ ...prev, address: 'Bhubaneswar, Odisha' }));
+      localStorage.setItem('cartcraze_user_selected_address', 'Bhubaneswar, Odisha');
       checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
         setGpsLoading(false);
         onClose();
@@ -116,6 +128,7 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
       address: newAddr.fullAddress,
       savedAddresses: updatedList
     }));
+    localStorage.setItem('cartcraze_user_selected_address', newAddr.fullAddress);
 
     // Backend coverage check — use current userCoords as the typed address has no GPS coords
     await checkStoreCoverage();
