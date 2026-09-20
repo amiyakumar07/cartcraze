@@ -254,16 +254,6 @@ export async function sendWhatsAppOtp(phone) {
         }
       }
 
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken.trim()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
       if (res.ok && data.messages?.[0]?.id) {
         directApiSent = true;
         deliveryMethod = 'meta_cloud_api';
