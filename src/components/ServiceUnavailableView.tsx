@@ -22,13 +22,13 @@ export const ServiceUnavailableView: React.FC<ServiceUnavailableViewProps> = ({ 
   const [switchedToast, setSwitchedToast] = useState<string | null>(null);
 
   // Address parsing
-  const rawAddr = userProfile.address || 'Selected Location (Outside 5km Zone)';
+  const rawAddr = userProfile.address || 'Sector 6, Patia, Bhubaneswar, 751024';
   const pinMatch = rawAddr.match(/\b\d{6}\b/);
   const locationPincode = pinMatch ? pinMatch[0] : '751024';
   const addrParts = rawAddr.split(',').map((s) => s.trim()).filter(Boolean);
   const locationAreaName = addrParts.length >= 2 
     ? `${addrParts[0]}, ${addrParts[1]}` 
-    : (addrParts[0] || 'Your Area');
+    : (addrParts[0] || 'Patia, Bhubaneswar');
 
   const toggleNotify = () => {
     const nextNotified = !isNotified;
@@ -75,203 +75,213 @@ export const ServiceUnavailableView: React.FC<ServiceUnavailableViewProps> = ({ 
     setActiveTab('home');
   };
 
-  const handleExploreJaydevVihar = () => {
-    switchToAddress(
-      'Store #01 Jaydev Vihar',
-      20.3015,
-      85.8240,
-      'Jaydev Vihar Square, Bhubaneswar, Odisha 751015'
-    );
-  };
-
   return (
-    <div className="flex flex-col w-full pb-8 bg-gradient-to-b from-[#f4fbf4] via-[#f7faf8] to-[#edf7ee] min-h-full animate-fadeIn font-sans">
+    <div className="flex flex-col w-full pb-6 bg-[#f4fbf4] min-h-full animate-fadeIn">
       <div className="flex flex-col w-full px-4 pb-8 space-y-4">
         
         {/* ── Top Notice Banner ── */}
-        <div className="w-full bg-amber-500/10 border border-amber-500/20 text-amber-900 rounded-2xl p-3 flex items-center gap-3 shadow-xs">
-          <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-amber-700">
-            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
+        <div className="w-full bg-[#ffdad6]/80 text-[#93000a] rounded-xl p-3 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-[#ba1a1a]/10 flex items-center justify-center flex-shrink-0 text-[#ba1a1a]">
+            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-amber-950">Store #01 Delivering in Jaydev Vihar</p>
-            <p className="text-[11px] text-amber-800/80 truncate">15-minute quick delivery is active within 5 km of our Bhubaneswar darkstore.</p>
+            <p className="text-xs font-bold text-[#ba1a1a]">Currently Unavailable</p>
+            <p className="text-xs text-[#3c4a42] truncate">Deliveries are temporarily paused at this pin code.</p>
           </div>
         </div>
 
-        {/* ── Hero Card ── */}
-        <div className="flex flex-col items-center text-center pt-2 w-full bg-white rounded-3xl p-5 shadow-sm border border-emerald-900/5">
-          <div className="relative w-36 h-36 flex items-center justify-center mb-2">
-            <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-xl"></div>
-            <div className="relative w-32 h-32 rounded-full bg-gradient-to-tr from-[#e6f6ee] via-[#d5f0e3] to-[#c1ebd6] flex items-center justify-center shadow-inner">
-              <span className="material-symbols-outlined text-[56px] text-[#006c49]">electric_moped</span>
+        {/* ── Hero Illustration ── */}
+        <div className="flex flex-col items-center text-center pt-1 w-full">
+          <div className="relative w-44 h-44 flex items-center justify-center mb-3">
+            <div className="absolute inset-2 rounded-full bg-[#10b981]/10 blur-xl"></div>
+            <div className="relative w-40 h-40 rounded-full bg-[#eef6ee] flex items-center justify-center shadow-sm overflow-hidden">
+              <img 
+                alt="Location pin and scooter illustration" 
+                className="w-36 h-36 object-contain drop-shadow-md" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3KAXVB5BjtKj1raA-5Q25cZ30LBPbElaAsqy7gzpyGoV9P-YH0B8aDkUHfyTCoUlMkA3EGtwzAOh7twFllJxXTkUMkT7oXYP7wOb3dAIN-1QgNuDOFODXd3A5DkpclkHRAqzuN3z8kUk-cB3Kx9nwn9H5t0nEzIlZ19KLjIgy5CTXKIZgZ47DtdSOh5MTdFmdEesWTN9xE-0EFcyJX_9EEuWFiXolw7fRQiz9sxzePcX5BFi07Tns"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/service-unavailable-scooter.png';
+                }}
+              />
             </div>
-            <div className="absolute bottom-1 right-2 bg-[#006c49] text-white rounded-full p-1.5 shadow-md flex items-center justify-center ring-2 ring-white">
-              <span className="material-symbols-outlined text-[16px]">location_on</span>
+            <div className="absolute bottom-1 right-3 bg-[#ba1a1a] text-white rounded-full p-1 shadow-md flex items-center justify-center ring-2 ring-white">
+              <span className="material-symbols-outlined text-[18px]">location_off</span>
             </div>
           </div>
 
           {/* Badge + Headline + Description */}
-          <span className="text-[10px] font-black uppercase text-[#006c49] tracking-wider mb-1 px-3 py-1 bg-emerald-100/70 rounded-full">
-            Darkstore Coverage Zone
+          <span className="text-[10px] font-black uppercase text-[#ba1a1a] tracking-[0.08em] mb-1 px-2.5 py-1 bg-[#ffdad6]/60 rounded-full">
+            Service Area Update
           </span>
-          <h1 className="text-xl font-black text-gray-900 mb-1 tracking-tight">
-            We haven't reached your street yet!
+          <h1 className="text-xl font-black text-[#161d19] mb-1 tracking-tight">
+            We are not in your area yet!
           </h1>
-          <p className="text-xs text-gray-600 mb-5 leading-relaxed px-2 max-w-sm">
-            CartCraze 15-minute express grocery delivery is currently active around{' '}
-            <strong className="text-gray-900 font-bold">Jaydev Vihar (5 km)</strong>. You can still explore the live catalog, view fresh prices, or change delivery address.
+          <p className="text-sm text-[#3c4a42] mb-4 leading-relaxed px-2">
+            CartCraze quick 15-minute grocery and essentials delivery isn't live in{' '}
+            <strong className="text-[#161d19] font-semibold">{locationAreaName}</strong>{' '}
+            just yet. We are expanding rapidly!
           </p>
 
           {/* ── CTA Buttons ── */}
-          <div className="w-full space-y-2.5">
-            {/* Primary Action: Explore Active Darkstore in Demo Mode */}
-            <button
-              onClick={handleExploreJaydevVihar}
-              className="w-full h-12 bg-gradient-to-r from-[#006c49] to-[#005237] hover:from-[#005a3d] hover:to-[#00402b] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#006c49]/25 active:scale-[0.99] transition-all cursor-pointer"
+          <div className="w-full space-y-2">
+            <button 
+              className={`w-full h-12 ${
+                isNotified 
+                  ? 'bg-[#10b981]/20 text-[#006c49]' 
+                  : 'bg-[#006c49] text-white'
+              } rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer`}
+              onClick={toggleNotify}
             >
-              <span className="material-symbols-outlined text-[20px]">explore</span>
-              <span>Explore Jaydev Vihar Store (Live Demo)</span>
+              <span className="material-symbols-outlined text-[20px]">
+                {isNotified ? 'check_circle' : 'notifications_active'}
+              </span>
+              <span>
+                {isNotified ? "We'll Notify You!" : 'Notify Me When Available'}
+              </span>
             </button>
 
             <button 
-              className="w-full h-11 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer" 
+              className="w-full h-12 bg-[#e8f0e9] text-[#161d19] rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.99] transition-all cursor-pointer" 
               onClick={() => {
                 if (onSearchNewAddress) onSearchNewAddress();
                 else setShowSearchModal(true);
               }}
             >
-              <span className="material-symbols-outlined text-[18px] text-[#006c49]">search</span>
-              <span>Change or Search Delivery Address</span>
-            </button>
-
-            <button 
-              className={`w-full h-10 ${
-                isNotified 
-                  ? 'bg-emerald-50 text-[#006c49] border border-emerald-200' 
-                  : 'bg-transparent text-gray-600 hover:bg-gray-50'
-              } rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer`}
-              onClick={toggleNotify}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                {isNotified ? 'check_circle' : 'notifications'}
-              </span>
-              <span>
-                {isNotified ? "We'll notify you when we expand here!" : 'Notify me when available at this pincode'}
-              </span>
+              <span className="material-symbols-outlined text-[20px] text-[#006c49]">edit_location_alt</span>
+              <span>Change Location / Select Address</span>
             </button>
           </div>
         </div>
 
         {/* ── Saved Addresses Quick Switcher ── */}
         <div className="w-full pt-1">
-          <div className="flex items-center justify-between mb-2 px-1">
-            <h2 className="text-xs font-black text-gray-800 uppercase tracking-wider">Fast Switch Hub</h2>
-            <span className="text-[10px] font-bold text-[#006c49]">AVAILABLE NOW</span>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-bold text-[#161d19]">Deliver to another saved address</h2>
+            <span className="text-[10px] font-black text-[#006c49] tracking-wide">3 SAVED</span>
           </div>
 
           <div className="space-y-2">
-            {/* Store #01 Jaydev Vihar (Serviceable Hub) */}
-            <div 
-              onClick={handleExploreJaydevVihar}
-              className="w-full p-3.5 bg-white border-2 border-[#10b981]/50 hover:border-[#10b981] rounded-2xl flex items-center justify-between gap-3 shadow-xs transition-all cursor-pointer group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#006c49] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined text-[22px]">storefront</span>
+            {/* Home (Current & Unserviceable) */}
+            <div className="w-full p-3 bg-[#eef6ee] rounded-xl flex items-start justify-between gap-2 opacity-90">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-[#dde4dd] flex items-center justify-center flex-shrink-0 text-[#3c4a42] mt-0.5">
+                  <span className="material-symbols-outlined text-[20px]">home</span>
                 </div>
-                <div className="min-w-0 text-left">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-xs font-bold text-gray-900 truncate">Store #01 Jaydev Vihar</span>
-                    <span className="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">ACTIVE</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-sm font-bold text-[#161d19] truncate">Home</span>
+                    <span className="text-[10px] font-black text-[#3c4a42] bg-[#dde4dd] px-1.5 py-0.5 rounded">Current</span>
                   </div>
-                  <p className="text-[11px] text-gray-500 truncate">Jaydev Vihar Square, Bhubaneswar 751015</p>
-                  <p className="text-[10px] text-emerald-600 font-bold mt-0.5">⚡ 15-20 mins express delivery active</p>
+                  <p className="text-xs text-[#3c4a42] truncate">{rawAddr}</p>
+                  <div className="mt-1 inline-flex items-center gap-1 text-[#ba1a1a] bg-[#ffdad6]/70 px-2 py-0.5 rounded-full">
+                    <span className="material-symbols-outlined text-[14px]">cancel</span>
+                    <span className="text-[10px] font-bold">Unserviceable</span>
+                  </div>
                 </div>
               </div>
-              <span className="text-xs font-bold text-white bg-[#006c49] px-3 py-1.5 rounded-xl shadow-xs shrink-0 group-hover:bg-[#00573a] transition">
-                Switch
-              </span>
+              <div className="h-full flex items-center pt-2">
+                <span className="material-symbols-outlined text-[#bbcabf] text-[20px]">radio_button_checked</span>
+              </div>
             </div>
 
-            {/* Current Address (Unserviceable) */}
-            <div className="w-full p-3 bg-gray-50/80 border border-gray-200/60 rounded-2xl flex items-center justify-between gap-2 opacity-75">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">location_off</span>
+            {/* Store #01 Jaydev Vihar (Serviceable Hub) */}
+            <div 
+              onClick={() => switchToAddress(
+                'Store #01 Jaydev Vihar',
+                20.3015,
+                85.8240,
+                'Jaydev Vihar Square, Bhubaneswar, Odisha 751015'
+              )}
+              className="w-full p-3 bg-white border border-[#bbcabf]/50 hover:border-[#10b981] rounded-xl flex items-start justify-between gap-2 transition-all cursor-pointer"
+            >
+              <div className="flex items-start gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-[#10b981]/15 flex items-center justify-center flex-shrink-0 text-[#006c49] mt-0.5">
+                  <span className="material-symbols-outlined text-[20px]">storefront</span>
                 </div>
-                <div className="min-w-0 text-left">
-                  <span className="text-xs font-semibold text-gray-700 truncate block">{rawAddr}</span>
-                  <span className="text-[10px] text-amber-700 font-medium">Outside 5 km service zone</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-sm font-bold text-[#161d19] truncate">Store #01 Jaydev Vihar</span>
+                    <span className="text-[10px] font-black text-[#006c49] bg-[#10b981]/20 px-1.5 py-0.5 rounded">Operational Hub</span>
+                  </div>
+                  <p className="text-xs text-[#3c4a42] truncate">Jaydev Vihar Square, Bhubaneswar, 751015</p>
+                  <div className="mt-1 inline-flex items-center gap-1 text-[#006c49] bg-[#10b981]/20 px-2 py-0.5 rounded-full">
+                    <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                    <span className="text-[10px] font-bold">Available (15-20m)</span>
+                  </div>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">Current</span>
+              <div className="h-full flex items-center pt-2">
+                <span className="text-xs font-bold text-[#006c49] bg-[#e8f0e9] px-2.5 py-1 rounded-full hover:bg-[#10b981]/20 transition">
+                  Switch
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ── Neighborhood Vote Card ── */}
-        <div className="w-full p-4 bg-white border border-gray-100 rounded-2xl shadow-xs">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-[20px]">how_to_vote</span>
+        <div className="w-full p-3 bg-gradient-to-br from-[#e8f0e9] to-[#e3eae3] rounded-xl">
+          <div className="flex items-start gap-2.5">
+            <div className="w-10 h-10 rounded-full bg-[#e29100]/20 text-[#855300] flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-[22px]">how_to_vote</span>
             </div>
-            <div className="flex-1 min-w-0 text-left">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-gray-900">Want CartCraze in your area?</span>
-                <span className="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold text-[10px]">
-                  <span>{voteCount.toLocaleString()} votes</span>
+                <span className="text-sm font-bold text-[#161d19]">Want CartCraze in your area?</span>
+                <span className="inline-flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-full text-[#161d19] font-bold text-xs shadow-sm">
+                  <span className="material-symbols-outlined text-[14px] text-[#855300]">how_to_reg</span>
+                  <span>{voteCount.toLocaleString()}</span>
                 </span>
               </div>
-              <p className="text-[11px] text-gray-500 mb-3 leading-snug">
-                Vote for your pin code ({locationPincode}) to help us launch our next darkstore here.
+              <p className="text-xs text-[#3c4a42] mb-3 leading-snug">
+                Vote for your pin code to help us prioritize our next dark store launch in {locationAreaName}.
               </p>
               <button 
-                className={`w-full h-9 ${
+                className={`w-full h-10 ${
                   hasVoted 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-amber-500/15 text-amber-900 hover:bg-amber-500/25'
-                } rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer`}
+                    ? 'bg-[#006c49] text-white' 
+                    : 'bg-white text-[#006c49]'
+                } rounded-lg text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer`}
                 onClick={handleVote}
               >
-                <span className="material-symbols-outlined text-[16px]">
-                  {hasVoted ? 'check' : 'thumb_up'}
+                <span className="material-symbols-outlined text-[18px]">
+                  {hasVoted ? 'celebration' : 'thumb_up'}
                 </span>
                 <span>
-                  {hasVoted ? 'Vote Recorded! Thank You' : `Vote for ${locationAreaName}`}
+                  {hasVoted ? 'Vote Recorded! Thanks' : `Vote for ${locationAreaName} (${locationPincode})`}
                 </span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* ── Delivery Promise Badges ── */}
-        <div className="w-full flex items-center justify-center gap-4 py-2 text-gray-400">
+        {/* ── Delivery Promise Badge ── */}
+        <div className="w-full flex items-center justify-center gap-3 py-2 text-[#3c4a42] opacity-80">
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px] text-[#006c49]">electric_moped</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">15-Min Delivery</span>
+            <span className="material-symbols-outlined text-[18px] text-[#006c49]">electric_moped</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.08em]">15-Min Delivery</span>
           </div>
-          <div className="w-1 h-1 rounded-full bg-gray-300"></div>
+          <div className="w-1 h-1 rounded-full bg-[#bbcabf]"></div>
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px] text-[#006c49]">eco</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">Fresh Produce</span>
+            <span className="material-symbols-outlined text-[18px] text-[#006c49]">eco</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.08em]">Fresh Produce</span>
           </div>
-          <div className="w-1 h-1 rounded-full bg-gray-300"></div>
+          <div className="w-1 h-1 rounded-full bg-[#bbcabf]"></div>
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px] text-[#006c49]">verified</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">Hygiene Packed</span>
+            <span className="material-symbols-outlined text-[18px] text-[#006c49]">verified</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.08em]">Hygiene Packed</span>
           </div>
         </div>
       </div>
 
       {/* ── Toast Notification on Address Switch ── */}
       {switchedToast && (
-        <div className="fixed bottom-20 left-4 right-4 bg-gray-900 text-white rounded-2xl p-3.5 flex items-center justify-between shadow-2xl z-50 animate-fadeIn">
+        <div className="fixed bottom-20 left-4 right-4 bg-[#161d19] text-[#f4fbf4] rounded-xl p-3 flex items-center justify-between shadow-xl z-50 animate-fadeIn">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-emerald-400">check_circle</span>
-            <span className="text-xs">Switched to <strong>{switchedToast}</strong></span>
+            <span className="material-symbols-outlined text-[#6ffbbe]">check_circle</span>
+            <span className="text-sm">Switched to <strong>{switchedToast}</strong></span>
           </div>
-          <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md">Live Store Active</span>
+          <span className="text-[10px] font-black uppercase text-[#6ffbbe]">Ready to Order</span>
         </div>
       )}
 

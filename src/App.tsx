@@ -37,10 +37,35 @@ const MainAppContent: React.FC = () => {
 
     const locationGranted = localStorage.getItem('cartcraze_location_granted');
     if (!locationGranted) {
-      // Prompt modal gracefully; user interaction in modal triggers GPS request
       setShowLocationModal(true);
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            setUserCoords({ lat, lon });
+            localStorage.setItem('cartcraze_location_granted', 'true');
+            localStorage.setItem('cartcraze_user_coords', JSON.stringify({ lat, lon }));
+            
+            try {
+              const geo = await reverseGeocodeLocationIQ(lat, lon);
+              const addr = typeof geo === 'string' ? geo : (geo?.address || geo?.fullAddress || geo?.displayName || 'Current Location');
+              if (addr) {
+                localStorage.setItem('cartcraze_user_selected_address', addr);
+                setUserProfile((prev) => ({ ...prev, address: addr }));
+              }
+            } catch { /* silent */ }
+
+            await checkStoreCoverage(lat, lon);
+            setShowLocationModal(false);
+          },
+          (err) => {
+            console.log('Location prompt dismissed or denied:', err.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
     } else if ('geolocation' in navigator) {
-      // Previously granted: silently refresh coordinates
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const lat = pos.coords.latitude;
