@@ -156,15 +156,19 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let darkstores = [
   {
-    id: 'shop-auto',
-    name: 'Fresh Valley Market',
-    city: 'Bengaluru',
-    lat: 12.9141,
-    lon: 77.6411,
+    id: 'store-jaydev-vihar-01',
+    name: 'CartCraze Store - Jaydev Vihar',
+    city: 'Bhubaneswar',
+    address: 'Jaydev Vihar Square, Bhubaneswar, Odisha 751015',
+    lat: 20.3015,
+    lon: 85.8240,
+    serviceRadiusKm: 5.0,
+    basePrepMinutes: 8,
     status: 'ONLINE',
-    dailyOrders: 3,
-    revenue: 740,
-    managerName: 'Demo Manager',
+    isActive: true,
+    dailyOrders: 12,
+    revenue: 3840,
+    managerName: 'CartCraze Operations',
     managerPhone: '+91 98000 11111',
     uptimePercent: 100.0
   }
@@ -172,68 +176,68 @@ let darkstores = [
 
 let products = [
   // FRUITS (10)
-  { id: 'p1', shopId: 'shop-auto', name: 'Organic Shimla Apples', category: 'Fruits', price: 149, originalPrice: 210, weight: '4 pcs (approx 500g)', stockCount: 42, inStock: true, image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=300&q=80', barcode: '89012345001', shelfLocation: 'Aisle 1 - Bay B' },
-  { id: 'p2', shopId: 'shop-auto', name: 'Fresh Cavendish Bananas', category: 'Fruits', price: 49, originalPrice: 70, weight: '6 pcs (approx 800g)', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=300&q=80', barcode: '89012345002', shelfLocation: 'Aisle 1 - Bay A' },
-  { id: 'p3', shopId: 'shop-auto', name: 'Fresh Blueberries', category: 'Fruits', price: 220, originalPrice: 320, weight: '125g Pack', stockCount: 8, inStock: true, image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=300&q=80', barcode: '89012345003', shelfLocation: 'Chiller Unit #1' },
-  { id: 'p4', shopId: 'shop-auto', name: 'Hass Avocados (Imported)', category: 'Fruits', price: 189, originalPrice: 260, weight: '2 pcs (approx 350g)', stockCount: 15, inStock: true, image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=300&q=80', barcode: '89012345004', shelfLocation: 'Aisle 1 - Bay C' },
-  { id: 'p5', shopId: 'shop-auto', name: 'Premium Alphonso Mangoes', category: 'Fruits', price: 299, originalPrice: 399, weight: '2 pcs (approx 500g)', stockCount: 22, inStock: true, image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80', barcode: '89012345005', shelfLocation: 'Aisle 1 - Bay D' },
-  { id: 'p6', shopId: 'shop-auto', name: 'Fresh Strawberries', category: 'Fruits', price: 120, originalPrice: 180, weight: '200g Pack', stockCount: 18, inStock: true, image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=300&q=80', barcode: '89012345006', shelfLocation: 'Chiller Unit #1' },
-  { id: 'p7', shopId: 'shop-auto', name: 'Seedless Black Grapes', category: 'Fruits', price: 110, originalPrice: 150, weight: '500g Pack', stockCount: 25, inStock: true, image: 'https://images.unsplash.com/photo-1537084642907-629340c7e09d?auto=format&fit=crop&w=300&q=80', barcode: '89012345007', shelfLocation: 'Aisle 1 - Bay A' },
-  { id: 'p8', shopId: 'shop-auto', name: 'Ruby Pomegranate', category: 'Fruits', price: 160, originalPrice: 220, weight: '2 pcs (approx 400g)', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=300&q=80', barcode: '89012345008', shelfLocation: 'Aisle 1 - Bay E' },
-  { id: 'p9', shopId: 'shop-auto', name: 'Valencian Nagpur Oranges', category: 'Fruits', price: 89, originalPrice: 120, weight: '6 pcs (approx 1kg)', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=300&q=80', barcode: '89012345009', shelfLocation: 'Aisle 1 - Bay B' },
-  { id: 'p10', shopId: 'shop-auto', name: 'Green Kiwi (Imported)', category: 'Fruits', price: 99, originalPrice: 140, weight: '3 pcs Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=300&q=80', barcode: '89012345010', shelfLocation: 'Aisle 1 - Bay C' },
+  { id: 'p1', shopId: 'store-jaydev-vihar-01', name: 'Organic Shimla Apples', category: 'Fruits', price: 149, originalPrice: 210, weight: '4 pcs (approx 500g)', stockCount: 42, inStock: true, image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=300&q=80', barcode: '89012345001', shelfLocation: 'Aisle 1 - Bay B' },
+  { id: 'p2', shopId: 'store-jaydev-vihar-01', name: 'Fresh Cavendish Bananas', category: 'Fruits', price: 49, originalPrice: 70, weight: '6 pcs (approx 800g)', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=300&q=80', barcode: '89012345002', shelfLocation: 'Aisle 1 - Bay A' },
+  { id: 'p3', shopId: 'store-jaydev-vihar-01', name: 'Fresh Blueberries', category: 'Fruits', price: 220, originalPrice: 320, weight: '125g Pack', stockCount: 8, inStock: true, image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=300&q=80', barcode: '89012345003', shelfLocation: 'Chiller Unit #1' },
+  { id: 'p4', shopId: 'store-jaydev-vihar-01', name: 'Hass Avocados (Imported)', category: 'Fruits', price: 189, originalPrice: 260, weight: '2 pcs (approx 350g)', stockCount: 15, inStock: true, image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=300&q=80', barcode: '89012345004', shelfLocation: 'Aisle 1 - Bay C' },
+  { id: 'p5', shopId: 'store-jaydev-vihar-01', name: 'Premium Alphonso Mangoes', category: 'Fruits', price: 299, originalPrice: 399, weight: '2 pcs (approx 500g)', stockCount: 22, inStock: true, image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80', barcode: '89012345005', shelfLocation: 'Aisle 1 - Bay D' },
+  { id: 'p6', shopId: 'store-jaydev-vihar-01', name: 'Fresh Strawberries', category: 'Fruits', price: 120, originalPrice: 180, weight: '200g Pack', stockCount: 18, inStock: true, image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=300&q=80', barcode: '89012345006', shelfLocation: 'Chiller Unit #1' },
+  { id: 'p7', shopId: 'store-jaydev-vihar-01', name: 'Seedless Black Grapes', category: 'Fruits', price: 110, originalPrice: 150, weight: '500g Pack', stockCount: 25, inStock: true, image: 'https://images.unsplash.com/photo-1537084642907-629340c7e09d?auto=format&fit=crop&w=300&q=80', barcode: '89012345007', shelfLocation: 'Aisle 1 - Bay A' },
+  { id: 'p8', shopId: 'store-jaydev-vihar-01', name: 'Ruby Pomegranate', category: 'Fruits', price: 160, originalPrice: 220, weight: '2 pcs (approx 400g)', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=300&q=80', barcode: '89012345008', shelfLocation: 'Aisle 1 - Bay E' },
+  { id: 'p9', shopId: 'store-jaydev-vihar-01', name: 'Valencian Nagpur Oranges', category: 'Fruits', price: 89, originalPrice: 120, weight: '6 pcs (approx 1kg)', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=300&q=80', barcode: '89012345009', shelfLocation: 'Aisle 1 - Bay B' },
+  { id: 'p10', shopId: 'store-jaydev-vihar-01', name: 'Green Kiwi (Imported)', category: 'Fruits', price: 99, originalPrice: 140, weight: '3 pcs Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=300&q=80', barcode: '89012345010', shelfLocation: 'Aisle 1 - Bay C' },
 
   // VEGETABLES (10)
-  { id: 'p11', shopId: 'shop-auto', name: 'Organic Potato (Jyoti)', category: 'Vegetables', price: 38, originalPrice: 50, weight: '1kg Bag', stockCount: 150, inStock: true, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80', barcode: '89012345011', shelfLocation: 'Aisle 2 - Bay A' },
-  { id: 'p12', shopId: 'shop-auto', name: 'Red Onion (Nasik)', category: 'Vegetables', price: 42, originalPrice: 60, weight: '1kg Bag', stockCount: 180, inStock: true, image: 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=300&q=80', barcode: '89012345012', shelfLocation: 'Aisle 2 - Bay A' },
-  { id: 'p13', shopId: 'shop-auto', name: 'Hybrid Tomato', category: 'Vegetables', price: 28, originalPrice: 40, weight: '500g Bag', stockCount: 95, inStock: true, image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=300&q=80', barcode: '89012345013', shelfLocation: 'Aisle 2 - Bay B' },
-  { id: 'p14', shopId: 'shop-auto', name: 'Fresh Broccoli', category: 'Vegetables', price: 89, originalPrice: 130, weight: '1 pc (250g - 350g)', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=300&q=80', barcode: '89012345014', shelfLocation: 'Aisle 2 - Bay C' },
-  { id: 'p15', shopId: 'shop-auto', name: 'Fresh Spinach (Palak)', category: 'Vegetables', price: 19, originalPrice: 30, weight: '250g Bunch', stockCount: 50, inStock: true, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80', barcode: '89012345015', shelfLocation: 'Aisle 2 - Bay B' },
-  { id: 'p16', shopId: 'shop-auto', name: 'Fresh Coriander (Dhania)', category: 'Vegetables', price: 12, originalPrice: 20, weight: '100g Bunch', stockCount: 75, inStock: true, image: 'https://images.unsplash.com/photo-1514944224142-d1870b4553da?auto=format&fit=crop&w=300&q=80', barcode: '89012345016', shelfLocation: 'Aisle 2 - Bay B' },
-  { id: 'p17', shopId: 'shop-auto', name: 'Fresh Lemon (Nimbu)', category: 'Vegetables', price: 20, originalPrice: 30, weight: '4 pcs', stockCount: 110, inStock: true, image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=300&q=80', barcode: '89012345017', shelfLocation: 'Aisle 2 - Bay C' },
-  { id: 'p18', shopId: 'shop-auto', name: 'Green Capsicum', category: 'Vegetables', price: 35, originalPrice: 50, weight: '250g Pack', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1563565312-3b2d137356ca?auto=format&fit=crop&w=300&q=80', barcode: '89012345018', shelfLocation: 'Aisle 2 - Bay C' },
-  { id: 'p19', shopId: 'shop-auto', name: 'Orange Carrot (Ooty)', category: 'Vegetables', price: 49, originalPrice: 70, weight: '500g Pack', stockCount: 60, inStock: true, image: 'https://images.unsplash.com/photo-1598170845058-32b996a6bd41?auto=format&fit=crop&w=300&q=80', barcode: '89012345019', shelfLocation: 'Aisle 2 - Bay A' },
-  { id: 'p20', shopId: 'shop-auto', name: 'English Cucumber', category: 'Vegetables', price: 30, originalPrice: 45, weight: '500g Pack', stockCount: 55, inStock: true, image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=300&q=80', barcode: '89012345020', shelfLocation: 'Aisle 2 - Bay B' },
+  { id: 'p11', shopId: 'store-jaydev-vihar-01', name: 'Organic Potato (Jyoti)', category: 'Vegetables', price: 38, originalPrice: 50, weight: '1kg Bag', stockCount: 150, inStock: true, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80', barcode: '89012345011', shelfLocation: 'Aisle 2 - Bay A' },
+  { id: 'p12', shopId: 'store-jaydev-vihar-01', name: 'Red Onion (Nasik)', category: 'Vegetables', price: 42, originalPrice: 60, weight: '1kg Bag', stockCount: 180, inStock: true, image: 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=300&q=80', barcode: '89012345012', shelfLocation: 'Aisle 2 - Bay A' },
+  { id: 'p13', shopId: 'store-jaydev-vihar-01', name: 'Hybrid Tomato', category: 'Vegetables', price: 28, originalPrice: 40, weight: '500g Bag', stockCount: 95, inStock: true, image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=300&q=80', barcode: '89012345013', shelfLocation: 'Aisle 2 - Bay B' },
+  { id: 'p14', shopId: 'store-jaydev-vihar-01', name: 'Fresh Broccoli', category: 'Vegetables', price: 89, originalPrice: 130, weight: '1 pc (250g - 350g)', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=300&q=80', barcode: '89012345014', shelfLocation: 'Aisle 2 - Bay C' },
+  { id: 'p15', shopId: 'store-jaydev-vihar-01', name: 'Fresh Spinach (Palak)', category: 'Vegetables', price: 19, originalPrice: 30, weight: '250g Bunch', stockCount: 50, inStock: true, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80', barcode: '89012345015', shelfLocation: 'Aisle 2 - Bay B' },
+  { id: 'p16', shopId: 'store-jaydev-vihar-01', name: 'Fresh Coriander (Dhania)', category: 'Vegetables', price: 12, originalPrice: 20, weight: '100g Bunch', stockCount: 75, inStock: true, image: 'https://images.unsplash.com/photo-1514944224142-d1870b4553da?auto=format&fit=crop&w=300&q=80', barcode: '89012345016', shelfLocation: 'Aisle 2 - Bay B' },
+  { id: 'p17', shopId: 'store-jaydev-vihar-01', name: 'Fresh Lemon (Nimbu)', category: 'Vegetables', price: 20, originalPrice: 30, weight: '4 pcs', stockCount: 110, inStock: true, image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=300&q=80', barcode: '89012345017', shelfLocation: 'Aisle 2 - Bay C' },
+  { id: 'p18', shopId: 'store-jaydev-vihar-01', name: 'Green Capsicum', category: 'Vegetables', price: 35, originalPrice: 50, weight: '250g Pack', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1563565312-3b2d137356ca?auto=format&fit=crop&w=300&q=80', barcode: '89012345018', shelfLocation: 'Aisle 2 - Bay C' },
+  { id: 'p19', shopId: 'store-jaydev-vihar-01', name: 'Orange Carrot (Ooty)', category: 'Vegetables', price: 49, originalPrice: 70, weight: '500g Pack', stockCount: 60, inStock: true, image: 'https://images.unsplash.com/photo-1598170845058-32b996a6bd41?auto=format&fit=crop&w=300&q=80', barcode: '89012345019', shelfLocation: 'Aisle 2 - Bay A' },
+  { id: 'p20', shopId: 'store-jaydev-vihar-01', name: 'English Cucumber', category: 'Vegetables', price: 30, originalPrice: 45, weight: '500g Pack', stockCount: 55, inStock: true, image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=300&q=80', barcode: '89012345020', shelfLocation: 'Aisle 2 - Bay B' },
 
   // DAIRY & EGGS (8)
-  { id: 'p21', shopId: 'shop-auto', name: 'Farm Fresh A2 Cow Milk', category: 'Dairy & Eggs', price: 66, originalPrice: 100, weight: '1 Litre Pouch', stockCount: 88, inStock: true, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80', barcode: '89012345021', shelfLocation: 'Chiller Unit #2' },
-  { id: 'p22', shopId: 'shop-auto', name: 'Table Eggs (White)', category: 'Dairy & Eggs', price: 55, originalPrice: 75, weight: '6 pcs Pack', stockCount: 120, inStock: true, image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=300&q=80', barcode: '89012345022', shelfLocation: 'Chiller Unit #3' },
-  { id: 'p23', shopId: 'shop-auto', name: 'Amul Salted Butter', category: 'Dairy & Eggs', price: 105, originalPrice: 110, weight: '100g Carton', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', barcode: '89012345023', shelfLocation: 'Chiller Unit #2' },
-  { id: 'p24', shopId: 'shop-auto', name: 'Processed Cheese Slices', category: 'Dairy & Eggs', price: 135, originalPrice: 150, weight: '100g Pack (5 Slices)', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', barcode: '89012345024', shelfLocation: 'Chiller Unit #2' },
-  { id: 'p25', shopId: 'shop-auto', name: 'Nestle Actiplus Dahi', category: 'Dairy & Eggs', price: 35, originalPrice: 45, weight: '400g Cup', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300&q=80', barcode: '89012345025', shelfLocation: 'Chiller Unit #3' },
-  { id: 'p26', shopId: 'shop-auto', name: 'Organic Cow Ghee', category: 'Dairy & Eggs', price: 650, originalPrice: 750, weight: '500ml Tin', stockCount: 20, inStock: true, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', barcode: '89012345026', shelfLocation: 'Aisle 3 - Bay A' },
-  { id: 'p27', shopId: 'shop-auto', name: 'Fresh Paneer Block', category: 'Dairy & Eggs', price: 89, originalPrice: 110, weight: '200g Pack', stockCount: 50, inStock: true, image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', barcode: '89012345027', shelfLocation: 'Chiller Unit #2' },
-  { id: 'p28', shopId: 'shop-auto', name: 'Fresh Amul Thick Cream', category: 'Dairy & Eggs', price: 60, originalPrice: 70, weight: '250ml Pack', stockCount: 35, inStock: true, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80', barcode: '89012345028', shelfLocation: 'Chiller Unit #3' },
+  { id: 'p21', shopId: 'store-jaydev-vihar-01', name: 'Farm Fresh A2 Cow Milk', category: 'Dairy & Eggs', price: 66, originalPrice: 100, weight: '1 Litre Pouch', stockCount: 88, inStock: true, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80', barcode: '89012345021', shelfLocation: 'Chiller Unit #2' },
+  { id: 'p22', shopId: 'store-jaydev-vihar-01', name: 'Table Eggs (White)', category: 'Dairy & Eggs', price: 55, originalPrice: 75, weight: '6 pcs Pack', stockCount: 120, inStock: true, image: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=300&q=80', barcode: '89012345022', shelfLocation: 'Chiller Unit #3' },
+  { id: 'p23', shopId: 'store-jaydev-vihar-01', name: 'Amul Salted Butter', category: 'Dairy & Eggs', price: 105, originalPrice: 110, weight: '100g Carton', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', barcode: '89012345023', shelfLocation: 'Chiller Unit #2' },
+  { id: 'p24', shopId: 'store-jaydev-vihar-01', name: 'Processed Cheese Slices', category: 'Dairy & Eggs', price: 135, originalPrice: 150, weight: '100g Pack (5 Slices)', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', barcode: '89012345024', shelfLocation: 'Chiller Unit #2' },
+  { id: 'p25', shopId: 'store-jaydev-vihar-01', name: 'Nestle Actiplus Dahi', category: 'Dairy & Eggs', price: 35, originalPrice: 45, weight: '400g Cup', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300&q=80', barcode: '89012345025', shelfLocation: 'Chiller Unit #3' },
+  { id: 'p26', shopId: 'store-jaydev-vihar-01', name: 'Organic Cow Ghee', category: 'Dairy & Eggs', price: 650, originalPrice: 750, weight: '500ml Tin', stockCount: 20, inStock: true, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=300&q=80', barcode: '89012345026', shelfLocation: 'Aisle 3 - Bay A' },
+  { id: 'p27', shopId: 'store-jaydev-vihar-01', name: 'Fresh Paneer Block', category: 'Dairy & Eggs', price: 89, originalPrice: 110, weight: '200g Pack', stockCount: 50, inStock: true, image: 'https://images.unsplash.com/photo-1528256446066-2bfb3777d566?auto=format&fit=crop&w=300&q=80', barcode: '89012345027', shelfLocation: 'Chiller Unit #2' },
+  { id: 'p28', shopId: 'store-jaydev-vihar-01', name: 'Fresh Amul Thick Cream', category: 'Dairy & Eggs', price: 60, originalPrice: 70, weight: '250ml Pack', stockCount: 35, inStock: true, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80', barcode: '89012345028', shelfLocation: 'Chiller Unit #3' },
 
   // BAKERY (6)
-  { id: 'p29', shopId: 'shop-auto', name: 'Artisanal Whole Wheat Bread', category: 'Bakery', price: 48, originalPrice: 70, weight: '400g Pack', stockCount: 19, inStock: true, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345029', shelfLocation: 'Bakery Rack A' },
-  { id: 'p30', shopId: 'shop-auto', name: 'Whole Wheat Burger Buns', category: 'Bakery', price: 30, originalPrice: 40, weight: '2 pcs Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345030', shelfLocation: 'Bakery Rack A' },
-  { id: 'p31', shopId: 'shop-auto', name: 'Premium Chocolate Fudge Cake', category: 'Bakery', price: 349, originalPrice: 499, weight: '500g Box', stockCount: 10, inStock: true, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80', barcode: '89012345031', shelfLocation: 'Chiller Unit #4' },
-  { id: 'p32', shopId: 'shop-auto', name: 'Choco Chip Butter Cookies', category: 'Bakery', price: 79, originalPrice: 110, weight: '150g Box', stockCount: 24, inStock: true, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=300&q=80', barcode: '89012345032', shelfLocation: 'Bakery Rack B' },
-  { id: 'p33', shopId: 'shop-auto', name: 'Crispy Whole Wheat Rusk', category: 'Bakery', price: 45, originalPrice: 60, weight: '300g Pack', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345033', shelfLocation: 'Bakery Rack B' },
-  { id: 'p34', shopId: 'shop-auto', name: 'Butter Garlic Bread', category: 'Bakery', price: 59, originalPrice: 80, weight: '150g Pack', stockCount: 15, inStock: true, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=300&q=80', barcode: '89012345034', shelfLocation: 'Bakery Rack A' },
+  { id: 'p29', shopId: 'store-jaydev-vihar-01', name: 'Artisanal Whole Wheat Bread', category: 'Bakery', price: 48, originalPrice: 70, weight: '400g Pack', stockCount: 19, inStock: true, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345029', shelfLocation: 'Bakery Rack A' },
+  { id: 'p30', shopId: 'store-jaydev-vihar-01', name: 'Whole Wheat Burger Buns', category: 'Bakery', price: 30, originalPrice: 40, weight: '2 pcs Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345030', shelfLocation: 'Bakery Rack A' },
+  { id: 'p31', shopId: 'store-jaydev-vihar-01', name: 'Premium Chocolate Fudge Cake', category: 'Bakery', price: 349, originalPrice: 499, weight: '500g Box', stockCount: 10, inStock: true, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80', barcode: '89012345031', shelfLocation: 'Chiller Unit #4' },
+  { id: 'p32', shopId: 'store-jaydev-vihar-01', name: 'Choco Chip Butter Cookies', category: 'Bakery', price: 79, originalPrice: 110, weight: '150g Box', stockCount: 24, inStock: true, image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=300&q=80', barcode: '89012345032', shelfLocation: 'Bakery Rack B' },
+  { id: 'p33', shopId: 'store-jaydev-vihar-01', name: 'Crispy Whole Wheat Rusk', category: 'Bakery', price: 45, originalPrice: 60, weight: '300g Pack', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=300&q=80', barcode: '89012345033', shelfLocation: 'Bakery Rack B' },
+  { id: 'p34', shopId: 'store-jaydev-vihar-01', name: 'Butter Garlic Bread', category: 'Bakery', price: 59, originalPrice: 80, weight: '150g Pack', stockCount: 15, inStock: true, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=300&q=80', barcode: '89012345034', shelfLocation: 'Bakery Rack A' },
 
   // SNACKS (6)
-  { id: 'p35', shopId: 'shop-auto', name: 'Classic Salted Potato Chips', category: 'Snacks', price: 20, originalPrice: 20, weight: '50g Pack', stockCount: 150, inStock: true, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&q=80', barcode: '89012345035', shelfLocation: 'Aisle 3 - Bay C' },
-  { id: 'p36', shopId: 'shop-auto', name: 'Cheese Nacho Crisps', category: 'Snacks', price: 45, originalPrice: 60, weight: '150g Pack', stockCount: 80, inStock: true, image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=300&q=80', barcode: '89012345036', shelfLocation: 'Aisle 3 - Bay C' },
-  { id: 'p37', shopId: 'shop-auto', name: 'Roasted & Salted Cashews', category: 'Snacks', price: 189, originalPrice: 250, weight: '100g Pack', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?auto=format&fit=crop&w=300&q=80', barcode: '89012345037', shelfLocation: 'Aisle 3 - Bay B' },
-  { id: 'p38', shopId: 'shop-auto', name: 'Dark Hazelnut Chocolate', category: 'Snacks', price: 99, originalPrice: 150, weight: '80g Bar', stockCount: 60, inStock: true, image: 'https://images.unsplash.com/photo-1549007994-cb92ca817bc7?auto=format&fit=crop&w=300&q=80', barcode: '89012345038', shelfLocation: 'Chiller Unit #4' },
-  { id: 'p39', shopId: 'shop-auto', name: 'Crispy Oats Biscuits', category: 'Snacks', price: 50, originalPrice: 70, weight: '200g Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=300&q=80', barcode: '89012345039', shelfLocation: 'Aisle 3 - Bay D' },
-  { id: 'p40', shopId: 'shop-auto', name: 'Roasted California Almonds', category: 'Snacks', price: 169, originalPrice: 220, weight: '100g Pack', stockCount: 35, inStock: true, image: 'https://images.unsplash.com/photo-1508061461508-cb18c242f556?auto=format&fit=crop&w=300&q=80', barcode: '89012345040', shelfLocation: 'Aisle 3 - Bay B' },
+  { id: 'p35', shopId: 'store-jaydev-vihar-01', name: 'Classic Salted Potato Chips', category: 'Snacks', price: 20, originalPrice: 20, weight: '50g Pack', stockCount: 150, inStock: true, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&q=80', barcode: '89012345035', shelfLocation: 'Aisle 3 - Bay C' },
+  { id: 'p36', shopId: 'store-jaydev-vihar-01', name: 'Cheese Nacho Crisps', category: 'Snacks', price: 45, originalPrice: 60, weight: '150g Pack', stockCount: 80, inStock: true, image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=300&q=80', barcode: '89012345036', shelfLocation: 'Aisle 3 - Bay C' },
+  { id: 'p37', shopId: 'store-jaydev-vihar-01', name: 'Roasted & Salted Cashews', category: 'Snacks', price: 189, originalPrice: 250, weight: '100g Pack', stockCount: 40, inStock: true, image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?auto=format&fit=crop&w=300&q=80', barcode: '89012345037', shelfLocation: 'Aisle 3 - Bay B' },
+  { id: 'p38', shopId: 'store-jaydev-vihar-01', name: 'Dark Hazelnut Chocolate', category: 'Snacks', price: 99, originalPrice: 150, weight: '80g Bar', stockCount: 60, inStock: true, image: 'https://images.unsplash.com/photo-1549007994-cb92ca817bc7?auto=format&fit=crop&w=300&q=80', barcode: '89012345038', shelfLocation: 'Chiller Unit #4' },
+  { id: 'p39', shopId: 'store-jaydev-vihar-01', name: 'Crispy Oats Biscuits', category: 'Snacks', price: 50, originalPrice: 70, weight: '200g Pack', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=300&q=80', barcode: '89012345039', shelfLocation: 'Aisle 3 - Bay D' },
+  { id: 'p40', shopId: 'store-jaydev-vihar-01', name: 'Roasted California Almonds', category: 'Snacks', price: 169, originalPrice: 220, weight: '100g Pack', stockCount: 35, inStock: true, image: 'https://images.unsplash.com/photo-1508061461508-cb18c242f556?auto=format&fit=crop&w=300&q=80', barcode: '89012345040', shelfLocation: 'Aisle 3 - Bay B' },
 
   // BEVERAGES (6)
-  { id: 'p41', shopId: 'shop-auto', name: '100% Pure Orange Juice', category: 'Beverages', price: 99, originalPrice: 120, weight: '1 Litre Carton', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=300&q=80', barcode: '89012345041', shelfLocation: 'Chiller Unit #5' },
-  { id: 'p42', shopId: 'shop-auto', name: 'Fresh Tender Coconut Water', category: 'Beverages', price: 45, originalPrice: 55, weight: '200ml Tetra', stockCount: 110, inStock: true, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&q=80', barcode: '89012345042', shelfLocation: 'Chiller Unit #5' },
-  { id: 'p43', shopId: 'shop-auto', name: 'Diet Cola Zero Sugar', category: 'Beverages', price: 40, originalPrice: 40, weight: '300ml Can', stockCount: 90, inStock: true, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', barcode: '89012345043', shelfLocation: 'Chiller Unit #5' },
-  { id: 'p44', shopId: 'shop-auto', name: 'Organic Green Tea (Lemon)', category: 'Beverages', price: 145, originalPrice: 180, weight: '25 Tea Bags Box', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=300&q=80', barcode: '89012345044', shelfLocation: 'Aisle 3 - Bay A' },
-  { id: 'p45', shopId: 'shop-auto', name: 'Ready-to-Drink Cold Brew Espresso', category: 'Beverages', price: 79, originalPrice: 110, weight: '250ml Can', stockCount: 28, inStock: true, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80', barcode: '89012345045', shelfLocation: 'Chiller Unit #5' },
-  { id: 'p46', shopId: 'shop-auto', name: 'Monster Energy Ultra', category: 'Beverages', price: 120, originalPrice: 120, weight: '350ml Can', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', barcode: '89012345046', shelfLocation: 'Chiller Unit #5' },
+  { id: 'p41', shopId: 'store-jaydev-vihar-01', name: '100% Pure Orange Juice', category: 'Beverages', price: 99, originalPrice: 120, weight: '1 Litre Carton', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=300&q=80', barcode: '89012345041', shelfLocation: 'Chiller Unit #5' },
+  { id: 'p42', shopId: 'store-jaydev-vihar-01', name: 'Fresh Tender Coconut Water', category: 'Beverages', price: 45, originalPrice: 55, weight: '200ml Tetra', stockCount: 110, inStock: true, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&q=80', barcode: '89012345042', shelfLocation: 'Chiller Unit #5' },
+  { id: 'p43', shopId: 'store-jaydev-vihar-01', name: 'Diet Cola Zero Sugar', category: 'Beverages', price: 40, originalPrice: 40, weight: '300ml Can', stockCount: 90, inStock: true, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', barcode: '89012345043', shelfLocation: 'Chiller Unit #5' },
+  { id: 'p44', shopId: 'store-jaydev-vihar-01', name: 'Organic Green Tea (Lemon)', category: 'Beverages', price: 145, originalPrice: 180, weight: '25 Tea Bags Box', stockCount: 30, inStock: true, image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=300&q=80', barcode: '89012345044', shelfLocation: 'Aisle 3 - Bay A' },
+  { id: 'p45', shopId: 'store-jaydev-vihar-01', name: 'Ready-to-Drink Cold Brew Espresso', category: 'Beverages', price: 79, originalPrice: 110, weight: '250ml Can', stockCount: 28, inStock: true, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80', barcode: '89012345045', shelfLocation: 'Chiller Unit #5' },
+  { id: 'p46', shopId: 'store-jaydev-vihar-01', name: 'Monster Energy Ultra', category: 'Beverages', price: 120, originalPrice: 120, weight: '350ml Can', stockCount: 0, inStock: false, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80', barcode: '89012345046', shelfLocation: 'Chiller Unit #5' },
 
   // PANTRY STAPLES (4)
-  { id: 'p47', shopId: 'shop-auto', name: 'Super Premium Basmati Rice', category: 'Pantry Staples', price: 149, originalPrice: 199, weight: '1kg Bag', stockCount: 80, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345047', shelfLocation: 'Aisle 4 - Bay A' },
-  { id: 'p48', shopId: 'shop-auto', name: 'Premium Chakki Atta', category: 'Pantry Staples', price: 230, originalPrice: 280, weight: '5kg Bag', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345048', shelfLocation: 'Aisle 4 - Bay B' },
-  { id: 'p49', shopId: 'shop-auto', name: 'Polished Toor Dal', category: 'Pantry Staples', price: 135, originalPrice: 175, weight: '1kg Bag', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345049', shelfLocation: 'Aisle 4 - Bay A' },
-  { id: 'p50', shopId: 'shop-auto', name: 'Cold Pressed Sunflower Oil', category: 'Pantry Staples', price: 185, originalPrice: 240, weight: '1 Litre Bottle', stockCount: 55, inStock: true, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80', barcode: '89012345050', shelfLocation: 'Aisle 4 - Bay B' }
+  { id: 'p47', shopId: 'store-jaydev-vihar-01', name: 'Super Premium Basmati Rice', category: 'Pantry Staples', price: 149, originalPrice: 199, weight: '1kg Bag', stockCount: 80, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345047', shelfLocation: 'Aisle 4 - Bay A' },
+  { id: 'p48', shopId: 'store-jaydev-vihar-01', name: 'Premium Chakki Atta', category: 'Pantry Staples', price: 230, originalPrice: 280, weight: '5kg Bag', stockCount: 65, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345048', shelfLocation: 'Aisle 4 - Bay B' },
+  { id: 'p49', shopId: 'store-jaydev-vihar-01', name: 'Polished Toor Dal', category: 'Pantry Staples', price: 135, originalPrice: 175, weight: '1kg Bag', stockCount: 45, inStock: true, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80', barcode: '89012345049', shelfLocation: 'Aisle 4 - Bay A' },
+  { id: 'p50', shopId: 'store-jaydev-vihar-01', name: 'Cold Pressed Sunflower Oil', category: 'Pantry Staples', price: 185, originalPrice: 240, weight: '1 Litre Bottle', stockCount: 55, inStock: true, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80', barcode: '89012345050', shelfLocation: 'Aisle 4 - Bay B' }
 ];
 
 let orders = [];
@@ -324,37 +328,50 @@ app.get('/api/orders', (req, res) => {
 app.post('/api/orders', (req, res) => {
   const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
-  // Dynamically resolve nearest approved store for this order
-  const customerLat = parseFloat(req.body.customerLat) || 12.9141;
-  const customerLon = parseFloat(req.body.customerLon) || 77.6411;
-  const approvedShops = registeredShops.filter(s => s.status === 'APPROVED');
+  // Validate customer coordinates
+  const customerLat = parseFloat(req.body.customerLat);
+  const customerLon = parseFloat(req.body.customerLon);
+  if (isNaN(customerLat) || isNaN(customerLon)) {
+    return res.status(400).json({
+      error: 'LOCATION_REQUIRED',
+      message: 'Valid customer delivery GPS coordinates (customerLat, customerLon) are required to place an order.'
+    });
+  }
+
+  // Resolve nearest approved & active store within its configurable service radius
+  const approvedShops = registeredShops.filter(s => s.status === 'APPROVED' && s.isActive !== false);
   let nearestShop = null;
   let minDist = Infinity;
   for (const shop of approvedShops) {
     const d = getHaversineDistanceKm(customerLat, customerLon, shop.lat, shop.lon);
-    if (d < minDist && d <= 5.0) { minDist = d; nearestShop = shop; }
+    const radius = shop.serviceRadiusKm || 5.0;
+    if (d <= radius && d < minDist) {
+      minDist = d;
+      nearestShop = shop;
+    }
   }
 
   if (!nearestShop) {
-    nearestShop = {
-      id: 'darkstore-express',
-      name: 'CartCraze Express Darkstore',
-      address: req.body.address || 'CartCraze Express Fulfillment Hub',
-      lat: customerLat + 0.004,
-      lon: customerLon + 0.004
-    };
+    return res.status(400).json({
+      error: 'OUT_OF_SERVICE_AREA',
+      message: 'Delivery address is outside the serviceable delivery radius of CartCraze. Orders cannot be placed.'
+    });
   }
+
+  const deliveryMinutes = (nearestShop.basePrepMinutes || 8) + Math.ceil(minDist * 2);
 
   const newOrder = {
     id: 'QM-' + Math.floor(100000 + Math.random() * 900000),
     orderTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     status: 'NEW',
     otp: generatedOtp,
-    shopId: nearestShop.id || 'darkstore-express',
+    shopId: nearestShop.id,
     darkstoreName: nearestShop.name,
     darkstoreAddress: nearestShop.address,
     darkstoreLat: nearestShop.lat,
     darkstoreLon: nearestShop.lon,
+    distanceKm: Math.round(minDist * 10) / 10,
+    estimatedDeliveryMinutes: deliveryMinutes,
     paymentMethod: req.body.paymentMethod || 'UPI',
     paymentStatus: req.body.paymentMethod === 'COD' ? 'UNPAID' : 'PAID',
     ...req.body
@@ -372,6 +389,35 @@ app.post('/api/orders', (req, res) => {
   });
 
   res.json({ success: true, order: newOrder });
+});
+
+// --- WAITLIST APIS (When customer is outside service area) ---
+let waitlistRequests = [];
+
+app.post('/api/waitlist', (req, res) => {
+  const { phone, lat, lon, address } = req.body;
+  if (!phone) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+  const entry = {
+    id: `wl-${Date.now()}`,
+    phone: phone.trim(),
+    lat: parseFloat(lat) || null,
+    lon: parseFloat(lon) || null,
+    address: address || 'Unknown location',
+    createdAt: new Date().toISOString()
+  };
+  waitlistRequests.push(entry);
+  console.log(`[Waitlist] Recorded customer notification interest: ${phone} for ${address} (${lat}, ${lon})`);
+  res.json({
+    success: true,
+    message: "Thank you! We'll notify you on WhatsApp as soon as CartCraze expands to your location.",
+    entry
+  });
+});
+
+app.get('/api/waitlist', (req, res) => {
+  res.json({ success: true, waitlist: waitlistRequests });
 });
 
 const updateOrderStatusHandler = (req, res) => {
@@ -641,16 +687,20 @@ function getHaversineDistanceKm(lat1, lon1, lat2, lon2) {
 // In-Memory Partner & Product Storage
 let registeredShops = [
   {
-    id: 'shop-auto',
-    name: 'Fresh Valley Market',
-    email: 'hsr@cartcrazepartner.app',
+    id: 'store-jaydev-vihar-01',
+    name: 'CartCraze Store - Jaydev Vihar',
+    email: 'jaydevvihar@cartcraze.com',
     phone: '+91 98000 11111',
-    address: 'Sector 1, HSR Layout, Bengaluru',
-    lat: 12.9141,
-    lon: 77.6411,
-    licenseType: 'Trade License',
-    licenseNumber: 'TL-BLR-HSR-001',
+    address: 'Jaydev Vihar Square, Bhubaneswar, Odisha 751015',
+    city: 'Bhubaneswar',
+    lat: 20.3015,
+    lon: 85.8240,
+    serviceRadiusKm: 5.0,
+    basePrepMinutes: 8,
+    licenseType: 'FSSAI License',
+    licenseNumber: 'FSSAI-OD-BBSR-2024-001',
     status: 'APPROVED',
+    isActive: true,
     createdAt: new Date().toISOString()
   }
 ];
@@ -1226,51 +1276,67 @@ app.post('/api/products/upload', (req, res) => {
   res.json({ success: true, product: newProduct });
 });
 
-// --- PROXIMITY BASED PRODUCT & COVERAGE SEARCH API (5 KM RANGE) ---
+// --- PROXIMITY BASED PRODUCT & COVERAGE SEARCH API (STORE RADIUS GATING) ---
 app.get('/api/products/nearby', (req, res) => {
-  const userLat = parseFloat(req.query.lat) || 12.9141;
-  const userLon = parseFloat(req.query.lon) || 77.6411;
+  const userLat = parseFloat(req.query.lat);
+  const userLon = parseFloat(req.query.lon);
   const maxRadiusKm = parseFloat(req.query.radiusKm) || 5.0;
 
-  // Find approved shops within maxRadiusKm
-  const approvedShops = registeredShops.filter(s => s.status === 'APPROVED');
-  let nearbyShops = approvedShops.filter(s => {
+  if (isNaN(userLat) || isNaN(userLon)) {
+    return res.status(400).json({
+      success: false,
+      error: 'LOCATION_REQUIRED',
+      message: 'Valid coordinates (lat, lon) are required'
+    });
+  }
+
+  // Find approved and active shops within their respective service radius
+  const approvedShops = registeredShops.filter(s => s.status === 'APPROVED' && s.isActive !== false);
+  const shopsWithDist = approvedShops.map(s => {
     const dist = getHaversineDistanceKm(userLat, userLon, s.lat, s.lon);
-    return dist <= maxRadiusKm;
+    const radius = s.serviceRadiusKm || maxRadiusKm || 5.0;
+    const basePrep = s.basePrepMinutes || 8;
+    const etaMin = basePrep + Math.ceil(dist * 2);
+    const etaMax = etaMin + 5;
+    return {
+      ...s,
+      distanceKm: Math.round(dist * 10) / 10,
+      deliveryEta: `${etaMin}-${etaMax} MINS`,
+      isWithinRadius: dist <= radius
+    };
   });
 
-  // If no partner merchant within 5km, CartCraze Express Darkstore dynamically fulfills this customer's zone!
-  const isExpressServing = nearbyShops.length === 0;
-  if (isExpressServing) {
-    const expressDarkstore = {
-      id: 'darkstore-express',
-      name: 'CartCraze Express Darkstore',
-      email: 'express@cartcraze.com',
-      phone: '+91 98000 22222',
-      address: 'CartCraze Express Fulfillment Hub',
-      lat: userLat,
-      lon: userLon,
-      licenseType: 'Express Darkstore License',
-      licenseNumber: 'CC-EXP-DARKSTORE-01',
-      status: 'APPROVED',
-      deliveryEta: '9-12 MINS',
-      distanceKm: 0.8,
-      isExpressHub: true,
-      createdAt: new Date().toISOString()
-    };
-    nearbyShops = [expressDarkstore];
+  const nearbyShops = shopsWithDist.filter(s => s.isWithinRadius);
+  nearbyShops.sort((a, b) => a.distanceKm - b.distanceKm);
+
+  // If outside serviceable delivery radius of all operational CartCraze stores, return empty products!
+  if (nearbyShops.length === 0) {
+    const closestStore = [...shopsWithDist].sort((a, b) => a.distanceKm - b.distanceKm)[0] || null;
+    return res.json({
+      success: true,
+      inCoverageRange: false,
+      userLocation: { lat: userLat, lon: userLon },
+      radiusKm: maxRadiusKm,
+      nearestStore: closestStore ? {
+        name: closestStore.name,
+        city: closestStore.city || 'Bhubaneswar',
+        distanceKm: closestStore.distanceKm
+      } : null,
+      nearbyShops: [],
+      products: []
+    });
   }
 
   const nearbyShopIds = nearbyShops.map(s => s.id);
   const shopsMap = new Map(nearbyShops.map(s => [s.id, s.name]));
 
-  // Include items: if darkstore-express, all inventory products are deliverable!
+  // Only return products from operational stores serving this location
   const nearbyProducts = products
-    .filter(p => isExpressServing || !p.shopId || nearbyShopIds.includes(p.shopId))
+    .filter(p => !p.shopId || nearbyShopIds.includes(p.shopId))
     .map(p => ({
       ...p,
-      shopId: isExpressServing ? 'darkstore-express' : (p.shopId || nearbyShops[0]?.id || 'shop-auto'),
-      shopName: isExpressServing ? (nearbyShops[0]?.name || 'CartCraze Express Darkstore') : (shopsMap.get(p.shopId) || nearbyShops[0]?.name || 'Fresh Valley Market')
+      shopId: p.shopId || nearbyShops[0]?.id,
+      shopName: shopsMap.get(p.shopId) || nearbyShops[0]?.name
     }));
 
   res.json({

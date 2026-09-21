@@ -97,3 +97,24 @@ export interface DriverChatMessage {
 }
 
 export type ActiveTab = 'home' | 'categories' | 'cart' | 'account' | 'category_detail' | 'track' | 'track_order' | 'order_confirmed' | 'login' | 'onboarding';
+
+export type ServiceabilityStatus = 'CHECKING' | 'SERVICEABLE' | 'UNAVAILABLE' | 'LOCATION_REQUIRED';
+
+export interface ActiveStore {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  lat: number;
+  lon: number;
+  serviceRadiusKm: number;
+  basePrepMinutes: number;
+  deliveryEta: string;
+  distanceKm: number;
+}
+
+export interface NearestStoreInfo {
+  name: string;
+  city: string;
+  distanceKm: number;
+}

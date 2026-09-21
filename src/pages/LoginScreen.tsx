@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, Lock, Mail, Phone, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2, Clipboard, Check } from 'lucide-react';
-import { supabase } from '../services/supabase';
-import { signInWithGoogle, signInWithFirebaseEmail, signUpWithFirebaseEmail } from '../services/firebase';
+import { ArrowLeft, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2, Clipboard, Check } from 'lucide-react';
 import { AppLogo } from '../components/AppLogo';
 import { PolicyModal } from '../components/PolicyModal';
 
@@ -14,8 +12,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
       : 'https://cartcraze-95gt.onrender.com');
 
 export const LoginScreen: React.FC = () => {
-  const { setUserProfile, setActiveTab } = useApp();
-  const [authTab, setAuthTab] = useState<'whatsapp' | 'email' | 'google'>('whatsapp');
+  const { setUserProfile, setActiveTab, deliveryEta } = useApp();
 
   // WhatsApp Phone OTP States
   const [phone, setPhone] = useState('');
@@ -25,6 +22,23 @@ export const LoginScreen: React.FC = () => {
   const [maskedPhone, setMaskedPhone] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [pasteSuccess, setPasteSuccess] = useState(false);
+
+  // Status & Modal States
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [policyType, setPolicyType] = useState<'terms' | 'privacy' | null>(null);
+
+  // Countdown timer effect for OTP resend
+  useEffect(() => {
+    let timer: any;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   // Paste OTP from clipboard helper
   const handlePasteOtp = async () => {
@@ -43,28 +57,6 @@ export const LoginScreen: React.FC = () => {
       setError('Unable to read clipboard. Please enter or paste the 6-digit code manually.');
     }
   };
-
-  // Email States
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
-
-  // Status & Modal States
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [policyType, setPolicyType] = useState<'terms' | 'privacy' | null>(null);
-
-  // Countdown timer effect for OTP resend
-  useEffect(() => {
-    let timer: any;
-    if (countdown > 0) {
-      timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [countdown]);
 
   // Clean and format phone number
   const handlePhoneChange = (val: string) => {
@@ -138,7 +130,7 @@ export const LoginScreen: React.FC = () => {
       const cleanPhone = phone.replace(/\D/g, '');
       const user = data.user || {
         uid: `usr_wa_${cleanPhone}`,
-        phone: `+91${cleanPhone}`,
+        phone: `+91 ${cleanPhone}`,
         name: `Customer (${cleanPhone.slice(-4)})`,
         email: `${cleanPhone}@cartcraze.com`,
         isLoggedIn: true
@@ -168,99 +160,6 @@ export const LoginScreen: React.FC = () => {
     setCountdown(0);
   };
 
-  // Email Authentication via Firebase Auth
-  const handleEmailAuthSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both Email and Password');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      if (isRegisterMode) {
-        // Firebase Auth Create User
-        const { user: fbUser, error: fbErr } = await signUpWithFirebaseEmail(email.trim(), password.trim());
-        if (fbErr && !fbErr.includes('email-already-in-use')) {
-          // Fallback to Supabase
-          const { error: sbErr } = await supabase.auth.signUp({
-            email: email.trim(),
-            password: password.trim(),
-          });
-          if (sbErr && !sbErr.message.includes('already registered')) throw sbErr;
-        }
-      } else {
-        // Firebase Auth Sign In
-        const { user: fbUser, error: fbErr } = await signInWithFirebaseEmail(email.trim(), password.trim());
-        if (fbErr) {
-          // If login fails, try Supabase or create user
-          const { error: sbErr } = await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password: password.trim(),
-          });
-          if (sbErr) {
-            throw new Error(fbErr || sbErr.message || 'Invalid credentials');
-          }
-        }
-      }
-
-      setLoading(false);
-      setUserProfile((prev) => ({
-        ...prev,
-        email: email.trim(),
-        name: email.split('@')[0] || 'Customer User',
-        phone: prev.phone || '',
-        isLoggedIn: true
-      }));
-      setActiveTab('home');
-    } catch (err: any) {
-      setLoading(false);
-      setError(err.message || 'Authentication failed. Please check your credentials.');
-    }
-  };
-
-  // Google Sign-In via Firebase Auth
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const { user, error: googleErr } = await signInWithGoogle();
-      setLoading(false);
-      if (googleErr) {
-        setError(googleErr);
-        return;
-      }
-      if (user) {
-        setUserProfile((prev) => ({
-          ...prev,
-          name: user.displayName || 'Customer User',
-          email: user.email || '',
-          phone: user.phoneNumber || prev.phone || '',
-          isLoggedIn: true
-        }));
-        setActiveTab('home');
-        return;
-      }
-    } catch (err: any) {
-      setLoading(false);
-      setError(err?.message || 'Google Sign-In failed. Please try again.');
-    }
-  };
-
-  // Skip & Explore as Guest
-  const handleGuestExplore = () => {
-    setUserProfile((prev) => ({
-      ...prev,
-      name: 'Guest Shopper',
-      email: 'guest@cartcraze.com',
-      phone: '',
-      isLoggedIn: true
-    }));
-    setActiveTab('home');
-  };
-
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-6 font-sans relative">
       {/* Top Navigation */}
@@ -288,47 +187,8 @@ export const LoginScreen: React.FC = () => {
             India's Last Minute App
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Log in with WhatsApp for instant OTP &amp; 8-minute delivery
+            Log in with WhatsApp for instant OTP &amp; {deliveryEta || 'express'} delivery
           </p>
-        </div>
-
-        {/* Auth Method Navigation: WhatsApp OTP | Email | Google */}
-        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-2xl text-[11px] font-black">
-          <button
-            type="button"
-            onClick={() => { setAuthTab('whatsapp'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              authTab === 'whatsapp' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <MessageCircle className="w-3.5 h-3.5 shrink-0 text-[#25D366]" />
-            <span>WhatsApp</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setAuthTab('email'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              authTab === 'email' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Mail className="w-3.5 h-3.5 shrink-0" />
-            <span>Email</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setAuthTab('google'); setError(''); setSuccess(''); }}
-            className={`py-2 px-1 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              authTab === 'google' ? 'bg-[#00676d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-              <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
-              <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.73 17.57C14.74 18.23 13.48 18.63 12 18.63C9.13 18.63 6.7 16.69 5.81 14.08H2.13V16.94C3.96 20.57 7.69 23 12 23Z" fill="#34A853" />
-              <path d="M5.81 14.08C5.58 13.39 5.45 12.66 5.45 11.91C5.45 11.16 5.58 10.43 5.81 9.74V6.88H2.13C1.38 8.38 0.95 10.09 0.95 11.91C0.95 13.73 1.38 15.44 2.13 16.94L5.81 14.08Z" fill="#FBBC05" />
-              <path d="M12 5.38C13.62 5.38 15.06 5.94 16.21 7.03L19.38 3.86C17.45 2.06 14.96 0.95 12 0.95C7.69 0.95 3.96 3.38 2.13 7.02L5.81 9.88C6.7 7.27 9.13 5.38 12 5.38Z" fill="#EA4335" />
-            </svg>
-            <span>Google</span>
-          </button>
         </div>
 
         {error && (
@@ -344,267 +204,183 @@ export const LoginScreen: React.FC = () => {
           </div>
         )}
 
-        {/* 1. WHATSAPP OTP TAB */}
-        {authTab === 'whatsapp' && (
-          <div className="space-y-3.5">
-            {!otpSent ? (
-              /* Step 1: Enter Mobile Number */
-              <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                      <span>WhatsApp Mobile Number</span>
-                    </span>
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full">
-                      Free OTP
-                    </span>
-                  </label>
+        {/* WHATSAPP MOBILE OTP AUTH */}
+        <div className="space-y-3.5">
+          {!otpSent ? (
+            /* Step 1: Enter Mobile Number */
+            <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                    <span>WhatsApp Mobile Number</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full">
+                    Instant OTP
+                  </span>
+                </label>
 
-                  <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#00676d] transition bg-white">
-                    <div className="px-3.5 py-3 bg-slate-50 border-r border-slate-200 flex items-center gap-1.5 text-xs font-bold text-slate-700 select-none">
-                      <span className="text-base leading-none">🇮🇳</span>
-                      <span>+91</span>
-                    </div>
-                    <input
-                      type="tel"
-                      required
-                      autoFocus
-                      value={phone}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      placeholder="Enter 10-digit mobile number"
-                      className="w-full px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400 placeholder:font-normal"
-                    />
+                <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#00676d] transition bg-white shadow-xs">
+                  <div className="px-3.5 py-3 bg-slate-50 border-r border-slate-200 flex items-center gap-1.5 text-xs font-bold text-slate-700 select-none">
+                    <span className="text-base leading-none">🇮🇳</span>
+                    <span>+91</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">
-                    We will send a 6-digit verification code directly to your WhatsApp.
-                  </p>
+                  <input
+                    type="tel"
+                    required
+                    autoFocus
+                    value={phone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder="Enter 10-digit mobile number"
+                    className="w-full px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400 placeholder:font-normal"
+                  />
                 </div>
+                <p className="text-[11px] text-slate-400">
+                  We will send a 6-digit verification code directly to your WhatsApp.
+                </p>
+              </div>
 
+              <button
+                type="submit"
+                disabled={loading || phone.length < 10}
+                className="w-full bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+              >
+                {loading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Get OTP on WhatsApp</span>
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            /* Step 2: Enter OTP & Verify */
+            <form onSubmit={handleVerifyPhoneOtp} className="space-y-3.5">
+              {/* Masked destination with Edit Number button */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    OTP Sent To WhatsApp
+                  </span>
+                  <span className="text-xs font-black text-slate-800">
+                    {maskedPhone || `+91 ${phone}`}
+                  </span>
+                </div>
                 <button
-                  type="submit"
-                  disabled={loading || phone.length < 10}
-                  className="w-full bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                  type="button"
+                  onClick={handleEditPhone}
+                  className="flex items-center gap-1 text-[11px] font-bold text-[#00676d] hover:text-emerald-800 px-2.5 py-1 rounded-lg hover:bg-white transition cursor-pointer"
                 >
-                  {loading ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <MessageCircle className="w-4 h-4 fill-white" />
-                      <span>Get OTP on WhatsApp</span>
-                    </>
-                  )}
+                  <Edit2 className="w-3 h-3" />
+                  <span>Change</span>
                 </button>
-              </form>
-            ) : (
-              /* Step 2: Enter OTP & Verify */
-              <form onSubmit={handleVerifyPhoneOtp} className="space-y-3.5">
-                {/* Masked destination with Edit Number button */}
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                      OTP Sent To WhatsApp
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                  <span>Enter 6-Digit OTP</span>
+                  {countdown > 0 ? (
+                    <span className="text-[11px] text-slate-400 font-semibold">
+                      Resend in <span className="font-bold text-[#00676d]">{countdown}s</span>
                     </span>
-                    <span className="text-xs font-black text-slate-800">
-                      {maskedPhone || `+91 ${phone}`}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleEditPhone}
-                    className="flex items-center gap-1 text-[11px] font-bold text-[#00676d] hover:text-emerald-800 px-2.5 py-1 rounded-lg hover:bg-white transition cursor-pointer"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                    <span>Change</span>
-                  </button>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span>Enter 6-Digit OTP</span>
-                    {countdown > 0 ? (
-                      <span className="text-[11px] text-slate-400 font-semibold">
-                        Resend in <span className="font-bold text-[#00676d]">{countdown}s</span>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleSendPhoneOtp()}
-                        className="text-[11px] text-[#00676d] font-bold hover:underline cursor-pointer"
-                      >
-                        Resend OTP
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Segmented 6-Box PIN View */}
-                  <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      required
-                      autoFocus
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
-                    />
-                    <div className="grid grid-cols-6 gap-2">
-                      {[0, 1, 2, 3, 4, 5].map((idx) => {
-                        const digit = otp[idx] || '';
-                        const isCurrent = otp.length === idx || (idx === 5 && otp.length === 6);
-                        return (
-                          <div
-                            key={idx}
-                            className={`h-12 flex items-center justify-center text-xl font-black rounded-xl border-2 transition-all duration-150 ${
-                              digit
-                                ? 'border-emerald-600 bg-emerald-50/60 text-slate-900 shadow-xs'
-                                : isCurrent
-                                ? 'border-[#00676d] bg-white ring-2 ring-[#00676d]/20 shadow-xs'
-                                : 'border-slate-200 bg-slate-50 text-slate-400'
-                            }`}
-                          >
-                            {digit ? digit : isCurrent ? <span className="w-1.5 h-4 bg-[#00676d] animate-pulse rounded-full" /> : '•'}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Professional Quick Action Buttons: Paste Code & Open WhatsApp */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
+                  ) : (
                     <button
                       type="button"
-                      onClick={handlePasteOtp}
-                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer active:scale-98"
+                      onClick={() => handleSendPhoneOtp()}
+                      className="text-[11px] text-[#00676d] font-bold hover:underline cursor-pointer"
                     >
-                      {pasteSuccess ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-emerald-700">Pasted!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Clipboard className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Paste Code</span>
-                        </>
-                      )}
+                      Resend OTP
                     </button>
+                  )}
+                </div>
 
-                    {waDeepLink ? (
-                      <a
-                        href={waDeepLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] border border-[#25D366]/30 text-xs font-bold transition active:scale-98"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                        <span>Open WhatsApp</span>
-                      </a>
-                    ) : (
-                      <div />
-                    )}
+                {/* Segmented 6-Box PIN View */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    required
+                    autoFocus
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
+                  />
+                  <div className="grid grid-cols-6 gap-2">
+                    {[0, 1, 2, 3, 4, 5].map((idx) => {
+                      const digit = otp[idx] || '';
+                      const isCurrent = otp.length === idx || (idx === 5 && otp.length === 6);
+                      return (
+                        <div
+                          key={idx}
+                          className={`h-12 flex items-center justify-center text-xl font-black rounded-xl border-2 transition-all duration-150 ${
+                            digit
+                              ? 'border-emerald-600 bg-emerald-50/60 text-slate-900 shadow-xs'
+                              : isCurrent
+                              ? 'border-[#00676d] bg-white ring-2 ring-[#00676d]/20 shadow-xs'
+                              : 'border-slate-200 bg-slate-50 text-slate-400'
+                          }`}
+                        >
+                          {digit ? digit : isCurrent ? <span className="w-1.5 h-4 bg-[#00676d] animate-pulse rounded-full" /> : '•'}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading || otp.length < 4}
-                  className="w-full bg-[#fb7800] hover:bg-[#e06b00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
-                >
-                  {loading ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
+                {/* Professional Quick Action Buttons: Paste Code & Open WhatsApp */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handlePasteOtp}
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer active:scale-98"
+                  >
+                    {pasteSuccess ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-700">Pasted!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clipboard className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Paste Code</span>
+                      </>
+                    )}
+                  </button>
+
+                  {waDeepLink ? (
+                    <a
+                      href={waDeepLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] border border-[#25D366]/30 text-xs font-bold transition active:scale-98"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                      <span>Open WhatsApp</span>
+                    </a>
                   ) : (
-                    <span>Verify &amp; Continue</span>
+                    <div />
                   )}
-                </button>
-              </form>
-            )}
-          </div>
-        )}
+                </div>
+              </div>
 
-        {/* 2. EMAIL TAB */}
-        {authTab === 'email' && (
-          <form onSubmit={handleEmailAuthSubmit} className="space-y-3.5">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>Email Address</span>
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="customer@example.com"
-                className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 outline-none focus:border-[#00676d] transition"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
-                <span>Password</span>
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter secure password"
-                className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 outline-none focus:border-[#00676d] transition"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#fb7800] hover:bg-[#e06b00] text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-98"
-            >
-              {loading ? 'Authenticating...' : isRegisterMode ? 'Create New Account' : 'Continue'}
-            </button>
-
-            <div className="text-center pt-1">
               <button
-                type="button"
-                onClick={() => setIsRegisterMode(!isRegisterMode)}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 underline transition cursor-pointer"
+                type="submit"
+                disabled={loading || otp.length < 4}
+                className="w-full bg-[#fb7800] hover:bg-[#e06b00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
               >
-                {isRegisterMode ? 'Already have an account? Sign In' : 'New to CartCraze? Create an Account'}
+                {loading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <span>Verify &amp; Continue</span>
+                )}
               </button>
-            </div>
-          </form>
-        )}
-
-        {/* 3. GOOGLE TAB */}
-        {authTab === 'google' && (
-          <div className="space-y-3 pt-2">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full border border-slate-300 hover:border-slate-400 bg-white text-slate-800 font-bold text-xs py-3.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xs cursor-pointer active:scale-98"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
-                <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.73 17.57C14.74 18.23 13.48 18.63 12 18.63C9.13 18.63 6.7 16.69 5.81 14.08H2.13V16.94C3.96 20.57 7.69 23 12 23Z" fill="#34A853" />
-                <path d="M5.81 14.08C5.58 13.39 5.45 12.66 5.45 11.91C5.45 11.16 5.58 10.43 5.81 9.74V6.88H2.13C1.38 8.38 0.95 10.09 0.95 11.91C0.95 13.73 1.38 15.44 2.13 16.94L5.81 14.08Z" fill="#FBBC05" />
-                <path d="M12 5.38C13.62 5.38 15.06 5.94 16.21 7.03L19.38 3.86C17.45 2.06 14.96 0.95 12 0.95C7.69 0.95 3.96 3.38 2.13 7.02L5.81 9.88C6.7 7.27 9.13 5.38 12 5.38Z" fill="#EA4335" />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
-          </div>
-        )}
-
-        {/* Skip for now & explore as Guest */}
-        <button
-          type="button"
-          onClick={handleGuestExplore}
-          className="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-800 py-2 transition-colors cursor-pointer"
-        >
-          Skip for now &amp; explore as Guest
-        </button>
+            </form>
+          )}
+        </div>
       </div>
 
       {/* Footer / Terms & Privacy Policy */}
@@ -614,7 +390,7 @@ export const LoginScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => setPolicyType('terms')}
-            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors"
+            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors cursor-pointer"
           >
             Terms
           </button>{' '}
@@ -622,7 +398,7 @@ export const LoginScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => setPolicyType('privacy')}
-            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors"
+            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors cursor-pointer"
           >
             Privacy Policy
           </button>
@@ -630,7 +406,7 @@ export const LoginScreen: React.FC = () => {
 
         <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Secured by CartCraze SSL • 8-Minute Instant Delivery</span>
+          <span>Secured by CartCraze SSL • Express Hyperlocal Delivery</span>
         </div>
       </div>
 

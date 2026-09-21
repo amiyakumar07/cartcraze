@@ -79,31 +79,17 @@ export const AddressManagerModal: React.FC<AddressManagerModalProps> = ({ isOpen
           setGpsLoading(false);
           onClose();
         },
-        async () => {
-          // Fallback to Bhubaneswar
-          const fallbackLat = 20.2961;
-          const fallbackLon = 85.8245;
-          setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-          const res = await reverseGeocodeLocationIQ(fallbackLat, fallbackLon);
-          const fallbackAddress = (typeof res === 'string' ? res : (res?.address || res?.fullAddress)) || 'Bhubaneswar, Odisha';
-          setUserProfile((prev) => ({ ...prev, address: fallbackAddress }));
-          localStorage.setItem('cartcraze_user_selected_address', fallbackAddress);
-          await checkStoreCoverage(fallbackLat, fallbackLon);
+        (error) => {
           setGpsLoading(false);
-          onClose();
+          alert(error.code === error.PERMISSION_DENIED 
+            ? 'GPS location permission was denied. Please select or add an address manually.' 
+            : 'Could not detect device GPS. Please select or add an address manually.');
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
-      const fallbackLat = 20.2961;
-      const fallbackLon = 85.8245;
-      setUserCoords({ lat: fallbackLat, lon: fallbackLon });
-      setUserProfile((prev) => ({ ...prev, address: 'Bhubaneswar, Odisha' }));
-      localStorage.setItem('cartcraze_user_selected_address', 'Bhubaneswar, Odisha');
-      checkStoreCoverage(fallbackLat, fallbackLon).then(() => {
-        setGpsLoading(false);
-        onClose();
-      });
+      setGpsLoading(false);
+      alert('Geolocation is not supported by your browser.');
     }
   };
 

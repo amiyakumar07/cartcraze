@@ -34,3 +34,18 @@ export async function fetchDarkstoresApi() {
     return null;
   }
 }
+
+export async function submitWaitlistApi(data: { phone: string; lat?: number | null; lon?: number | null; address?: string }) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/waitlist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to submit waitlist interest:', err);
+    return { success: false, message: 'Network error submitting waitlist request' };
+  }
+}
+

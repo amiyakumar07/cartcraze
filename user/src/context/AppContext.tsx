@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product, CartItem, Order, UserProfile, ActiveTab } from '../types';
+import type { Product, CartItem, Order, UserProfile, ActiveTab, ServiceabilityStatus, ActiveStore, NearestStoreInfo } from '../types';
 import confetti from 'canvas-confetti';
 import { createOrderApi } from '../services/api';
 import { getFlashSaleStatus, recordFlashSalePurchase } from '../utils/flashSale';
@@ -51,11 +51,15 @@ interface AppContextType {
   logoutUser: () => void;
   isOutOfCoverageRange: boolean;
   setIsOutOfCoverageRange: (val: boolean) => void;
-  userCoords: { lat: number; lon: number };
-  setUserCoords: (coords: { lat: number; lon: number }) => void;
+  serviceabilityStatus: ServiceabilityStatus;
+  setServiceabilityStatus: (status: ServiceabilityStatus) => void;
+  nearestStoreInfo: NearestStoreInfo | null;
+  deliveryEta: string;
+  userCoords: { lat: number; lon: number } | null;
+  setUserCoords: (coords: { lat: number; lon: number } | null) => void;
   checkStoreCoverage: (lat?: number, lon?: number) => Promise<boolean>;
   products: Product[];
-  activeStore: any | null;
+  activeStore: ActiveStore | null;
   isStoreClosed: boolean;
 }
 
@@ -123,8 +127,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tipAmount, setTipAmount] = useState<number>(0);
 
   const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
-  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(false);
-  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number }>(() => {
+
+  // Real coordinates — initially null unless saved in localStorage
+  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number } | null>(() => {
     const saved = localStorage.getItem('cartcraze_user_coords');
     if (saved) {
       try {
@@ -132,25 +137,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (parsed && !isNaN(parsed.lat) && !isNaN(parsed.lon)) return parsed;
       } catch { /* silent */ }
     }
-    return { lat: 12.9141, lon: 77.6411 };
+    return null;
   });
 
-  useEffect(() => {
-    if (userCoords) {
-      localStorage.setItem('cartcraze_user_coords', JSON.stringify(userCoords));
+  const [serviceabilityStatus, setServiceabilityStatus] = useState<ServiceabilityStatus>(() => {
+    const saved = localStorage.getItem('cartcraze_user_coords');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && !isNaN(parsed.lat) && !isNaN(parsed.lon)) return 'CHECKING';
+      } catch { /* silent */ }
     }
-  }, [userCoords]);
+    return 'LOCATION_REQUIRED';
+  });
 
+  const [isOutOfCoverageRange, setIsOutOfCoverageRange] = useState<boolean>(true);
+  const [nearestStoreInfo, setNearestStoreInfo] = useState<NearestStoreInfo | null>(null);
+  const [activeStore, setActiveStore] = useState<ActiveStore | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [activeStore, setActiveStore] = useState<any | null>(null);
+  const deliveryEta = activeStore?.deliveryEta || (activeStore ? `${(activeStore.basePrepMinutes || 8) + Math.ceil((activeStore.distanceKm || 1) * 2)}-${(activeStore.basePrepMinutes || 8) + Math.ceil((activeStore.distanceKm || 1) * 2) + 5} MINS` : '10-15 MINS');
 
-  // DYNAMIC 5KM STORE COVERAGE ALGORITHM CHECK
+  // DYNAMIC STORE COVERAGE ALGORITHM CHECK
   const checkStoreCoverage = async (lat?: number, lon?: number): Promise<boolean> => {
-    const targetLat = lat ?? userCoords.lat;
-    const targetLon = lon ?? userCoords.lon;
+    const targetLat = lat ?? userCoords?.lat;
+    const targetLon = lon ?? userCoords?.lon;
+
+    if (targetLat === undefined || targetLon === undefined || isNaN(targetLat) || isNaN(targetLon)) {
+      setServiceabilityStatus('LOCATION_REQUIRED');
+      setIsOutOfCoverageRange(true);
+      setProducts([]);
+      setActiveStore(null);
+      setNearestStoreInfo(null);
+      return false;
+    }
+
+    setServiceabilityStatus('CHECKING');
     try {
       const API = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:4000/api'
@@ -158,15 +182,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const res = await fetch(`${API}/products/nearby?lat=${targetLat}&lon=${targetLon}&radiusKm=5.0`);
       const data = await res.json();
       if (data && data.success && data.inCoverageRange === true && Array.isArray(data.nearbyShops) && data.nearbyShops.length > 0) {
+        const store = data.nearbyShops[0];
+        setServiceabilityStatus('SERVICEABLE');
         setIsOutOfCoverageRange(false);
-        setActiveStore(data.nearbyShops[0]);
+        setActiveStore(store);
+        setNearestStoreInfo(null);
         const shopsMap = new Map((data.nearbyShops || []).map((s: any) => [s.id, s.name]));
-        const defaultShopName = data.nearbyShops[0]?.name || 'Fresh Valley Market';
+        const defaultShopName = store.name;
 
         const mapped = (data.products || []).map((p: any, idx: number) => ({
           id: p.id,
           name: p.name,
-          shopId: p.shopId || data.nearbyShops[0]?.id || 'shop-auto',
+          shopId: p.shopId || store.id,
           shopName: p.shopName || shopsMap.get(p.shopId) || defaultShopName,
           category: (p.category || 'fruits').toLowerCase(),
           subCategory: p.subCategory || 'All',
@@ -181,10 +208,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             p.image || 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'
           ],
           discountPercentage: p.discountPercentage || Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) || 0,
-          rating: p.rating || 4.5,
-          reviewsCount: p.reviewsCount || 10,
+          rating: p.rating || 4.8,
+          reviewsCount: p.reviewsCount || 18,
           inStock: p.inStock ?? (p.stockCount > 0),
-          deliveryTimeMinutes: 9,
+          deliveryTimeMinutes: store.basePrepMinutes ? store.basePrepMinutes + Math.ceil((store.distanceKm || 1) * 2) : 10,
           description: p.description || p.name,
           shelfLife: p.shelfLife || '5 Days',
           origin: p.origin || 'India',
@@ -193,13 +220,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setProducts(mapped);
         return true;
       } else {
+        setServiceabilityStatus('UNAVAILABLE');
         setIsOutOfCoverageRange(true);
         setProducts([]);
         setActiveStore(null);
+        if (data && data.nearestStore) {
+          setNearestStoreInfo(data.nearestStore);
+        } else {
+          setNearestStoreInfo({
+            name: 'CartCraze Store - Jaydev Vihar',
+            city: 'Bhubaneswar',
+            distanceKm: 0
+          });
+        }
         return false;
       }
     } catch (err) {
       console.error('Store coverage check error:', err);
+      setServiceabilityStatus('UNAVAILABLE');
       setIsOutOfCoverageRange(true);
       setProducts([]);
       setActiveStore(null);
@@ -208,12 +246,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   useEffect(() => {
-    checkStoreCoverage(userCoords.lat, userCoords.lon);
-    const interval = setInterval(() => {
+    if (userCoords && !isNaN(userCoords.lat) && !isNaN(userCoords.lon)) {
+      localStorage.setItem('cartcraze_user_coords', JSON.stringify(userCoords));
       checkStoreCoverage(userCoords.lat, userCoords.lon);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [userCoords]);
+    } else {
+      setServiceabilityStatus('LOCATION_REQUIRED');
+      setIsOutOfCoverageRange(true);
+      setProducts([]);
+      setActiveStore(null);
+    }
+  }, [userCoords?.lat, userCoords?.lon]);
 
   // Poll backend for real-time status update of current active order (DELIVERED, PICKED_UP, etc.)
   useEffect(() => {
@@ -395,10 +437,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     lat?: number;
     lon?: number;
   }): Order => {
+    if (serviceabilityStatus !== 'SERVICEABLE' || !activeStore) {
+      throw new Error('Your selected address is outside our serviceable delivery area. Orders cannot be placed.');
+    }
+
     const itemTotal = getCartTotal();
     const deliveryFee = itemTotal >= 199 ? 0 : 25;
     const handlingFee = 5;
     const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
+    const buy2Discount = getBuy2DiscountTotal();
     const finalTotal = getFinalPayAmount();
     const uniqueOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -411,6 +458,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         recordFlashSalePurchase(unitsUsedAtOneRupee);
       }
     }
+
+    const estMinutes = activeStore.basePrepMinutes 
+      ? activeStore.basePrepMinutes + Math.ceil((activeStore.distanceKm || 1) * 2)
+      : 10;
 
     const newOrder: Order = {
       id: 'QM-' + Math.floor(100000 + Math.random() * 900000),
@@ -426,24 +477,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: 'NEW',
       deliveryAddress: address || userProfile.address,
       paymentMethod,
-      estimatedDeliveryMinutes: 9,
+      estimatedDeliveryMinutes: estMinutes,
       timeline: [
-        { title: 'Order Placed', description: 'Store accepted your order', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), completed: true, current: false },
-        { title: 'Packing Items', description: 'Executive is packing your bag', time: 'Starting now', completed: false, current: true },
-        { title: 'On the Way', description: 'Rider is coming to your address', time: 'Est. 4 mins', completed: false, current: false },
-        { title: 'Delivered', description: 'Order handed to you', time: 'Est. 9 mins', completed: false, current: false }
+        { title: 'Order Placed', description: `Accepted by ${activeStore.name}`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), completed: true, current: false },
+        { title: 'Packing Items', description: 'Store executive is packing your bag', time: 'Starting now', completed: false, current: true },
+        { title: 'On the Way', description: 'CartCraze Rider is coming to your address', time: `Est. ${Math.max(3, estMinutes - 4)} mins`, completed: false, current: false },
+        { title: 'Delivered', description: 'Order handed to you with OTP verification', time: `Est. ${estMinutes} mins`, completed: false, current: false }
       ],
     };
 
     createOrderApi({
       ...newOrder,
-      darkstoreName: activeStore?.name || 'Fresh Valley Market',
+      shopId: activeStore.id,
+      darkstoreName: activeStore.name,
+      darkstoreAddress: activeStore.address,
       customerName: addressDetails?.fullName || userProfile.name,
       customerPhone: addressDetails?.phone || userProfile.phone,
-      customerLat: addressDetails?.lat || userCoords.lat,
-      customerLon: addressDetails?.lon || userCoords.lon,
-      pincode: addressDetails?.pincode || '560102',
-      village: addressDetails?.village || 'HSR Layout',
+      customerLat: addressDetails?.lat || userCoords?.lat,
+      customerLon: addressDetails?.lon || userCoords?.lon,
+      pincode: addressDetails?.pincode || '751015',
+      village: addressDetails?.village || activeStore.city || 'Bhubaneswar',
       street: addressDetails?.street || '',
       landmark: addressDetails?.landmark || ''
     }).then((res) => {
@@ -451,10 +504,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const syncedOrder = {
           ...newOrder,
           id: res.order.id || newOrder.id,
-          darkstoreName: res.order.darkstoreName || activeStore?.name || 'Fresh Valley Market',
-          darkstoreAddress: res.order.darkstoreAddress || 'HSR Layout, Bengaluru',
+          darkstoreName: res.order.darkstoreName || activeStore.name,
+          darkstoreAddress: res.order.darkstoreAddress || activeStore.address,
           otp: res.order.otp || newOrder.otp,
-          shopId: res.order.shopId || activeStore?.id
+          shopId: res.order.shopId || activeStore.id
         };
         setCurrentOrder(syncedOrder);
         setOrderHistory((prev) => [syncedOrder, ...prev.slice(1)]);
@@ -529,6 +582,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logoutUser,
         isOutOfCoverageRange,
         setIsOutOfCoverageRange,
+        serviceabilityStatus,
+        setServiceabilityStatus,
+        nearestStoreInfo,
+        deliveryEta,
         userCoords,
         setUserCoords,
         checkStoreCoverage,
