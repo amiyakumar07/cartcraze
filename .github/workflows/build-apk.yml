@@ -47,10 +47,10 @@ jobs:
           fi
           echo "Java environment verified successfully (Java $JAVA_VER)."
 
-      - name: Set up Gradle 8.11.1
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
+          cache-read-only: false
 
       - name: Prepare environment configuration
         run: |
@@ -84,19 +84,25 @@ jobs:
           fi
           echo "Temporary debug keystore confirmed at ./debug.keystore."
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Diagnostic Environment Check
         run: |
           echo "=== PWD ==="
           pwd
-          echo "=== Gradle Version ==="
-          gradle --version
+          echo "=== Gradle Wrapper Version ==="
+          ./gradlew --version
           echo "=== android_app listing ==="
           ls -la
 
       - name: Build all 3 debug APKs
         run: |
           set +e
-          gradle :app:assembleDebug --stacktrace --no-daemon > gradle_build.log 2>&1
+          ./gradlew :app:assembleCustomerDebug :app:assembleRiderDebug :app:assembleStoreDebug \
+            --stacktrace --no-daemon --info \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+            > gradle_build.log 2>&1
           GRADLE_EXIT=$?
           cat gradle_build.log
           if [ $GRADLE_EXIT -ne 0 ]; then
