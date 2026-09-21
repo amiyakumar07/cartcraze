@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, MessageCircle, RefreshCw, ShieldCheck, CheckCircle2, Edit2, Clipboard, Check } from 'lucide-react';
+import { ArrowLeft, MessageCircle, ShieldCheck, CheckCircle2, Edit2 } from 'lucide-react';
 import { AppLogo } from '../components/AppLogo';
 import { PolicyModal } from '../components/PolicyModal';
 
@@ -677,28 +677,6 @@ export const LoginScreen: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quick action buttons */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-                <button type="button" onClick={handlePasteOtp} className="cc-helper-btn">
-                  {pasteSuccess ? (
-                    <><Check size={13} color="#25D366" /><span style={{ color: '#25D366' }}>Pasted!</span></>
-                  ) : (
-                    <><Clipboard size={13} /><span>Paste Code</span></>
-                  )}
-                </button>
-                {waDeepLink ? (
-                  <a
-                    href={waDeepLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cc-helper-btn cc-wa-open-btn"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <MessageCircle size={13} />
-                    <span>Open WhatsApp</span>
-                  </a>
-                ) : <div />}
-              </div>
 
               <button
                 type="submit"

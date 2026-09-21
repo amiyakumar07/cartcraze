@@ -1,4 +1,4 @@
-name: Build Debug APKs (Customer, Rider, Store)
+name: Build Customer APK
 
 on:
   push:
@@ -96,11 +96,11 @@ jobs:
           echo "=== android_app listing ==="
           ls -la
 
-      - name: Build all 3 debug APKs
+      - name: Build Customer debug APK
         run: |
           set +e
-          ./gradlew :app:assembleCustomerDebug :app:assembleRiderDebug :app:assembleStoreDebug \
-            --stacktrace --no-daemon --info \
+          ./gradlew :app:assembleCustomerDebug \
+            --stacktrace --no-daemon \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
             > gradle_build.log 2>&1
           GRADLE_EXIT=$?
@@ -141,50 +141,27 @@ jobs:
           git commit -m "build error log from run ${{ github.run_number }}" || true
           git push -f origin build-log || true
 
-      - name: Verify & collect all APKs
+      - name: Verify & collect Customer APK
         id: collect_apks
         run: |
           TEMP_RELEASE_DIR=$(mktemp -d)
           echo "temp_dir=$TEMP_RELEASE_DIR" >> "$GITHUB_OUTPUT"
 
-          # Discover and verify Customer APK
           CUSTOMER_APK=$(find app/build/outputs/apk -name "*customer*debug*.apk" | head -n 1)
-          if [ -z "$CUSTOMER_APK" ] || [ ! -f "$CUSTOMER_APK" ]; then
+          if [ -z "$CUSTOMER_APK" ]; then
             CUSTOMER_APK=$(find app/build/outputs/apk -name "*debug*.apk" | head -n 1)
           fi
 
-          # Discover and verify Rider APK
-          RIDER_APK=$(find app/build/outputs/apk -name "*rider*debug*.apk" | head -n 1)
-
-          # Discover and verify Store APK
-          STORE_APK=$(find app/build/outputs/apk -name "*store*debug*.apk" | head -n 1)
-
-          echo "Discovered APKs:"
           echo "Customer APK: $CUSTOMER_APK"
-          echo "Rider APK: $RIDER_APK"
-          echo "Store APK: $STORE_APK"
 
-          # Prepare release filenames
           CUSTOMER_OUT="${TEMP_RELEASE_DIR}/cartcraze-customer-debug.apk"
-          RIDER_OUT="${TEMP_RELEASE_DIR}/cartcraze-rider-debug.apk"
-          STORE_OUT="${TEMP_RELEASE_DIR}/cartcraze-store-debug.apk"
-
           if [ -n "$CUSTOMER_APK" ] && [ -f "$CUSTOMER_APK" ]; then
             cp "$CUSTOMER_APK" "$CUSTOMER_OUT"
             echo "has_customer=true" >> "$GITHUB_OUTPUT"
             echo "customer_path=$CUSTOMER_OUT" >> "$GITHUB_OUTPUT"
-          fi
-
-          if [ -n "$RIDER_APK" ] && [ -f "$RIDER_APK" ]; then
-            cp "$RIDER_APK" "$RIDER_OUT"
-            echo "has_rider=true" >> "$GITHUB_OUTPUT"
-            echo "rider_path=$RIDER_OUT" >> "$GITHUB_OUTPUT"
-          fi
-
-          if [ -n "$STORE_APK" ] && [ -f "$STORE_APK" ]; then
-            cp "$STORE_APK" "$STORE_OUT"
-            echo "has_store=true" >> "$GITHUB_OUTPUT"
-            echo "store_path=$STORE_OUT" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Customer APK not found!"
+            exit 1
           fi
 
       - name: Upload Customer APK artifact
@@ -194,22 +171,6 @@ jobs:
           name: cartcraze-customer-apk
           path: ${{ steps.collect_apks.outputs.customer_path }}
           if-no-files-found: error
-
-      - name: Upload Rider APK artifact
-        if: steps.collect_apks.outputs.has_rider == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: cartcraze-rider-apk
-          path: ${{ steps.collect_apks.outputs.rider_path }}
-          if-no-files-found: warn
-
-      - name: Upload Store APK artifact
-        if: steps.collect_apks.outputs.has_store == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: cartcraze-store-apk
-          path: ${{ steps.collect_apks.outputs.store_path }}
-          if-no-files-found: warn
 
       - name: Publish all APKs to GitHub Releases
         id: publish_release
