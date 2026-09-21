@@ -104,7 +104,141 @@ export const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
   /* ─── SCREEN 1: LANDING / ONBOARDING ─── */
   if (step === 'landing') {
     return (
-      <div className="bg-[#f9f9f9] min-h-screen px-6 pt-10 pb-10 flex flex-col justify-between font-sans">
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(145deg, #0a0a14 0%, #1a1200 40%, #0f1a00 70%, #0a0a14 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: "'Inter', sans-serif",
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap');
+          @keyframes sp-float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+          @keyframes sp-slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+          @keyframes sp-pulse { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(1.4);opacity:0} }
+          .sp-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+          }
+          .sp-feature-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #ffc700 0%, #ff9500 100%);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(255,199,0,0.3);
+          }
+          .sp-btn-primary {
+            width: 100%; padding: 16px;
+            border: none; border-radius: 18px;
+            background: linear-gradient(135deg, #ffc700 0%, #ff9500 100%);
+            color: #1a0f00;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px; font-weight: 800;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 8px 24px rgba(255,199,0,0.35);
+            transition: all 0.2s;
+            position: relative; overflow: hidden;
+          }
+          .sp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(255,199,0,0.45); }
+          .sp-btn-secondary {
+            width: 100%; padding: 15px;
+            border: 1.5px solid rgba(255,255,255,0.12); border-radius: 18px;
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.85);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px; font-weight: 800;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s;
+          }
+          .sp-btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        `}</style>
+
+        {/* Background orbs */}
+        <div style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,199,0,0.12) 0%, transparent 70%)', filter:'blur(60px)', top:-80, right:-80, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', width:200, height:200, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,120,0,0.1) 0%, transparent 70%)', filter:'blur(50px)', bottom:60, left:-40, pointerEvents:'none' }} />
+
+        {/* Floating emojis */}
+        <span style={{ position:'absolute', top:'12%', left:'8%', fontSize:40, opacity:0.06, animation:'sp-float 7s ease-in-out infinite' }}>🏪</span>
+        <span style={{ position:'absolute', top:'22%', right:'10%', fontSize:36, opacity:0.06, animation:'sp-float 9s ease-in-out infinite 1s' }}>📦</span>
+        <span style={{ position:'absolute', bottom:'28%', left:'6%', fontSize:32, opacity:0.06, animation:'sp-float 8s ease-in-out infinite 2s' }}>📈</span>
+
+        <div style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'48px 22px 36px', position:'relative', zIndex:2 }}>
+          <div style={{ animation:'sp-slideUp 0.4s ease both' }}>
+            {/* Logo */}
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:32 }}>
+              <div style={{ width:42, height:42, borderRadius:14, background:'linear-gradient(135deg,#ffc700,#ff9500)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 14px rgba(255,199,0,0.35)' }}>
+                <Store className="w-5 h-5" style={{ color:'#1a0f00' }} />
+              </div>
+              <div>
+                <div style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:18, fontWeight:900, color:'white', letterSpacing:'-0.3px' }}>CartCraze</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,199,0,0.7)', textTransform:'uppercase', letterSpacing:'0.08em', marginTop:-1 }}>Partner Portal</div>
+              </div>
+            </div>
+
+            {/* Heading */}
+            <h1 style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:32, fontWeight:900, color:'white', margin:'0 0 10px', letterSpacing:'-0.5px', lineHeight:1.15 }}>
+              Grow Your<br />Business with<br /><span style={{ color:'#ffc700' }}>CartCraze</span>
+            </h1>
+            <p style={{ fontSize:13, color:'rgba(255,255,255,0.4)', fontWeight:500, margin:'0 0 28px', lineHeight:1.6 }}>
+              Join our network of premium retail partners and reach thousands of customers in minutes.
+            </p>
+
+            {/* Feature cards */}
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {[
+                { icon:<TrendingUp className="w-5 h-5" style={{color:'#1a0f00',strokeWidth:2.5}} />, title:'Boost Daily Sales', desc:'Access a massive local customer base looking for fast delivery.' },
+                { icon:<Box className="w-5 h-5" style={{color:'#1a0f00',strokeWidth:2.5}} />, title:'Efficient Inventory Tools', desc:'Manage your stock seamlessly with our dedicated partner app.' },
+                { icon:<BarChart3 className="w-5 h-5" style={{color:'#1a0f00',strokeWidth:2.5}} />, title:'Real-time Analytics', desc:'Track performance and optimize your operations with live data.' },
+              ].map((f, i) => (
+                <div key={i} className="sp-card" style={{ display:'flex', alignItems:'flex-start', gap:14, animation:`sp-slideUp 0.4s ease ${0.1 + i*0.08}s both` }}>
+                  <div className="sp-feature-icon">{f.icon}</div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:800, color:'white', marginBottom:2 }}>{f.title}</div>
+                    <div style={{ fontSize:12, color:'rgba(255,255,255,0.35)', fontWeight:500, lineHeight:1.5 }}>{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div style={{ marginTop:28, display:'flex', flexDirection:'column', gap:10, animation:'sp-slideUp 0.4s ease 0.3s both' }}>
+            <button
+              onClick={() => { setIsRegisterMode(true); setStep('login'); }}
+              className="sp-btn-primary"
+            >
+              <UserPlus className="w-4 h-4" style={{strokeWidth:2.5}} />
+              Register New Partner Store
+            </button>
+            <button
+              onClick={() => { setIsRegisterMode(false); setStep('login'); }}
+              className="sp-btn-secondary"
+            >
+              <LogIn className="w-4 h-4" />
+              Login to Existing Store
+            </button>
+            <p style={{ fontSize:11, color:'rgba(255,255,255,0.2)', textAlign:'center', margin:'4px 0 0', lineHeight:1.6 }}>
+              By joining, you agree to our{' '}
+              <a href="#terms" style={{ color:'rgba(255,199,0,0.6)', fontWeight:700, textDecoration:'none' }}>Terms of Service</a>
+              {' '}and{' '}
+              <a href="#privacy" style={{ color:'rgba(255,199,0,0.6)', fontWeight:700, textDecoration:'none' }}>Privacy Policy</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
         <div>
           {/* Top Logo */}
           <div className="flex items-center gap-2 mb-6">

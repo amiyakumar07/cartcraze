@@ -13,400 +13,621 @@ export const FreshCartRiderLogin: React.FC<FreshCartRiderLoginProps> = ({
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (onEmailLogin) {
-      onEmailLogin(email || "rider@cartcraze.app", password || "password123", isRegisterMode);
-    }
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (onEmailLogin) {
+        onEmailLogin(email || "rider@cartcraze.app", password || "password123", isRegisterMode);
+      }
+    }, 800);
   };
 
   const handleGoogleLogin = () => {
-    if (onGoogleLogin) {
-      onGoogleLogin();
-    }
+    if (onGoogleLogin) onGoogleLogin();
   };
 
   return (
     <>
-      {/* Google Fonts + Material Symbols */}
       <link href="https://fonts.googleapis.com" rel="preconnect" />
       <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet" />
 
       <style>{`
-        :root {
-          --on-secondary-container: #646464;
-          --surface-container-low: #f3f4f5;
-          --surface: #f8f9fa;
-          --tertiary-fixed-dim: #61de8a;
-          --surface-container-highest: #e1e3e4;
-          --on-surface: #191c1d;
-          --secondary-fixed: #e2e2e2;
-          --on-surface-variant: #4f4632;
-          --surface-container: #edeeef;
-          --surface-variant: #e1e3e4;
-          --on-tertiary-fixed-variant: #005228;
-          --outline: #81765f;
-          --inverse-surface: #2e3132;
-          --on-primary-container: #6e5400;
-          --primary: #765b00;
-          --outline-variant: #d2c5ab;
-          --on-secondary-fixed: #1b1b1b;
-          --tertiary-fixed: #7efba4;
-          --on-tertiary: #ffffff;
-          --on-primary-fixed-variant: #594400;
-          --surface-container-lowest: #ffffff;
-          --on-secondary: #ffffff;
-          --tertiary-container: #6ae792;
-          --on-error-container: #93000a;
-          --background: #f8f9fa;
-          --on-background: #191c1d;
-          --on-error: #ffffff;
-          --on-tertiary-container: #006633;
-          --secondary-fixed-dim: #c6c6c6;
-          --tertiary: #006d37;
-          --inverse-on-surface: #f0f1f2;
-          --error-container: #ffdad6;
-          --primary-fixed-dim: #f5bf00;
-          --inverse-primary: #f5bf00;
-          --secondary: #5e5e5e;
-          --primary-container: #ffc700;
-          --surface-bright: #f8f9fa;
-          --surface-dim: #d9dadb;
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(-3deg); }
+        }
+        @keyframes pulse-ring {
+          0% { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(1.4); opacity: 0; }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
-        * {
-          box-sizing: border-box;
-        }
-
-        .login-page {
+        .rider-login-root {
           min-height: 100vh;
           width: 100%;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-          background: var(--background);
-          color: var(--on-background);
-          font-family: "Inter", sans-serif;
+          background: linear-gradient(145deg, #0f0c29 0%, #1a1333 35%, #24243e 70%, #0f0c29 100%);
+          font-family: 'Inter', sans-serif;
+          position: relative;
+          overflow: hidden;
         }
 
-        .login-container {
-          width: 100%;
-          max-width: 28rem;
-          background: var(--surface-container-lowest);
-          display: flex;
-          flex-direction: column;
-          padding: 32px 24px;
-          border-radius: 28px;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-          border: 1px solid var(--surface-container-highest);
+        /* Decorative orbs */
+        .rider-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .rider-orb-1 {
+          width: 280px; height: 280px;
+          background: radial-gradient(circle, rgba(255,199,0,0.18) 0%, transparent 70%);
+          top: -60px; right: -60px;
+        }
+        .rider-orb-2 {
+          width: 200px; height: 200px;
+          background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+          bottom: 60px; left: -40px;
+        }
+        .rider-orb-3 {
+          width: 150px; height: 150px;
+          background: radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%);
+          top: 40%; left: 60%;
         }
 
-        .login-top-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
+        /* Floating icons */
+        .float-icon {
+          position: absolute;
+          z-index: 0;
+          opacity: 0.08;
+          font-size: 48px;
         }
+        .float-icon-1 { top: 15%; left: 8%; animation: float 6s ease-in-out infinite; }
+        .float-icon-2 { top: 25%; right: 10%; animation: float2 8s ease-in-out infinite; }
+        .float-icon-3 { bottom: 25%; left: 12%; animation: float 7s ease-in-out infinite 1s; }
 
-        .back-btn {
-          background: var(--surface-container);
-          border: none;
-          padding: 8px 14px;
-          border-radius: 16px;
-          font-weight: 700;
-          font-size: 13px;
-          cursor: pointer;
-          color: var(--on-surface);
-          display: flex;
+        /* Back button */
+        .rider-back-btn {
+          position: relative;
+          z-index: 10;
+          padding: 16px 20px 0;
+        }
+        .rider-back-inner {
+          display: inline-flex;
           align-items: center;
           gap: 6px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          color: rgba(255,255,255,0.7);
+          font-size: 13px;
+          font-weight: 600;
+          padding: 8px 14px;
+          border-radius: 50px;
+          cursor: pointer;
+          backdrop-filter: blur(8px);
+          transition: all 0.2s;
+          border: none;
+          background: rgba(255,255,255,0.08);
+        }
+        .rider-back-inner:hover {
+          background: rgba(255,255,255,0.14);
+          color: white;
         }
 
-        .login-header {
+        /* Main scrollable content */
+        .rider-scroll {
+          position: relative;
+          z-index: 2;
+          flex: 1;
           display: flex;
           flex-direction: column;
           align-items: center;
-          text-align: center;
-          margin-bottom: 24px;
+          justify-content: center;
+          padding: 20px 20px 32px;
         }
 
-        .logo-circle {
-          width: 64px;
-          height: 64px;
-          background: var(--primary-container);
-          border-radius: 9999px;
+        /* Hero icon area */
+        .rider-hero {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 28px;
+          animation: slideUp 0.5s ease both;
+        }
+        .rider-icon-wrap {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          margin-bottom: 16px;
+        }
+        .rider-icon-bg {
+          width: 80px;
+          height: 80px;
+          border-radius: 28px;
+          background: linear-gradient(135deg, #ffc700 0%, #ff9500 100%);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 12px;
-          box-shadow: 0 4px 14px rgba(255, 199, 0, 0.4);
-        }
-
-        .logo-icon {
-          color: var(--on-primary-container);
+          box-shadow: 0 8px 32px rgba(255,199,0,0.4), 0 0 0 1px rgba(255,199,0,0.2);
           font-size: 36px;
         }
-
-        .brand-name {
+        .rider-pulse {
+          position: absolute;
+          inset: -6px;
+          border-radius: 34px;
+          border: 2px solid rgba(255,199,0,0.4);
+          animation: pulse-ring 2s ease-out infinite;
+        }
+        .rider-brand {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 28px;
+          font-weight: 900;
+          color: white;
+          letter-spacing: -0.5px;
           margin: 0;
-          color: var(--primary);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 40px;
-          line-height: 44px;
-          letter-spacing: -0.02em;
-          font-weight: 800;
         }
-
-        .brand-subtitle {
+        .rider-brand span {
+          color: #ffc700;
+        }
+        .rider-tagline {
+          font-size: 13px;
+          color: rgba(255,255,255,0.5);
           margin: 4px 0 0;
-          color: var(--on-surface-variant);
-          font-size: 15px;
-          font-weight: 600;
+          font-weight: 500;
         }
 
-        .welcome-title {
-          margin: 0 0 4px;
-          color: var(--on-surface);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          text-align: center;
+        /* Glass card */
+        .rider-card {
+          width: 100%;
+          max-width: 400px;
+          background: rgba(255,255,255,0.06);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 28px;
+          padding: 28px 24px;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+          animation: slideUp 0.5s ease 0.1s both;
         }
 
-        .welcome-description {
-          margin: 0 0 20px;
-          color: var(--secondary);
-          font-size: 14px;
-          text-align: center;
-        }
-
-        /* Mode Tabs */
-        .tab-switcher {
+        /* Tab switcher */
+        .rider-tabs {
           display: flex;
-          background: var(--surface-container);
-          padding: 4px;
+          background: rgba(0,0,0,0.3);
           border-radius: 16px;
-          margin-bottom: 20px;
+          padding: 4px;
+          margin-bottom: 24px;
+          border: 1px solid rgba(255,255,255,0.06);
         }
-
-        .tab-btn {
+        .rider-tab {
           flex: 1;
           padding: 10px;
           border: none;
-          background: transparent;
           border-radius: 12px;
           font-weight: 700;
           font-size: 13px;
-          color: var(--secondary);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.2s;
+          background: transparent;
+          color: rgba(255,255,255,0.4);
+        }
+        .rider-tab.active {
+          background: rgba(255,199,0,0.15);
+          color: #ffc700;
+          box-shadow: 0 0 0 1px rgba(255,199,0,0.25);
         }
 
-        .tab-btn.active {
-          background: var(--surface-container-lowest);
-          color: var(--on-surface);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        /* Input group */
+        .rider-input-group {
+          margin-bottom: 14px;
         }
-
-        /* Form Inputs */
-        .input-group {
-          margin-bottom: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .input-label {
-          font-size: 12px;
+        .rider-input-label {
+          display: block;
+          font-size: 11px;
           font-weight: 700;
-          color: var(--on-surface);
+          color: rgba(255,255,255,0.5);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
+          margin-bottom: 8px;
         }
-
-        .custom-input {
-          width: 100%;
-          padding: 14px 16px;
+        .rider-input-wrap {
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.06);
+          border: 1.5px solid rgba(255,255,255,0.1);
           border-radius: 16px;
-          border: 1.5px solid var(--surface-container-highest);
-          background: var(--surface-bright);
+          overflow: hidden;
+          transition: all 0.2s;
+        }
+        .rider-input-wrap:focus-within {
+          border-color: rgba(255,199,0,0.5);
+          background: rgba(255,199,0,0.04);
+          box-shadow: 0 0 0 3px rgba(255,199,0,0.08);
+        }
+        .rider-input-icon {
+          padding: 0 12px;
+          color: rgba(255,255,255,0.3);
+          font-size: 15px;
+          display: flex;
+          align-items: center;
+        }
+        .rider-input {
+          flex: 1;
+          padding: 14px 14px 14px 4px;
+          background: transparent;
+          border: none;
+          outline: none;
           font-size: 14px;
           font-weight: 600;
-          color: var(--on-surface);
-          outline: none;
-          transition: border-color 0.2s;
+          color: white;
+          font-family: 'Inter', sans-serif;
         }
-
-        .custom-input:focus {
-          border-color: var(--primary);
+        .rider-input::placeholder {
+          color: rgba(255,255,255,0.2);
+          font-weight: 400;
         }
+        .rider-pw-toggle {
+          padding: 0 14px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: rgba(255,255,255,0.3);
+          display: flex;
+          align-items: center;
+          font-size: 15px;
+        }
+        .rider-pw-toggle:hover { color: rgba(255,255,255,0.6); }
 
-        .submit-btn {
+        /* Submit button */
+        .rider-submit-btn {
           width: 100%;
-          padding: 16px;
+          padding: 15px;
           border: none;
           border-radius: 18px;
-          background: var(--primary-container);
-          color: var(--on-primary-container);
-          font-family: "Plus Jakarta Sans", sans-serif;
-          font-size: 16px;
+          background: linear-gradient(135deg, #ffc700 0%, #ff9500 100%);
+          color: #1a1200;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 15px;
           font-weight: 800;
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(255, 199, 0, 0.35);
-          margin-top: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          margin-top: 6px;
+          box-shadow: 0 8px 24px rgba(255,199,0,0.35), 0 4px 8px rgba(0,0,0,0.2);
+          transition: all 0.2s;
+          position: relative;
+          overflow: hidden;
+        }
+        .rider-submit-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 2.5s infinite;
+        }
+        .rider-submit-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 12px 32px rgba(255,199,0,0.45), 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .rider-submit-btn:active { transform: translateY(0); }
+        .rider-submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
         }
 
-        .divider {
+        /* Spinner */
+        .rider-spinner {
+          width: 18px; height: 18px;
+          border: 2px solid rgba(0,0,0,0.2);
+          border-top-color: rgba(0,0,0,0.8);
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Divider */
+        .rider-divider {
           display: flex;
           align-items: center;
-          margin: 24px 0 20px;
           gap: 12px;
+          margin: 20px 0;
         }
-
-        .divider-line {
+        .rider-divider-line {
           flex: 1;
           height: 1px;
-          background: var(--surface-container-highest);
-          border: none;
+          background: rgba(255,255,255,0.08);
         }
-
-        .divider-text {
-          font-size: 12px;
+        .rider-divider-text {
+          font-size: 11px;
           font-weight: 700;
-          color: var(--secondary);
+          color: rgba(255,255,255,0.3);
           text-transform: uppercase;
+          letter-spacing: 0.06em;
+          white-space: nowrap;
         }
 
-        .google-login-btn {
+        /* Google button */
+        .rider-google-btn {
           width: 100%;
-          padding: 14px;
-          border-radius: 18px;
-          border: 1.5px solid var(--surface-container-highest);
-          background: var(--surface-container-lowest);
-          color: var(--on-surface);
+          padding: 13px;
+          border-radius: 16px;
+          border: 1.5px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.85);
           font-weight: 700;
-          font-size: 14px;
+          font-size: 13px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          gap: 10px;
+          transition: all 0.2s;
+          font-family: 'Inter', sans-serif;
+        }
+        .rider-google-btn:hover {
+          background: rgba(255,255,255,0.09);
+          border-color: rgba(255,255,255,0.18);
         }
 
-        .terms-note {
-          font-size: 11px;
-          color: var(--secondary);
+        /* Toggle link */
+        .rider-toggle {
           text-align: center;
-          margin-top: 20px;
-          line-height: 1.5;
+          margin-top: 16px;
         }
+        .rider-toggle button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.4);
+          font-family: 'Inter', sans-serif;
+          transition: color 0.2s;
+        }
+        .rider-toggle button span { color: #ffc700; }
+        .rider-toggle button:hover span { text-decoration: underline; }
+
+        /* Stats strip */
+        .rider-stats {
+          display: flex;
+          justify-content: center;
+          gap: 28px;
+          margin-top: 24px;
+          animation: slideUp 0.5s ease 0.2s both;
+        }
+        .rider-stat {
+          text-align: center;
+        }
+        .rider-stat-val {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 18px;
+          font-weight: 900;
+          color: #ffc700;
+          line-height: 1;
+        }
+        .rider-stat-label {
+          font-size: 10px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.35);
+          margin-top: 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        /* Footer */
+        .rider-footer {
+          text-align: center;
+          padding: 16px 20px 24px;
+          position: relative;
+          z-index: 2;
+        }
+        .rider-footer p {
+          font-size: 11px;
+          color: rgba(255,255,255,0.25);
+          line-height: 1.6;
+          margin: 0;
+        }
+        .rider-footer a {
+          color: rgba(255,199,0,0.6);
+          text-decoration: none;
+          font-weight: 700;
+        }
+        .rider-footer a:hover { color: #ffc700; }
       `}</style>
 
-      <div className="login-page">
-        <main className="login-container">
-          <div className="login-top-bar">
-            {onBackToLanding && (
-              <button onClick={onBackToLanding} className="back-btn">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-                <span>Overview</span>
+      <div className="rider-login-root">
+        {/* Background orbs */}
+        <div className="rider-orb rider-orb-1" />
+        <div className="rider-orb rider-orb-2" />
+        <div className="rider-orb rider-orb-3" />
+
+        {/* Floating decoration icons */}
+        <span className="float-icon float-icon-1">🛵</span>
+        <span className="float-icon float-icon-2">⚡</span>
+        <span className="float-icon float-icon-3">📦</span>
+
+        {/* Back button */}
+        {onBackToLanding && (
+          <div className="rider-back-btn">
+            <button onClick={onBackToLanding} className="rider-back-inner">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Overview
+            </button>
+          </div>
+        )}
+
+        {/* Main scroll area */}
+        <div className="rider-scroll">
+          {/* Hero */}
+          <div className="rider-hero">
+            <div className="rider-icon-wrap">
+              <div className="rider-pulse" />
+              <div className="rider-icon-bg">🛵</div>
+            </div>
+            <h1 className="rider-brand">Cart<span>Craze</span></h1>
+            <p className="rider-tagline">Rider Partner Portal</p>
+          </div>
+
+          {/* Glass card */}
+          <div className="rider-card">
+            {/* Tabs */}
+            <div className="rider-tabs">
+              <button
+                type="button"
+                className={`rider-tab${!isRegisterMode ? ' active' : ''}`}
+                onClick={() => setIsRegisterMode(false)}
+              >
+                Sign In
               </button>
-            )}
+              <button
+                type="button"
+                className={`rider-tab${isRegisterMode ? ' active' : ''}`}
+                onClick={() => setIsRegisterMode(true)}
+              >
+                Join as Rider
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="rider-input-group">
+                <label className="rider-input-label">Email Address</label>
+                <div className="rider-input-wrap">
+                  <span className="rider-input-icon">✉️</span>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="rider@cartcraze.app"
+                    className="rider-input"
+                  />
+                </div>
+              </div>
+
+              <div className="rider-input-group">
+                <label className="rider-input-label">Password</label>
+                <div className="rider-input-wrap">
+                  <span className="rider-input-icon">🔒</span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter secure password"
+                    className="rider-input"
+                  />
+                  <button
+                    type="button"
+                    className="rider-pw-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="rider-submit-btn">
+                {loading ? (
+                  <div className="rider-spinner" />
+                ) : (
+                  <>
+                    <span>{isRegisterMode ? 'Register as Rider Partner' : 'Sign In as Rider'}</span>
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="rider-divider">
+              <div className="rider-divider-line" />
+              <span className="rider-divider-text">Or continue with</span>
+              <div className="rider-divider-line" />
+            </div>
+
+            <button type="button" onClick={handleGoogleLogin} className="rider-google-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
+                <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.73 17.57C14.74 18.23 13.48 18.63 12 18.63C9.13 18.63 6.7 16.69 5.81 14.08H2.13V16.94C3.96 20.57 7.69 23 12 23Z" fill="#34A853" />
+                <path d="M5.81 14.08C5.58 13.39 5.45 12.66 5.45 11.91C5.45 11.16 5.58 10.43 5.81 9.74V6.88H2.13C1.38 8.38 0.95 10.09 0.95 11.91C0.95 13.73 1.38 15.44 2.13 16.94L5.81 14.08Z" fill="#FBBC05" />
+                <path d="M12 5.38C13.62 5.38 15.06 5.94 16.21 7.03L19.38 3.86C17.45 2.06 14.96 0.95 12 0.95C7.69 0.95 3.96 3.38 2.13 7.02L5.81 9.88C6.7 7.27 9.13 5.38 12 5.38Z" fill="#EA4335" />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <div className="rider-toggle">
+              <button
+                type="button"
+                onClick={() => setIsRegisterMode(!isRegisterMode)}
+              >
+                {isRegisterMode
+                  ? <span>Already a partner? <span>Sign In here</span></span>
+                  : <span>New rider? <span>Create your account</span></span>}
+              </button>
+            </div>
           </div>
 
-          <header className="login-header">
-            <div className="logo-circle">
-              <span className="material-symbols-outlined logo-icon">electric_moped</span>
+          {/* Stats strip */}
+          <div className="rider-stats">
+            <div className="rider-stat">
+              <div className="rider-stat-val">₹35K+</div>
+              <div className="rider-stat-label">Monthly Earn</div>
             </div>
-            <h1 className="brand-name">CartCraze</h1>
-            <p className="brand-subtitle">Rider Partner Portal</p>
-          </header>
+            <div className="rider-stat">
+              <div className="rider-stat-val">9 Min</div>
+              <div className="rider-stat-label">Avg Delivery</div>
+            </div>
+            <div className="rider-stat">
+              <div className="rider-stat-val">5K+</div>
+              <div className="rider-stat-label">Active Riders</div>
+            </div>
+          </div>
+        </div>
 
-          <h2 className="welcome-title">
-            {isRegisterMode ? 'Rider Partner Signup' : 'Rider Sign In'}
-          </h2>
-          <p className="welcome-description">
-            Earn up to ₹35,000/mo delivering 9-min instant groceries
+        {/* Footer */}
+        <div className="rider-footer">
+          <p>
+            Protected by CartCraze SSL &amp; Supabase.{' '}
+            By signing in you agree to our{' '}
+            <a href="#terms">Terms</a> &amp; <a href="#privacy">Privacy Policy</a>.
           </p>
-
-          <div className="tab-switcher">
-            <button
-              type="button"
-              className={`tab-btn ${!isRegisterMode ? 'active' : ''}`}
-              onClick={() => setIsRegisterMode(false)}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${isRegisterMode ? 'active' : ''}`}
-              onClick={() => setIsRegisterMode(true)}
-            >
-              Create Account
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <label className="input-label">Email Address</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="rider@cartcraze.app"
-                className="custom-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label className="input-label">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter secure password"
-                className="custom-input"
-              />
-            </div>
-
-            <button type="submit" className="submit-btn">
-              <span>{isRegisterMode ? 'Register as Rider Partner' : 'Sign In as Rider'}</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </form>
-
-          <div className="divider">
-            <hr className="divider-line" />
-            <span className="divider-text">Or Login With</span>
-            <hr className="divider-line" />
-          </div>
-
-          <button type="button" onClick={handleGoogleLogin} className="google-login-btn">
-            <svg className="w-5 h-5" width="20" height="20" viewBox="0 0 24 24">
-              <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.79 15.73 17.57V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4" />
-              <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.73 17.57C14.74 18.23 13.48 18.63 12 18.63C9.13 18.63 6.7 16.69 5.81 14.08H2.13V16.94C3.96 20.57 7.69 23 12 23Z" fill="#34A853" />
-              <path d="M5.81 14.08C5.58 13.39 5.45 12.66 5.45 11.91C5.45 11.16 5.58 10.43 5.81 9.74V6.88H2.13C1.38 8.38 0.95 10.09 0.95 11.91C0.95 13.73 1.38 15.44 2.13 16.94L5.81 14.08Z" fill="#FBBC05" />
-              <path d="M12 5.38C13.62 5.38 15.06 5.94 16.21 7.03L19.38 3.86C17.45 2.06 14.96 0.95 12 0.95C7.69 0.95 3.96 3.38 2.13 7.02L5.81 9.88C6.7 7.27 9.13 5.38 12 5.38Z" fill="#EA4335" />
-            </svg>
-            <span>Continue with Google Sign-In</span>
-          </button>
-
-          <p className="terms-note">
-            Protected by CartCraze Security &amp; Supabase SSL. By signing in, you agree to our Terms and Partner Policy.
-          </p>
-        </main>
+        </div>
       </div>
     </>
   );

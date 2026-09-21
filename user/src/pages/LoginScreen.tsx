@@ -161,252 +161,586 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between p-6 font-sans relative">
-      {/* Top Navigation */}
-      <div className="flex items-center justify-between py-1">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(145deg, #0a0a1a 0%, #0d1a2e 40%, #0a1628 70%, #0a0a1a 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: "'Inter', sans-serif",
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap');
+
+        @keyframes cc-float {
+          0%,100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-14px) scale(1.02); }
+        }
+        @keyframes cc-pulse-ring {
+          0% { transform: scale(1); opacity: 0.5; }
+          100% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes cc-slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes cc-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes cc-spin { to { transform: rotate(360deg); } }
+        @keyframes cc-cursor-blink {
+          0%,100% { opacity: 1; } 50% { opacity: 0; }
+        }
+        @keyframes cc-wave {
+          0% { transform: rotate(0deg); }
+          10% { transform: rotate(14deg); }
+          20% { transform: rotate(-8deg); }
+          30% { transform: rotate(14deg); }
+          40% { transform: rotate(-4deg); }
+          50% { transform: rotate(10deg); }
+          60%,100% { transform: rotate(0deg); }
+        }
+
+        .cc-orb {
+          position: absolute; border-radius: 50%;
+          filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+        .cc-orb-1 {
+          width: 320px; height: 320px;
+          background: radial-gradient(circle, rgba(37,211,102,0.14) 0%, transparent 70%);
+          top: -80px; right: -80px;
+        }
+        .cc-orb-2 {
+          width: 240px; height: 240px;
+          background: radial-gradient(circle, rgba(251,120,0,0.12) 0%, transparent 70%);
+          bottom: 80px; left: -60px;
+        }
+        .cc-orb-3 {
+          width: 160px; height: 160px;
+          background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+          top: 45%; right: 5%;
+        }
+
+        .cc-float-bg { position: absolute; z-index: 0; opacity: 0.05; font-size: 52px; }
+        .cc-float-1 { top: 12%; left: 6%; animation: cc-float 7s ease-in-out infinite; }
+        .cc-float-2 { top: 20%; right: 8%; animation: cc-float 9s ease-in-out infinite 1s; }
+        .cc-float-3 { bottom: 30%; left: 10%; animation: cc-float 8s ease-in-out infinite 2s; }
+
+        .cc-card {
+          background: rgba(255,255,255,0.04);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 28px;
+          padding: 28px 22px;
+          box-shadow: 0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+          animation: cc-slideUp 0.5s ease 0.1s both;
+        }
+
+        .cc-phone-input-wrap {
+          display: flex;
+          border: 1.5px solid rgba(255,255,255,0.1);
+          border-radius: 18px;
+          overflow: hidden;
+          background: rgba(255,255,255,0.04);
+          transition: all 0.2s;
+        }
+        .cc-phone-input-wrap:focus-within {
+          border-color: rgba(37,211,102,0.5);
+          background: rgba(37,211,102,0.03);
+          box-shadow: 0 0 0 3px rgba(37,211,102,0.08);
+        }
+        .cc-phone-prefix {
+          padding: 14px 14px;
+          background: rgba(255,255,255,0.05);
+          border-right: 1px solid rgba(255,255,255,0.08);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.7);
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .cc-phone-field {
+          flex: 1;
+          padding: 14px 14px;
+          background: transparent;
+          border: none;
+          outline: none;
+          font-size: 15px;
+          font-weight: 600;
+          color: white;
+          font-family: 'Inter', sans-serif;
+          width: 100%;
+        }
+        .cc-phone-field::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
+
+        .cc-wa-btn {
+          width: 100%;
+          padding: 15px;
+          border: none;
+          border-radius: 18px;
+          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+          color: white;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 8px 24px rgba(37,211,102,0.35);
+          transition: all 0.2s;
+          position: relative;
+          overflow: hidden;
+        }
+        .cc-wa-btn::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+          background-size: 200% 100%;
+          animation: cc-shimmer 2s infinite;
+        }
+        .cc-wa-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(37,211,102,0.45); }
+        .cc-wa-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .cc-verify-btn {
+          width: 100%;
+          padding: 15px;
+          border: none;
+          border-radius: 18px;
+          background: linear-gradient(135deg, #fb7800 0%, #e05500 100%);
+          color: white;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 8px 24px rgba(251,120,0,0.35);
+          transition: all 0.2s;
+          position: relative;
+          overflow: hidden;
+        }
+        .cc-verify-btn::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+          background-size: 200% 100%;
+          animation: cc-shimmer 2s infinite;
+        }
+        .cc-verify-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(251,120,0,0.45); }
+        .cc-verify-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .cc-spinner {
+          width: 18px; height: 18px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: cc-spin 0.7s linear infinite;
+        }
+
+        .cc-otp-box {
+          height: 52px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          font-weight: 900;
+          border-radius: 14px;
+          border: 2px solid;
+          transition: all 0.15s;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .cc-otp-box.empty {
+          border-color: rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.04);
+          color: rgba(255,255,255,0.2);
+        }
+        .cc-otp-box.active {
+          border-color: rgba(37,211,102,0.6);
+          background: rgba(37,211,102,0.05);
+          box-shadow: 0 0 0 3px rgba(37,211,102,0.1);
+        }
+        .cc-otp-box.filled {
+          border-color: rgba(37,211,102,0.8);
+          background: rgba(37,211,102,0.08);
+          color: white;
+          box-shadow: 0 0 12px rgba(37,211,102,0.15);
+        }
+        .cc-cursor {
+          width: 2px; height: 22px;
+          background: #25D366;
+          border-radius: 1px;
+          animation: cc-cursor-blink 1s ease-in-out infinite;
+        }
+
+        .cc-helper-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          border: 1.5px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.04);
+          color: rgba(255,255,255,0.6);
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: 'Inter', sans-serif;
+        }
+        .cc-helper-btn:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.18);
+          color: white;
+        }
+        .cc-wa-open-btn {
+          background: rgba(37,211,102,0.08);
+          border-color: rgba(37,211,102,0.25);
+          color: #25D366;
+        }
+        .cc-wa-open-btn:hover {
+          background: rgba(37,211,102,0.14);
+          border-color: rgba(37,211,102,0.4);
+        }
+
+        .cc-error-banner {
+          background: rgba(239,68,68,0.1);
+          border: 1px solid rgba(239,68,68,0.25);
+          color: #fca5a5;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 12px 16px;
+          border-radius: 14px;
+          text-align: center;
+          line-height: 1.5;
+        }
+        .cc-success-banner {
+          background: rgba(37,211,102,0.1);
+          border: 1px solid rgba(37,211,102,0.25);
+          color: #6ee7b7;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 12px 16px;
+          border-radius: 14px;
+          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .cc-phone-dest {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 14px;
+          padding: 12px 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .cc-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.35);
+          text-transform: uppercase;
+          letter-spacing: 0.07em;
+          display: block;
+          margin-bottom: 7px;
+        }
+        .cc-change-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #25D366;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          padding: 4px 8px;
+          border-radius: 8px;
+          transition: background 0.2s;
+        }
+        .cc-change-btn:hover { background: rgba(37,211,102,0.1); }
+      `}</style>
+
+      {/* Decorative orbs */}
+      <div className="cc-orb cc-orb-1" />
+      <div className="cc-orb cc-orb-2" />
+      <div className="cc-orb cc-orb-3" />
+
+      {/* Floating bg icons */}
+      <span className="cc-float-bg cc-float-1">🛒</span>
+      <span className="cc-float-bg cc-float-2">⚡</span>
+      <span className="cc-float-bg cc-float-3">🥦</span>
+
+      {/* Top Nav */}
+      <div style={{
+        position: 'relative', zIndex: 10,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '16px 20px 0'
+      }}>
         <button
           onClick={() => setActiveTab('home')}
-          className="p-2 rounded-full hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 36, height: 36,
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 12, cursor: 'pointer', color: 'rgba(255,255,255,0.7)',
+            transition: 'all 0.2s'
+          }}
           aria-label="Back"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft size={16} />
         </button>
-        <span className="text-[11px] font-bold tracking-wider uppercase text-slate-400">CartCraze</span>
+        <span style={{
+          fontSize: 11, fontWeight: 800, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)'
+        }}>CartCraze</span>
       </div>
 
-      {/* Main Form Content */}
-      <div className="flex flex-col max-w-sm mx-auto w-full space-y-4 my-auto">
-        {/* Real Uploaded CartCraze Logo */}
-        <div className="flex justify-center items-center py-2">
-          <AppLogo className="h-24 w-auto max-h-24 object-contain" />
-        </div>
-
-        {/* Brand Header */}
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            India's Last Minute App
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Log in with WhatsApp for instant OTP &amp; {deliveryEta || 'express'} delivery
+      {/* Main Content */}
+      <div style={{
+        position: 'relative', zIndex: 2,
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '24px 20px 20px',
+        animation: 'cc-slideUp 0.5s ease both'
+      }}>
+        {/* Hero Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{
+            display: 'flex', justifyContent: 'center', marginBottom: 12
+          }}>
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                position: 'absolute', inset: -8,
+                borderRadius: 30,
+                border: '2px solid rgba(37,211,102,0.3)',
+                animation: 'cc-pulse-ring 2.5s ease-out infinite'
+              }} />
+              <AppLogo style={{ height: 72, width: 'auto' }} />
+            </div>
+          </div>
+          <h1 style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: 24, fontWeight: 900,
+            color: 'white', margin: '0 0 6px',
+            letterSpacing: '-0.5px'
+          }}>India's Last Minute App</h1>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 500 }}>
+            {deliveryEta || '9-min'} express delivery • WhatsApp OTP login
           </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 border border-red-200 text-xs p-3 rounded-2xl font-semibold text-center leading-relaxed">
-            {error}
-          </div>
-        )}
+        {/* Glass Card */}
+        <div className="cc-card" style={{ width: '100%', maxWidth: 400 }}>
+          {/* Error / Success */}
+          {error && <div className="cc-error-banner" style={{ marginBottom: 16 }}>{error}</div>}
+          {success && (
+            <div className="cc-success-banner" style={{ marginBottom: 16 }}>
+              <CheckCircle2 size={14} />
+              <span>{success}</span>
+            </div>
+          )}
 
-        {success && (
-          <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs p-3 rounded-2xl font-semibold text-center leading-relaxed flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{success}</span>
-          </div>
-        )}
-
-        {/* WHATSAPP MOBILE OTP AUTH */}
-        <div className="space-y-3.5">
           {!otpSent ? (
-            /* Step 1: Enter Mobile Number */
-            <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                    <span>WhatsApp Mobile Number</span>
+            /* Step 1 – Phone number */
+            <form onSubmit={handleSendPhoneOtp}>
+              <label className="cc-label">
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <MessageCircle size={13} color="#25D366" />
+                    WhatsApp Mobile Number
                   </span>
-                  <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full">
-                    Instant OTP
-                  </span>
-                </label>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, color: '#6ee7b7',
+                    background: 'rgba(37,211,102,0.12)',
+                    padding: '2px 8px', borderRadius: 50
+                  }}>Instant OTP</span>
+                </span>
+              </label>
 
-                <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#00676d] transition bg-white shadow-xs">
-                  <div className="px-3.5 py-3 bg-slate-50 border-r border-slate-200 flex items-center gap-1.5 text-xs font-bold text-slate-700 select-none">
-                    <span className="text-base leading-none">🇮🇳</span>
-                    <span>+91</span>
-                  </div>
-                  <input
-                    type="tel"
-                    required
-                    autoFocus
-                    value={phone}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="Enter 10-digit mobile number"
-                    className="w-full px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400 placeholder:font-normal"
-                  />
+              <div className="cc-phone-input-wrap" style={{ marginBottom: 14 }}>
+                <div className="cc-phone-prefix">
+                  <span style={{ fontSize: 16 }}>🇮🇳</span>
+                  <span>+91</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  We will send a 6-digit verification code directly to your WhatsApp.
-                </p>
+                <input
+                  type="tel"
+                  required
+                  autoFocus
+                  value={phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  placeholder="Enter 10-digit mobile number"
+                  className="cc-phone-field"
+                />
               </div>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 18px', lineHeight: 1.5 }}>
+                We'll send a 6-digit verification code to your WhatsApp.
+              </p>
 
               <button
                 type="submit"
                 disabled={loading || phone.length < 10}
-                className="w-full bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                className="cc-wa-btn"
               >
-                {loading ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
+                {loading ? <div className="cc-spinner" /> : (
                   <>
-                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <MessageCircle size={16} fill="white" />
                     <span>Get OTP on WhatsApp</span>
                   </>
                 )}
               </button>
             </form>
           ) : (
-            /* Step 2: Enter OTP & Verify */
-            <form onSubmit={handleVerifyPhoneOtp} className="space-y-3.5">
-              {/* Masked destination with Edit Number button */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                    OTP Sent To WhatsApp
-                  </span>
-                  <span className="text-xs font-black text-slate-800">
+            /* Step 2 – OTP verification */
+            <form onSubmit={handleVerifyPhoneOtp}>
+              {/* Destination display */}
+              <div className="cc-phone-dest" style={{ marginBottom: 18 }}>
+                <div>
+                  <span className="cc-label" style={{ margin: 0, marginBottom: 2 }}>OTP sent to WhatsApp</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>
                     {maskedPhone || `+91 ${phone}`}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleEditPhone}
-                  className="flex items-center gap-1 text-[11px] font-bold text-[#00676d] hover:text-emerald-800 px-2.5 py-1 rounded-lg hover:bg-white transition cursor-pointer"
-                >
-                  <Edit2 className="w-3 h-3" />
-                  <span>Change</span>
+                <button type="button" onClick={handleEditPhone} className="cc-change-btn">
+                  <Edit2 size={11} />
+                  Change
                 </button>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Enter 6-Digit OTP</span>
-                  {countdown > 0 ? (
-                    <span className="text-[11px] text-slate-400 font-semibold">
-                      Resend in <span className="font-bold text-[#00676d]">{countdown}s</span>
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleSendPhoneOtp()}
-                      className="text-[11px] text-[#00676d] font-bold hover:underline cursor-pointer"
-                    >
-                      Resend OTP
-                    </button>
-                  )}
-                </div>
-
-                {/* Segmented 6-Box PIN View */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    required
-                    autoFocus
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
-                  />
-                  <div className="grid grid-cols-6 gap-2">
-                    {[0, 1, 2, 3, 4, 5].map((idx) => {
-                      const digit = otp[idx] || '';
-                      const isCurrent = otp.length === idx || (idx === 5 && otp.length === 6);
-                      return (
-                        <div
-                          key={idx}
-                          className={`h-12 flex items-center justify-center text-xl font-black rounded-xl border-2 transition-all duration-150 ${
-                            digit
-                              ? 'border-emerald-600 bg-emerald-50/60 text-slate-900 shadow-xs'
-                              : isCurrent
-                              ? 'border-[#00676d] bg-white ring-2 ring-[#00676d]/20 shadow-xs'
-                              : 'border-slate-200 bg-slate-50 text-slate-400'
-                          }`}
-                        >
-                          {digit ? digit : isCurrent ? <span className="w-1.5 h-4 bg-[#00676d] animate-pulse rounded-full" /> : '•'}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Professional Quick Action Buttons: Paste Code & Open WhatsApp */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
+              {/* OTP label + resend */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 10
+              }}>
+                <span className="cc-label" style={{ margin: 0 }}>Enter 6-Digit OTP</span>
+                {countdown > 0 ? (
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
+                    Resend in <span style={{ color: '#25D366', fontWeight: 800 }}>{countdown}s</span>
+                  </span>
+                ) : (
                   <button
                     type="button"
-                    onClick={handlePasteOtp}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer active:scale-98"
-                  >
-                    {pasteSuccess ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-700">Pasted!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Clipboard className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Paste Code</span>
-                      </>
-                    )}
-                  </button>
+                    onClick={() => handleSendPhoneOtp()}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      fontSize: 11, fontWeight: 800, color: '#25D366',
+                      fontFamily: 'Inter, sans-serif'
+                    }}
+                  >Resend OTP</button>
+                )}
+              </div>
 
-                  {waDeepLink ? (
-                    <a
-                      href={waDeepLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#075E54] border border-[#25D366]/30 text-xs font-bold transition active:scale-98"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                      <span>Open WhatsApp</span>
-                    </a>
-                  ) : (
-                    <div />
-                  )}
+              {/* Segmented OTP boxes */}
+              <div style={{ position: 'relative', marginBottom: 14 }}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  required
+                  autoFocus
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  style={{
+                    position: 'absolute', inset: 0, width: '100%', height: '100%',
+                    opacity: 0, zIndex: 20, cursor: 'text'
+                  }}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+                  {[0,1,2,3,4,5].map((idx) => {
+                    const digit = otp[idx] || '';
+                    const isCurrent = otp.length === idx || (idx === 5 && otp.length === 6);
+                    return (
+                      <div
+                        key={idx}
+                        className={`cc-otp-box ${digit ? 'filled' : isCurrent ? 'active' : 'empty'}`}
+                      >
+                        {digit ? digit : isCurrent ? <span className="cc-cursor" /> : '·'}
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+
+              {/* Quick action buttons */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+                <button type="button" onClick={handlePasteOtp} className="cc-helper-btn">
+                  {pasteSuccess ? (
+                    <><Check size={13} color="#25D366" /><span style={{ color: '#25D366' }}>Pasted!</span></>
+                  ) : (
+                    <><Clipboard size={13} /><span>Paste Code</span></>
+                  )}
+                </button>
+                {waDeepLink ? (
+                  <a
+                    href={waDeepLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cc-helper-btn cc-wa-open-btn"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <MessageCircle size={13} />
+                    <span>Open WhatsApp</span>
+                  </a>
+                ) : <div />}
               </div>
 
               <button
                 type="submit"
                 disabled={loading || otp.length < 4}
-                className="w-full bg-[#fb7800] hover:bg-[#e06b00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs py-3.5 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                className="cc-verify-btn"
               >
-                {loading ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <span>Verify &amp; Continue</span>
-                )}
+                {loading ? <div className="cc-spinner" /> : <span>Verify &amp; Continue →</span>}
               </button>
             </form>
           )}
         </div>
-      </div>
 
-      {/* Footer / Terms & Privacy Policy */}
-      <div className="pt-4 text-center space-y-2">
-        <p className="text-[11px] text-slate-400 font-medium">
-          By continuing, you agree to our{' '}
-          <button
-            type="button"
-            onClick={() => setPolicyType('terms')}
-            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors cursor-pointer"
-          >
-            Terms
-          </button>{' '}
-          &amp;{' '}
-          <button
-            type="button"
-            onClick={() => setPolicyType('privacy')}
-            className="text-[#00676d] font-bold underline hover:text-slate-800 transition-colors cursor-pointer"
-          >
-            Privacy Policy
-          </button>
-        </p>
-
-        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Secured by CartCraze SSL • Express Hyperlocal Delivery</span>
+        {/* Footer */}
+        <div style={{ textAlign: 'center', marginTop: 24, padding: '0 10px' }}>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '0 0 8px', lineHeight: 1.6 }}>
+            By continuing, you agree to our{' '}
+            <button
+              type="button"
+              onClick={() => setPolicyType('terms')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'rgba(37,211,102,0.7)', fontWeight: 700, fontSize: 11,
+                textDecoration: 'underline', fontFamily: 'Inter, sans-serif'
+              }}
+            >Terms</button>
+            {' '}&amp;{' '}
+            <button
+              type="button"
+              onClick={() => setPolicyType('privacy')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'rgba(37,211,102,0.7)', fontWeight: 700, fontSize: 11,
+                textDecoration: 'underline', fontFamily: 'Inter, sans-serif'
+              }}
+            >Privacy Policy</button>
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <ShieldCheck size={12} color="#25D366" />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
+              Secured by CartCraze SSL • Express Hyperlocal Delivery
+            </span>
+          </div>
         </div>
       </div>
 
