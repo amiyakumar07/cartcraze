@@ -6,6 +6,12 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "build:user": "npm --prefix user run build",
+    "build:rider": "npm --prefix rider run build",
+    "build:shop": "npm --prefix shop run build",
+    "build:admin": "npm --prefix admin run build",
+    "build:all": "npm run build && npm run build:user && npm run build:rider && npm run build:shop && npm run build:admin",
+    "build:apk": "powershell -ExecutionPolicy Bypass -File ./build_apk.ps1",
     "lint": "oxlint",
     "preview": "vite preview"
   },
